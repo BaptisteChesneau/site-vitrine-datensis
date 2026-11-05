@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datensis — La plateforme unifiée des cabinets d'expertise comptable et de leurs clients</title>
+<meta name="description" content="Datensis réunit production comptable, révision, gestion du cabinet, collaboration avec les clients TPE et pilotage sur une seule base de données. De la donnée au conseil, sans rupture de flux.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+</head>
+<body>
+<div class="progress" id="progress" aria-hidden="true"></div>
+
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="logo" href="#" aria-label="Datensis, accueil">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <g fill="#6FD6B6"><rect x="16" y="9" width="6" height="6" rx="1"/><rect x="9" y="19" width="5" height="5" rx="1"/><rect x="18" y="19" width="6" height="6" rx="1"/><rect x="18" y="29" width="5" height="5" rx="1"/></g>
+        <g fill="#FFFFFF"><rect x="25" y="12" width="5" height="5" rx="1"/><rect x="10" y="36" width="5" height="5" rx="1"/><rect x="18" y="45" width="5" height="5" rx="1"/><rect x="26" y="34" width="4" height="4" rx="1"/></g>
+        <g fill="#FF7F6E"><rect x="18" y="37" width="5" height="5" rx="1"/><rect x="24" y="44" width="6" height="6" rx="1"/></g>
+        <path d="M31 11h7c11.6 0 19 8.4 19 21s-7.4 21-19 21h-7v-8h6.6c6.6 0 10.9-5 10.9-13s-4.3-13-10.9-13H31z" fill="#FFFFFF"/>
+      </svg>
+      <span class="word">DATENSIS</span>
+    </a>
+    <nav class="menu" aria-label="Navigation principale">
+      <a href="#plateforme">Plateforme</a>
+      <a href="#applications">Applications</a>
+      <a href="#univers">Cabinet et TPE</a>
+      <a href="#confiance">Sécurité</a>
+      <a href="#offre">Offre de lancement</a>
+      <a href="#faq">Questions</a>
+      <a class="btn btn-mint" href="#contact">Demander une démo</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- HERO -->
+<section class="hero">
+  <div class="pixels" id="pixels" aria-hidden="true"></div>
+  <div class="wrap">
+    <div>
+      <p class="tagline" data-hero style="--d:.05s"><i></i>L'EXPERTISE COMPTABLE AUGMENTÉE</p>
+      <h1>
+        <span class="line"><span style="--i:0">De la donnée au conseil,</span></span>
+        <span class="line mint"><span style="--i:1">sans rupture de flux.</span></span>
+      </h1>
+      <p class="lede" data-hero style="--d:.6s">Datensis est la plateforme unifiée des cabinets d'expertise comptable et de leurs clients TPE. Production, révision, gestion du cabinet, collaboration et pilotage partagent une seule base de données : chaque information est saisie une fois et sert partout.</p>
+      <div class="hero-ctas" data-hero style="--d:.75s">
+        <a class="btn btn-mint" href="#contact">Demander une démonstration</a>
+        <a class="btn btn-line on-dark" href="#applications">Explorer les applications</a>
+      </div>
+      <div class="origin" data-hero style="--d:.9s">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="1" width="18" height="18" rx="4" fill="none" stroke="#6FD6B6" stroke-width="1.6"/><path d="M6 10.3l2.6 2.5L14 7.4" fill="none" stroke="#6FD6B6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <p><strong>Créé pour et par les experts-comptables.</strong> Conçu par une experte-comptable et utilisé chaque jour pour tous les dossiers de son cabinet.</p>
+      </div>
+    </div>
+
+    <div class="feed" role="img" aria-label="Exemple : une facture émise par un client TPE est transmise, comptabilisée, rapprochée de son paiement puis marquée réglée, sans aucune ressaisie">
+      <div class="feed-head">
+        <div><div class="t">Une donnée, tous vos modules</div><div class="s">SARL Atelier Mérindol · facture F-2026-118</div></div>
+        <span class="live"><i></i>En direct</span>
+      </div>
+      <ol class="events" id="events">
+        <li style="--c:#E07A2E;--cs:#FDEFE3;--cd:#B35A17"><span class="dot"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.3l2.5 2.4L10 3.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><span class="mod">Datensis Entrepreneur</span><div class="what">Le client émet sa facture depuis son espace</div></div></li>
+        <li style="--c:#FF7F6E;--cs:#FFEDEA;--cd:#B8432F"><span class="dot"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.3l2.5 2.4L10 3.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><span class="mod">Facturation électronique</span><div class="what">Transmise au format électronique, en émission comme en réception</div></div></li>
+        <li style="--c:#1E8A6A;--cs:#E2F6EF;--cd:#1E8A6A"><span class="dot"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.3l2.5 2.4L10 3.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><span class="mod">Production</span><div class="what">Écriture comptable générée automatiquement au cabinet</div></div></li>
+        <li style="--c:#2C6E8F;--cs:#E3EFF5;--cd:#235A75"><span class="dot"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.3l2.5 2.4L10 3.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><span class="mod">Révision</span><div class="what">Paiement rapproché, TVA calculée</div></div></li>
+        <li style="--c:#0E2433;--cs:#E6EBEE;--cd:#0E2433"><span class="dot"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6.3l2.5 2.4L10 3.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><span class="mod">Retour chez le client</span><div class="what">Facture marquée réglée, trésorerie mise à jour</div></div></li>
+      </ol>
+      <div class="feed-foot" id="feedfoot">
+        <div><b><span data-count="0" data-run="hero">0</span> ressaisie</b><span>entre le client et le cabinet</span></div>
+        <div><b>1 seule base</b><span>pour tous les modules</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ACCES AUX CINQ APPLICATIONS -->
+<section class="applications-section" id="applications">
+  <div class="wrap">
+    <div class="applications-header">
+      <span class="kicker">ÉCOSYSTÈME DATENSIS</span>
+      <h2>Un portail. Cinq applications.</h2>
+      <p>Choisissez votre univers depuis l'accueil DATENSIS.</p>
+    </div>
+    <div class="applications-grid">
+      {% for application in apps %}
+      <a class="application-card application-card--{{ application.slug }}"
+         href="{{ url_for('main.sous_site', slug=application.slug) }}"
+         style="--application-accent: {{ application.color }};"
+         aria-label="Accéder à {{ application.name }}">
+        <span class="application-number">{{ '%02d'|format(loop.index) }}</span>
+        <span class="application-category">{{ application.category }}</span>
+        <h3>{{ application.name }}</h3>
+        <p>{{ application.description }}</p>
+        <span class="application-action">Accéder au sous-site <span aria-hidden="true">→</span></span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- STRIP -->
+<div class="strip">
+  <div class="wrap">
+    <div class="item" data-reveal style="--i:0"><span class="sq" style="background:var(--mint)"></span><div><span class="big">Un seul outil au lieu de cinq</span><p>Production, révision, LCB-FT, gestion du cabinet et tableaux de bord réunis.</p></div></div>
+    <div class="item" data-reveal style="--i:1"><span class="sq" style="background:var(--navy)"></span><div><span class="big">Le cabinet et ses clients connectés</span><p>Un espace dédié aux TPE, relié en temps réel au dossier du cabinet.</p></div></div>
+    <div class="item" data-reveal style="--i:2"><span class="sq" style="background:var(--coral)"></span><div><span class="big">Certifié ISO 27001</span><p>Une plateforme pensée pour la confiance numérique dès sa conception.</p></div></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="block stack">
+  <div class="wrap">
+    <div>
+      <span class="kicker" data-reveal>Le constat</span>
+      <h2 data-reveal style="--i:1">Un cabinet indépendant empile aujourd'hui les logiciels. Et les factures.</h2>
+      <p style="margin-top:18px;--i:2" data-reveal>Un logiciel de production, un outil de révision, un logiciel juridique, un outil de tableaux de bord, des fichiers pour la conformité, des e-mails pour échanger avec les clients. Chaque outil a son abonnement, ses ressaisies et ses pertes d'information.</p>
+      <ul class="facts">
+        <li data-reveal="left" style="--i:2"><strong>Des coûts qui s'additionnent</strong> : plusieurs licences pour couvrir un seul métier.</li>
+        <li data-reveal="left" style="--i:3"><strong>Des équipes qui changent</strong> : les départs en retraite laissent la place à des profils juniors, à former vite.</li>
+        <li data-reveal="left" style="--i:4"><strong>Une réforme qui presse</strong> : la facturation électronique impose de nouveaux flux avec chaque client.</li>
+        <li data-reveal="left" style="--i:5"><strong>Un marché qui se concentre</strong> : les grandes structures s'équipent, les indépendants doivent rester compétitifs.</li>
+      </ul>
+    </div>
+    <div class="merge" id="merge" data-observe aria-label="Animation : cinq outils séparés se regroupent dans la plateforme Datensis" role="img">
+      <span class="lbl before">Aujourd'hui : un outil par besoin</span>
+      <span class="lbl after">Avec Datensis : une seule plateforme</span>
+      <svg class="wires" viewBox="0 0 500 440" preserveAspectRatio="none" aria-hidden="true">
+        <g stroke="#FF7F6E" stroke-width="1.6" stroke-dasharray="5 6" fill="none" opacity=".7">
+          <path d="M120 90 C 250 100, 250 140, 370 150"/><path d="M370 150 C 300 210, 200 200, 120 240"/><path d="M120 240 C 250 260, 260 300, 370 320"/><path d="M120 90 C 60 180, 60 300, 160 390"/><path d="M370 320 C 330 360, 260 380, 160 390"/>
+        </g>
+      </svg>
+      <div class="core"><div class="core-title">DATENSIS</div><div class="core-foot">Une seule base de données</div></div>
+      <div class="tool" style="--i:0;left:6%;top:62px">Production comptable<small>Ressaisie des pièces</small></div>
+      <div class="tool" style="--i:1;left:56%;top:122px">Révision et TVA<small>Import et export</small></div>
+      <div class="tool" style="--i:2;left:8%;top:214px">LCB-FT et KYC<small>Fichiers dispersés</small></div>
+      <div class="tool" style="--i:3;left:58%;top:292px">Missions et temps<small>Tableur à part</small></div>
+      <div class="tool" style="--i:4;left:20%;top:364px">Échanges clients<small>Pièces par e-mail</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- TWO UNIVERSES -->
+<section class="block" id="univers" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head center">
+      <span class="kicker" data-reveal>Le concept</span>
+      <h2 data-reveal style="--i:1">Une plateforme. Deux univers. Une intelligence partagée.</h2>
+      <p data-reveal style="--i:2">Le cabinet et ses clients TPE travaillent dans le même environnement. Ce que l'un saisit, l'autre le retrouve immédiatement, sans export ni ressaisie.</p>
+    </div>
+    <div class="duo">
+      <div class="uni expert" data-reveal="left">
+        <div class="for">POUR LE CABINET</div>
+        <h3>DATENSIS EXPERT</h3>
+        <p class="sub">Tout le métier de l'expert-comptable, de la production au pilotage.</p>
+        <ul><li>Production comptable et révision intégrées</li><li>Missions, workflows et suivi des temps</li><li>Onboarding, KYC et contrôles LCB-FT</li><li>Pilotage de la rentabilité par dossier</li></ul>
+      </div>
+      <div class="bridge" aria-hidden="true">
+        <svg viewBox="0 0 120 200" preserveAspectRatio="none">
+          <line x1="0" y1="100" x2="120" y2="100" stroke="#6FD6B6" stroke-width="2" stroke-dasharray="4 6"/>
+          <rect class="pulse" x="0" y="96" width="8" height="8" rx="1.5" fill="#6FD6B6" style="--dx:112px"/>
+          <rect class="pulse" x="112" y="96" width="8" height="8" rx="1.5" fill="#FF7F6E" style="--dx:-112px;animation-delay:1.2s"/>
+        </svg>
+        <span class="core-chip">Une seule donnée partagée</span>
+      </div>
+      <div class="uni entre" data-reveal="right">
+        <div class="for">POUR LA TPE</div>
+        <h3>DATENSIS ENTREPRENEUR</h3>
+        <p class="sub">La gestion quotidienne de l'entreprise, connectée à son cabinet.</p>
+        <ul><li>Devis, facturation et gestion quotidienne</li><li>Dépôt et suivi des pièces</li><li>Trésorerie, indicateurs et visibilité</li><li>Échanges directs avec son cabinet</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUR LEVERS -->
+<section class="block" id="plateforme" style="background:#fff;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal>La plateforme</span>
+      <h2 data-reveal style="--i:1">Une plateforme, quatre leviers. Tout l'essentiel dans un seul environnement.</h2>
+      <p data-reveal style="--i:2">Une architecture pensée pour assurer la continuité des flux, faciliter le quotidien des équipes et transformer la donnée comptable en information utile à la décision.</p>
+    </div>
+    <div class="levers">
+      <div class="lever" data-reveal data-observe style="--i:0;--c:var(--mint-deep)">
+        <div class="ico" style="background:var(--mint-soft)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E8A6A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></div>
+        <h3>PRODUIRE</h3>
+        <ul><li>Collecte des pièces</li><li>Lecture assistée par IA</li><li>Écritures et TVA</li><li>Révision par cycles</li><li>Comptes annuels et fiscalité</li></ul>
+        <span class="bar"></span>
+      </div>
+      <div class="lever" data-reveal data-observe style="--i:1;--c:var(--navy)">
+        <div class="ico" style="background:#E6EBEE"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0E2433" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M7 13h4M7 17h7"/></svg></div>
+        <h3>ORGANISER</h3>
+        <ul><li>CRM métier et dossiers</li><li>Missions et lettres de mission</li><li>Planification</li><li>Temps passés</li><li>Rentabilité du cabinet</li></ul>
+        <span class="bar"></span>
+      </div>
+      <div class="lever" data-reveal data-observe style="--i:2;--c:var(--coral)">
+        <div class="ico" style="background:var(--coral-soft)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D2553F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="15" r="3"/><path d="M10.5 9.5l4 3.5M3 20c0-2.8 2.2-5 5-5M21 4h-6"/></svg></div>
+        <h3>COLLABORER</h3>
+        <ul><li>Espace client</li><li>Documents partagés</li><li>Parcours de validation</li><li>Échanges contextualisés</li><li>Tableaux de bord TPE</li></ul>
+        <span class="bar"></span>
+      </div>
+      <div class="lever" data-reveal data-observe style="--i:3;--c:var(--mint)">
+        <div class="ico" style="background:var(--mint-soft)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E8A6A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></div>
+        <h3>SÉCURISER</h3>
+        <ul><li>Onboarding et KYC</li><li>Contrôles LCB-FT</li><li>Traçabilité</li><li>Gestion des accès</li><li>RGPD dès la conception</li></ul>
+        <span class="bar"></span>
+      </div>
+    </div>
+    <div class="gains">
+      <div class="gain" data-reveal style="--i:0"><b>Moins de <span>ressaisies</span></b><p>Une donnée partagée entre tous les parcours, du client au cabinet.</p></div>
+      <div class="gain" data-reveal style="--i:1"><b>Plus de <span>maîtrise</span></b><p>Des contrôles et une traçabilité renforcés, prêts pour le contrôle qualité.</p></div>
+      <div class="gain" data-reveal style="--i:2"><b>Plus de <span>visibilité</span></b><p>Un suivi des missions, de la charge des équipes et de la rentabilité.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CYCLE -->
+<section class="block dark cycle">
+  <div class="wrap">
+    <div>
+      <span class="kicker" data-reveal>Le cycle continu</span>
+      <h2 data-reveal style="--i:1">La même information alimente les traitements, les contrôles et le conseil.</h2>
+      <p style="margin-top:18px;--i:2" data-reveal>Tous les modules reposent sur une base commune. Ils communiquent sans délai, sans import ni export, et sans perte d'information.</p>
+      <ul class="steps">
+        <li data-reveal="left" style="--i:2"><i></i><span><strong>Collecter</strong> : les pièces arrivent de l'espace client ou de la facturation électronique.</span></li>
+        <li data-reveal="left" style="--i:3"><i style="background:#fff"></i><span><strong>Produire</strong> : l'IA lit les pièces, les écritures et la TVA se préparent.</span></li>
+        <li data-reveal="left" style="--i:4"><i style="background:var(--coral)"></i><span><strong>Contrôler</strong> : révision par cycles, contrôles LCB-FT, traçabilité.</span></li>
+        <li data-reveal="left" style="--i:5"><i style="background:var(--navy-3);outline:1px solid var(--mint)"></i><span><strong>Piloter et conseiller</strong> : indicateurs pour le client, rentabilité pour le cabinet.</span></li>
+      </ul>
+      <div class="example" data-reveal="zoom"><strong>Un exemple concret.</strong> Le collaborateur rapproche une facture de vente et son paiement dans le module de révision : la facture est automatiquement marquée réglée dans l'espace de facturation du client.</div>
+    </div>
+    <div class="ring" id="ring" data-observe>
+      <svg viewBox="0 0 500 500" role="img" aria-label="Cycle continu Datensis : collecter, produire, contrôler, piloter, conseiller, autour d'une donnée unique">
+        <circle cx="250" cy="250" r="180" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+        <circle class="arc" cx="250" cy="250" r="180" fill="none" stroke="#6FD6B6" stroke-width="2.5" transform="rotate(-90 250 250)"/>
+        <g id="orbit"><rect x="-6" y="-186" width="12" height="12" rx="2" fill="#FF7F6E"/></g>
+        <circle cx="250" cy="250" r="92" fill="#163449"/>
+        <g transform="translate(222 200)"><rect x="0" y="6" width="7" height="7" rx="1.2" fill="#6FD6B6"/><rect x="10" y="0" width="7" height="7" rx="1.2" fill="#6FD6B6"/><rect x="10" y="12" width="7" height="7" rx="1.2" fill="#FF7F6E"/><path d="M20 0h7c8 0 13 6 13 15s-5 15-13 15h-7v-6h6.4c4.4 0 7.4-3.6 7.4-9s-3-9-7.4-9H20z" fill="#fff"/></g>
+        <text x="250" y="262" text-anchor="middle" font-family="Montserrat, sans-serif" font-size="15" font-weight="600" fill="#fff">Une seule donnée</text>
+        <text x="250" y="284" text-anchor="middle" font-family="Inter, sans-serif" font-size="12.5" fill="#B9CAD4">saisie une fois, utilisée partout</text>
+        <g font-family="Montserrat, sans-serif" font-size="14" font-weight="600">
+          <g class="n" style="--i:0"><rect x="190" y="50" width="120" height="40" rx="10" fill="#0E2433" stroke="#6FD6B6" stroke-width="1.5"/><text x="250" y="75" text-anchor="middle" fill="#fff">Collecter</text></g>
+          <g class="n" style="--i:1"><rect x="363" y="166" width="120" height="40" rx="10" fill="#0E2433" stroke="#6FD6B6" stroke-width="1.5"/><text x="423" y="191" text-anchor="middle" fill="#fff">Produire</text></g>
+          <g class="n" style="--i:2"><rect x="318" y="372" width="120" height="40" rx="10" fill="#0E2433" stroke="#FF7F6E" stroke-width="1.5"/><text x="378" y="397" text-anchor="middle" fill="#fff">Contrôler</text></g>
+          <g class="n" style="--i:3"><rect x="62" y="372" width="120" height="40" rx="10" fill="#0E2433" stroke="#6FD6B6" stroke-width="1.5"/><text x="122" y="397" text-anchor="middle" fill="#fff">Piloter</text></g>
+          <g class="n" style="--i:4"><rect x="17" y="166" width="120" height="40" rx="10" fill="#6FD6B6"/><text x="77" y="191" text-anchor="middle" fill="#0E2433">Conseiller</text></g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- GUIDED -->
+<section class="block guided">
+  <div class="wrap">
+    <div>
+      <span class="kicker" data-reveal>Parcours guidés</span>
+      <h2 data-reveal style="--i:1">Vos juniors réalisent une TVA ou un bilan de A à Z, guidés pas à pas.</h2>
+      <p style="margin-top:18px;--i:2" data-reveal>Les départs en retraite transforment les équipes. Datensis organise le travail en parcours : parcours TVA, parcours révision, parcours bilan. Chaque étape est expliquée, contrôlée et chronométrée.</p>
+      <ul class="pts">
+        <li data-reveal="left" style="--i:2"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true" style="flex:none;margin-top:4px"><path d="M4 10.3l3.6 3.5L16 5.6" fill="none" stroke="#1E8A6A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Des équipes autonomes plus vite</strong> : le parcours montre quoi faire, dans quel ordre.</span></li>
+        <li data-reveal="left" style="--i:3"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true" style="flex:none;margin-top:4px"><path d="M4 10.3l3.6 3.5L16 5.6" fill="none" stroke="#1E8A6A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Un temps mesuré automatiquement</strong> : un minuteur démarre avec le parcours et chronomètre chaque phase.</span></li>
+        <li data-reveal="left" style="--i:4"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true" style="flex:none;margin-top:4px"><path d="M4 10.3l3.6 3.5L16 5.6" fill="none" stroke="#1E8A6A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Une rentabilité enfin calculée</strong> : charge de chaque équipe et rentabilité par dossier, sans saisie de temps manuelle.</span></li>
+      </ul>
+    </div>
+    <div class="app" data-reveal="right" data-observe id="app">
+      <div class="app-head">
+        <div><div class="t">Parcours TVA · Mars 2026</div><div class="s">SARL Atelier Mérindol · régime réel normal</div></div>
+        <div class="timer" aria-label="Minuteur du parcours"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6FD6B6" stroke-width="2.2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg><span id="clock">00:00</span></div>
+      </div>
+      <ol class="phases" id="phases">
+        <li><span class="st"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M2 6.3l2.5 2.4L10 3.2" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></span><div><div class="nm">Contrôle des pièces de la période</div><div class="hint">Toutes les factures sont-elles présentes ?</div></div><span class="tm">--:--</span></li>
+        <li><span class="st"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M2 6.3l2.5 2.4L10 3.2" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></span><div><div class="nm">Rapprochements bancaires</div><div class="hint">Paiements reliés aux factures</div></div><span class="tm">--:--</span></li>
+        <li><span class="st"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M2 6.3l2.5 2.4L10 3.2" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></span><div><div class="nm">Calcul de la TVA</div><div class="hint">Collectée, déductible, crédit éventuel</div></div><span class="tm">--:--</span></li>
+        <li><span class="st"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M2 6.3l2.5 2.4L10 3.2" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></span><div><div class="nm">Écriture et déclaration</div><div class="hint">Écriture passée, formulaire prérempli</div></div><span class="tm">--:--</span></li>
+      </ol>
+      <div class="app-foot"><span>Temps du parcours <b id="total">00:00</b></span><span>Imputé au dossier et au collaborateur</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="block dark trust" id="confiance">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal>Confiance numérique</span>
+      <h2 data-reveal style="--i:1">Les données de vos clients méritent le plus haut niveau d'exigence.</h2>
+      <p data-reveal style="--i:2">Data, intelligence, confiance numérique : la sécurité fait partie de la plateforme depuis sa conception.</p>
+    </div>
+    <div class="grid">
+      <div class="badge key" data-reveal style="--i:0"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0E2433" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.5L7 22l5-3 5 3-1.5-8.5"/></svg></div><h3>Certification ISO 27001</h3><p>Le standard international de la sécurité de l'information, déjà obtenu.</p></div>
+      <div class="badge" data-reveal style="--i:1"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6FD6B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h4"/></svg></div><h3>Facturation électronique</h3><p>Émission et réception pour tous vos clients, avec notre partenaire plateforme B2Brouter.</p></div>
+      <div class="badge" data-reveal style="--i:2"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6FD6B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10V6z"/></svg></div><h3>LCB-FT intégrée</h3><p>Onboarding, KYC et contrôles anti-blanchiment directement dans le dossier client.</p></div>
+      <div class="badge" data-reveal style="--i:3"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6FD6B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div><h3>Accès et traçabilité</h3><p>Chaque action est tracée, chaque utilisateur n'accède qu'à ce qui le concerne.</p></div>
+      <div class="badge" data-reveal style="--i:4"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6FD6B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg></div><h3>RGPD dès la conception</h3><p>Les exigences de protection des données sont prises en compte dans chaque module.</p></div>
+      <div class="badge" data-reveal style="--i:5"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6FD6B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></div><h3>Ordinateur et mobile</h3><p>Une application installable sur ordinateur et téléphone, pour le cabinet comme pour ses clients.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="block">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal>Périmètre fonctionnel</span>
+      <h2 data-reveal style="--i:1">Ce que vous achetez aujourd'hui, et ce qui arrive ensuite.</h2>
+      <p data-reveal style="--i:2">Datensis évolue avec ses utilisateurs. Nous vous présentons clairement les modules disponibles et ceux en préparation.</p>
+    </div>
+    <div class="road">
+      <div class="col" data-reveal style="--i:0"><span class="state" style="--c:var(--mint-deep);color:var(--mint-deep)"><i></i>Disponible</span>
+        <ul><li>Collecte des pièces et production comptable</li><li>Révision et TVA<small>Calcul, écriture et formulaire de déclaration prérempli</small></li><li>Facturation électronique, émission et réception</li><li>Missions, temps passés et rentabilité</li><li>Onboarding, KYC et contrôles LCB-FT</li><li>Espace client et application mobile</li></ul></div>
+      <div class="col" data-reveal style="--i:1"><span class="state" style="--c:var(--coral);color:var(--coral-deep)"><i></i>En cours</span>
+        <ul><li>Cycle bilan et comptes annuels</li><li>Parcours guidés TVA, révision et bilan</li><li>Télédéclaration EDI</li></ul></div>
+      <div class="col" data-reveal style="--i:2"><span class="state" style="--c:var(--navy);color:var(--navy)"><i></i>À venir</span>
+        <ul><li>Module juridique</li><li>Module ressources humaines</li></ul></div>
+    </div>
+    <p class="road-note" data-reveal>La disponibilité de chaque module est confirmée lors de la démonstration.</p>
+  </div>
+</section>
+
+<!-- STORY -->
+<section class="block story">
+  <div class="wrap">
+    <div>
+      <span class="kicker" data-reveal>Notre origine</span>
+      <p class="big" data-reveal style="--i:1">Datensis est né dans un cabinet d'expertise comptable. Chaque module a d'abord servi aux dossiers de ce cabinet avant d'être proposé aux confrères.</p>
+    </div>
+    <div class="body">
+      <p data-reveal style="--i:1">Experte-comptable et contrôleuse qualité, la fondatrice de Datensis connaît les contraintes des cabinets de toutes tailles. Faute de trouver un outil qui réunisse tout le métier sans empiler les licences, elle l'a conçu avec son équipe de développement.</p>
+      <p data-reveal style="--i:2">Aujourd'hui, tous les clients de son cabinet passent par Datensis. C'est cette exigence de terrain que la plateforme apporte aux cabinets indépendants et à leurs clients.</p>
+      <ul class="creds">
+        <li data-reveal style="--i:3"><i></i>Créé pour et par les experts-comptables</li>
+        <li data-reveal style="--i:4"><i></i>Utilisé en production sur tous les dossiers du cabinet fondateur</li>
+        <li data-reveal style="--i:5"><i></i>Une équipe de développement dédiée</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- OFFER -->
+<section class="block" id="offre">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker" data-reveal>Offre de lancement</span>
+      <h2 data-reveal style="--i:1">Rejoignez les 100 premiers cabinets abonnés.</h2>
+      <p data-reveal style="--i:2">Les premiers abonnés bénéficient de conditions réservées et participent à l'évolution de la plateforme grâce à leurs retours.</p>
+    </div>
+    <div class="offer-wrap">
+      <div class="launch" data-reveal="left" data-observe>
+        <span class="tag">Places limitées</span>
+        <h3>Offre fondateurs</h3>
+        <p>Un tarif de lancement nettement inférieur au tarif standard, limité dans le temps et réservé aux 100 premiers abonnés.</p>
+        <ul>
+          <li>Tarif de lancement réservé<span>Le 101e abonné accède au tarif standard.</span></li>
+          <li>10 % de remise en paiement annuel<span>Par rapport au paiement mensuel.</span></li>
+          <li>Tarif préférentiel avec un engagement de 3 ans</li>
+          <li>Reprise de vos dossiers offerte<span>Import de votre fichier clients, dates de clôture et paramétrage des dossiers, réalisé par notre équipe.</span></li>
+        </ul>
+        <div class="seats" aria-hidden="true" id="seats"></div>
+        <p class="seats-l">100 places au tarif fondateurs</p>
+      </div>
+      <div class="model" data-reveal="right">
+        <h3>Un abonnement simple</h3>
+        <p style="margin-bottom:18px;color:var(--muted)">Sans installation, sans multiplier les licences.</p>
+        <div class="line"><i style="background:var(--navy)"></i><div><strong>Une licence pour le cabinet</strong><span>L'accès à Datensis Expert pour toute votre équipe.</span></div></div>
+        <div class="line"><i style="background:var(--mint)"></i><div><strong>Un abonnement par client accompagné</strong><span>Datensis Entrepreneur pour chacun de vos clients TPE.</span></div></div>
+        <div class="line"><i style="background:var(--coral)"></i><div><strong>Un accompagnement au démarrage</strong><span>Prise en main et reprise de vos dossiers existants.</span></div></div>
+        <a class="btn btn-navy" href="#contact">Recevoir la grille tarifaire</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="block faq" id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div>
+      <span class="kicker" data-reveal>Questions fréquentes</span>
+      <h2 data-reveal style="--i:1">Vos questions, avant la démo.</h2>
+      <p style="margin-top:18px" data-reveal>Une autre question ? Écrivez-nous, un membre de l'équipe vous répond directement.</p>
+    </div>
+    <div>
+      <details open data-reveal style="--i:0"><summary>Datensis remplace-t-il mes logiciels actuels ?</summary><p>Oui, c'est son objectif : réunir dans une seule plateforme la production comptable, la révision, la gestion du cabinet, la conformité et l'espace client. Vous réduisez le nombre de licences et supprimez les ressaisies entre outils.</p></details>
+      <details data-reveal style="--i:1"><summary>Comment se passe la reprise de mes dossiers ?</summary><p>Vous nous transmettez votre fichier clients (coordonnées, dates de clôture, missions). Notre équipe l'importe en une fois et paramètre vos dossiers. Pour les 100 premiers abonnés, cette reprise est offerte.</p></details>
+      <details data-reveal style="--i:2"><summary>Mes clients TPE doivent-ils utiliser Datensis ?</summary><p>Ils disposent de Datensis Entrepreneur pour facturer, déposer leurs pièces, suivre leur trésorerie et échanger avec vous. Tout ce qu'ils saisissent arrive directement dans leur dossier au cabinet.</p></details>
+      <details data-reveal style="--i:3"><summary>Datensis est-il prêt pour la facturation électronique ?</summary><p>Oui. L'émission et la réception des factures électroniques sont assurées pour tous vos clients, grâce à notre partenaire plateforme B2Brouter.</p></details>
+      <details data-reveal style="--i:4"><summary>Mes données sont-elles en sécurité ?</summary><p>Datensis est certifié ISO 27001. Les accès sont gérés par utilisateur, chaque action est tracée et les exigences du RGPD sont prises en compte dans chaque module.</p></details>
+      <details data-reveal style="--i:5"><summary>Comment se déroule la démonstration ?</summary><p>Nous vous présentons la plateforme à travers vos propres parcours : un dossier client, une TVA, un suivi de rentabilité. Vous voyez concrètement ce que Datensis changerait dans votre cabinet.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="block dark contact" id="contact">
+  <div class="pixels" id="pixels2" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="intro">
+      <span class="kicker" data-reveal>Contact</span>
+      <h2 data-reveal style="--i:1">Faites l'expérience d'un ERP métier unifié.</h2>
+      <p data-reveal style="--i:2">Découvrez Datensis à travers vos propres parcours. Demandez une présentation de la plateforme et de son périmètre fonctionnel.</p>
+      <ul class="promise">
+        <li data-reveal style="--i:3">Une démonstration sur vos cas réels<span>Dossier client, TVA, rentabilité : vous voyez ce qui change pour vous.</span></li>
+        <li data-reveal style="--i:4">Des interlocuteurs du métier<span>Une équipe issue d'un cabinet d'expertise comptable.</span></li>
+        <li data-reveal style="--i:5">Une place parmi les 100 premiers abonnés<span>Les conditions fondateurs sont réservées dans l'ordre des demandes.</span></li>
+      </ul>
+    </div>
+    <!-- Brancher l'attribut action sur le CRM du site vitrine -->
+    <form id="contact-form" action="{{ url_for('main.contact') }}" method="post" data-reveal="right" style="--i:2">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="field"><label for="f-name">Nom et prénom</label><input id="f-name" name="nom" autocomplete="name" required></div>
+      <div class="field"><label for="f-firm">Structure</label><input id="f-firm" name="structure" autocomplete="organization" required></div>
+      <div class="field"><label for="f-mail">Adresse e-mail</label><input id="f-mail" name="email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="f-tel">Téléphone <span class="opt">(facultatif)</span></label><input id="f-tel" name="telephone" type="tel" autocomplete="tel"></div>
+      <div class="field"><label for="f-type">Vous êtes</label>
+        <select id="f-type" name="type" required><option value="">Sélectionnez</option><option>Expert-comptable indépendant</option><option>Cabinet de 2 à 10 collaborateurs</option><option>Cabinet de plus de 10 collaborateurs</option><option>Dirigeant de TPE</option></select></div>
+      <div class="field"><label for="f-subject">Votre demande</label>
+        <select id="f-subject" name="objet" required><option value="">Sélectionnez</option><option>Démonstration</option><option>Offre fondateurs</option><option>Reprise de mes dossiers</option><option>Grille tarifaire</option><option>Autre question</option></select></div>
+      <div class="field full"><label for="f-msg">Message <span class="opt">(facultatif)</span></label><textarea id="f-msg" name="message" placeholder="Vos logiciels actuels, votre nombre de dossiers, vos disponibilités…"></textarea></div>
+      <label class="field full consent"><input type="checkbox" name="consentement" required><span>J'accepte que ces informations soient utilisées pour répondre à ma demande. Voir la <a href="{{ url_for('main.confidentialite') }}">politique de confidentialité</a>.</span></label>
+      <button class="btn btn-mint" type="submit">Demander ma démonstration</button>
+      <p class="form-ok" id="form-ok" role="status"></p>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="logo" href="#" aria-label="Datensis, haut de page">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <g fill="#6FD6B6"><rect x="16" y="9" width="6" height="6" rx="1"/><rect x="9" y="19" width="5" height="5" rx="1"/><rect x="18" y="19" width="6" height="6" rx="1"/><rect x="18" y="29" width="5" height="5" rx="1"/></g>
+          <g fill="#FFFFFF"><rect x="25" y="12" width="5" height="5" rx="1"/><rect x="10" y="36" width="5" height="5" rx="1"/><rect x="18" y="45" width="5" height="5" rx="1"/><rect x="26" y="34" width="4" height="4" rx="1"/></g>
+          <g fill="#FF7F6E"><rect x="18" y="37" width="5" height="5" rx="1"/><rect x="24" y="44" width="6" height="6" rx="1"/></g>
+          <path d="M31 11h7c11.6 0 19 8.4 19 21s-7.4 21-19 21h-7v-8h6.6c6.6 0 10.9-5 10.9-13s-4.3-13-10.9-13H31z" fill="#FFFFFF"/>
+        </svg>
+        <span class="word">DATENSIS</span>
+      </a>
+      <div class="tag">DATA · INTELLIGENCE · CONFIANCE NUMÉRIQUE</div>
+    </div>
+    <nav aria-label="Informations légales">
+      <a href="{{ url_for('main.mentions_legales') }}">Mentions légales</a>
+      <a href="{{ url_for('main.confidentialite') }}">Confidentialité</a>
+      <a href="{{ url_for('main.cookies') }}">Cookies</a>
+    </nav>
+    <span>© 2026 Datensis. Tous droits réservés.</span>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/landing.js') }}" defer></script>
+</body>
+</html>
