@@ -1,1 +1,467 @@
-{% extends 'base.html' %}{% block title %}Portail client | DATENSIS Expert{% endblock %}{% block content %}<main class="auth-shell"><div class="auth-intro"><div class="brand">✦ DATENSIS <span>EXPERT</span></div><div class="eyebrow">PORTAIL SÉCURISÉ</div><h1>Votre comptabilité.<br><em>Un espace clair.</em></h1><p>Retrouvez vos documents, échangez avec votre cabinet et suivez vos demandes depuis un portail unique.</p><div class="auth-points"><span>◈ Documents centralisés</span><span>◈ Échanges avec le cabinet</span><span>◈ Suivi simplifié</span></div></div><section class="auth-card"><div class="pill">ESPACE CLIENT</div><h2>Bienvenue</h2><p>Connectez-vous à votre espace personnel.</p><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Adresse e-mail<input type="email" name="email" required autocomplete="email" placeholder="vous@entreprise.fr"></label><label>Mot de passe<input type="password" name="password" required autocomplete="current-password" placeholder="Votre mot de passe"></label><button class="primary" type="submit">Accéder à mon espace →</button></form><p class="auth-foot"><a href="{{ url_for('forgot_password') }}">Mot de passe oublié ?</a></p><p class="auth-foot">Première visite ? <a href="{{ url_for('register') }}">Créer un compte client</a></p><small>L'accès cabinet est réservé à l'équipe DATENSIS.</small></section></main>{% endblock %}
+
+{% extends "base.html" %}
+
+{% block title %}
+Portail client | DATENSIS Expert
+{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ==========================================
+       DATENSIS EXPERT - PORTAIL CLIENT
+       ========================================== */
+
+    :root {
+        --datensis-blue: #00778b;
+        --datensis-orange: #e96148;
+        --datensis-green: #82c4a8;
+        --datensis-white: #ffffff;
+        --datensis-text: #17394a;
+        --datensis-muted: #647987;
+        --datensis-border: #dce8eb;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #f3f8f8;
+        color: var(--datensis-text);
+    }
+
+    .auth-shell {
+        display: grid;
+        grid-template-columns: minmax(320px, 1fr) minmax(400px, 1fr);
+        min-height: 100vh;
+        width: 100%;
+    }
+
+    /* COLONNE GAUCHE */
+
+    .auth-intro {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 24px;
+        padding: clamp(40px, 7vw, 110px);
+        background:
+            radial-gradient(
+                circle at 15% 20%,
+                rgba(130, 196, 168, 0.25),
+                transparent 45%
+            ),
+            linear-gradient(
+                145deg,
+                #00566a 0%,
+                #00778b 55%,
+                #003e53 100%
+            );
+        color: #ffffff;
+    }
+
+    .auth-intro .brand {
+        margin-bottom: 65px;
+        font-size: 25px;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+        color: #ffffff;
+    }
+
+    .auth-intro .brand span {
+        color: #b9efd8;
+    }
+
+    .auth-intro .eyebrow {
+        width: fit-content;
+        padding: 10px 17px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 30px;
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 2px;
+    }
+
+    .auth-intro h1 {
+        margin: 0;
+        font-size: clamp(36px, 4vw, 62px);
+        line-height: 1.15;
+        font-weight: 800;
+        letter-spacing: -1.5px;
+        color: #ffffff;
+    }
+
+    .auth-intro h1 em {
+        color: #b9efd8;
+        font-style: normal;
+    }
+
+    .auth-intro > p {
+        max-width: 520px;
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.9;
+        color: #e0f1f1;
+    }
+
+    .auth-points {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 18px;
+    }
+
+    .auth-points span {
+        display: block;
+        max-width: 450px;
+        padding: 16px 20px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.09);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    /* COLONNE DROITE */
+
+    .auth-shell .auth-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        margin: 0;
+        padding: clamp(35px, 7vw, 110px);
+        border: 0;
+        border-radius: 0;
+        background: #ffffff;
+        box-shadow: none;
+        color: var(--datensis-text);
+    }
+
+    .auth-card .pill {
+        align-self: flex-start;
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 17px;
+        border-radius: 30px;
+        background: #e4f3ee;
+        color: #006b64;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+    }
+
+    .auth-card h2 {
+        margin: 25px 0 12px;
+        color: var(--datensis-text);
+        font-size: clamp(32px, 3.5vw, 46px);
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    .auth-card > p:not(.auth-foot) {
+        margin: 0 0 35px;
+        color: var(--datensis-muted);
+        font-size: 15px;
+        line-height: 1.8;
+    }
+
+    /* FORMULAIRE */
+
+    .auth-card form {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+    }
+
+    .auth-card form label {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        color: var(--datensis-text);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .auth-card form input:not([type="hidden"]) {
+        width: 100%;
+        min-width: 0;
+        height: 54px;
+        padding: 14px 17px;
+        border: 1px solid #cfdee2;
+        border-radius: 11px;
+        outline: none;
+        background: #ffffff;
+        color: var(--datensis-text);
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 400;
+        transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .auth-card form input::placeholder {
+        color: #899ba4;
+    }
+
+    .auth-card form input:focus {
+        border-color: var(--datensis-blue);
+        box-shadow: 0 0 0 4px rgba(0, 119, 139, 0.12);
+    }
+
+    /* BOUTON CONNEXION */
+
+    .auth-card form .primary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 56px;
+        margin-top: 10px;
+        padding: 16px 24px;
+        border: none;
+        border-radius: 12px;
+        background: var(--datensis-orange);
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+            background 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    .auth-card form .primary:hover {
+        background: #d94e36;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(233, 97, 72, 0.22);
+    }
+
+    .auth-card form .primary:focus-visible {
+        outline: 3px solid var(--datensis-blue);
+        outline-offset: 3px;
+    }
+
+    /* LIENS */
+
+    .auth-card .auth-foot {
+        margin: 20px 0 0;
+        color: var(--datensis-muted);
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .auth-card .auth-foot a {
+        color: var(--datensis-blue);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .auth-card .auth-foot a:hover {
+        color: #00566a;
+        text-decoration: underline;
+    }
+
+    .auth-card > small {
+        display: block;
+        margin-top: 35px;
+        padding-top: 20px;
+        border-top: 1px solid var(--datensis-border);
+        color: var(--datensis-muted);
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    /* TABLETTES */
+
+    @media (max-width: 1000px) {
+        .auth-shell {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .auth-intro,
+        .auth-shell .auth-card {
+            padding: 45px 35px;
+        }
+
+        .auth-intro .brand {
+            margin-bottom: 35px;
+        }
+
+        .auth-intro h1 {
+            font-size: 38px;
+        }
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 760px) {
+        .auth-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .auth-intro {
+            gap: 20px;
+            padding: 40px 25px;
+        }
+
+        .auth-intro .brand {
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .auth-intro h1 {
+            font-size: 36px;
+        }
+
+        .auth-intro > p {
+            font-size: 14px;
+        }
+
+        .auth-points {
+            display: none;
+        }
+
+        .auth-shell .auth-card {
+            padding: 45px 25px;
+        }
+
+        .auth-card h2 {
+            font-size: 32px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .auth-card form .primary,
+        .auth-card form input {
+            transition: none;
+        }
+    }
+</style>
+
+<main class="auth-shell">
+
+    <!-- PRÉSENTATION DATENSIS -->
+
+    <div class="auth-intro">
+
+        <div class="brand">
+            ✦ DATENSIS <span>EXPERT</span>
+        </div>
+
+        <div class="eyebrow">
+            PORTAIL SÉCURISÉ
+        </div>
+
+        <h1>
+            Votre comptabilité.<br>
+            <em>Un espace clair.</em>
+        </h1>
+
+        <p>
+            Retrouvez vos documents, échangez avec votre cabinet
+            et suivez vos demandes depuis un portail unique.
+        </p>
+
+        <div class="auth-points">
+            <span>◈ Documents centralisés</span>
+            <span>◈ Échanges avec le cabinet</span>
+            <span>◈ Suivi simplifié</span>
+        </div>
+
+    </div>
+
+    <!-- CONNEXION CLIENT -->
+
+    <section class="auth-card">
+
+        <div class="pill">
+            ESPACE CLIENT
+        </div>
+
+        <h2>Bienvenue</h2>
+
+        <p>
+            Connectez-vous à votre espace personnel.
+        </p>
+
+        <form
+            method="post"
+            action="{{ url_for('portal') }}"
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <label for="login-email">
+                Adresse e-mail
+
+                <input
+                    id="login-email"
+                    type="email"
+                    name="email"
+                    maxlength="254"
+                    required
+                    autocomplete="email"
+                    placeholder="vous@entreprise.fr"
+                >
+            </label>
+
+            <label for="login-password">
+                Mot de passe
+
+                <input
+                    id="login-password"
+                    type="password"
+                    name="password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="Votre mot de passe"
+                >
+            </label>
+
+            <button
+                class="primary"
+                type="submit"
+            >
+                Accéder à mon espace →
+            </button>
+
+        </form>
+
+        <p class="auth-foot">
+            <a href="{{ url_for('forgot_password') }}">
+                Mot de passe oublié ?
+            </a>
+        </p>
+
+        <p class="auth-foot">
+            Première visite ?
+            <a href="{{ url_for('register') }}">
+                Créer un compte client
+            </a>
+        </p>
+
+        <small>
+            L'accès cabinet est réservé à l'équipe DATENSIS.
+        </small>
+
+    </section>
+
+</main>
+
+{% endblock %}
