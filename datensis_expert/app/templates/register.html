@@ -1,1 +1,30 @@
-{% extends 'base.html' %}{% block content %}<main class="auth-shell"><div class="auth-intro"><div class="brand">✦ DATENSIS <span>EXPERT</span></div><h1>Votre espace client,<br><em>à portée de main.</em></h1><p>Créez votre compte pour accéder à votre tableau de bord.</p></div><section class="auth-card"><div class="pill">INSCRIPTION CLIENT</div><h2>Créer un compte</h2><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Nom complet<input name="name" maxlength="100" required autocomplete="name"></label><label>Adresse e-mail<input name="email" type="email" required autocomplete="email"></label><label>Mot de passe (12 caractères minimum)<input name="password" type="password" minlength="12" required autocomplete="new-password"></label><button class="primary">Créer mon compte →</button></form><p class="auth-foot"><a href="{{ url_for('portal') }}">← Retour à la connexion</a></p></section></main>{% endblock %}
+{% extends 'base.html' %}
+{% block content %}
+<main class="auth-shell"><div class="auth-intro"><div class="brand">✦ DATENSIS <span>EXPERT</span></div><h1>Votre espace client,<br><em>à portée de main.</em></h1><p>Renseignez les informations de votre entreprise pour créer votre espace sécurisé.</p></div>
+<section class="auth-card registration-card"><div class="pill">INSCRIPTION CLIENT</div><h2>Créer mon compte</h2><p>Les champs marqués * sont obligatoires.</p>
+<form method="post" action="{{ url_for('register') }}" class="registration-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<fieldset><legend>1. Identité et contact</legend><div class="registration-grid">
+<label>Prénom *<input name="first_name" maxlength="80" required autocomplete="given-name" value="{{ request.form.get('first_name','') }}"></label>
+<label>Nom *<input name="last_name" maxlength="80" required autocomplete="family-name" value="{{ request.form.get('last_name','') }}"></label>
+<label>Adresse e-mail professionnelle *<input name="email" type="email" maxlength="254" required autocomplete="email" value="{{ request.form.get('email','') }}"></label>
+<label>Téléphone *<input name="phone" type="tel" maxlength="30" required autocomplete="tel" value="{{ request.form.get('phone','') }}"></label>
+</div></fieldset>
+<fieldset><legend>2. Informations de l'entreprise</legend><div class="registration-grid">
+<label>Raison sociale *<input name="company_name" maxlength="200" required autocomplete="organization" value="{{ request.form.get('company_name','') }}"></label>
+<label>SIRET (14 chiffres) *<input name="siret" inputmode="numeric" pattern="[0-9]{14}" maxlength="14" required value="{{ request.form.get('siret','') }}"></label>
+<label>Forme juridique *<select name="legal_form" required><option value="">Sélectionner</option>{% for x in ['EI','Micro-entreprise','EURL','SARL','SASU','SAS','SA','SCI','Association','Autre'] %}<option value="{{ x }}" {% if request.form.get('legal_form') == x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select></label>
+<label>Activité principale *<input name="activity" maxlength="150" required value="{{ request.form.get('activity','') }}"></label>
+<label class="registration-wide">Adresse du siège *<input name="address" maxlength="200" required autocomplete="street-address" value="{{ request.form.get('address','') }}"></label>
+<label>Code postal *<input name="postal_code" maxlength="10" required autocomplete="postal-code" value="{{ request.form.get('postal_code','') }}"></label>
+<label>Ville *<input name="city" maxlength="100" required autocomplete="address-level2" value="{{ request.form.get('city','') }}"></label>
+<label>Pays<input name="country" maxlength="80" autocomplete="country-name" value="{{ request.form.get('country','France') }}"></label>
+</div></fieldset>
+<fieldset><legend>3. Sécurité du compte</legend><div class="registration-grid">
+<label>Mot de passe *<input name="password" type="password" minlength="12" maxlength="256" required autocomplete="new-password"></label>
+<label>Confirmer le mot de passe *<input name="confirm_password" type="password" minlength="12" maxlength="256" required autocomplete="new-password"></label>
+</div><small>12 caractères minimum, avec une majuscule, un chiffre et un symbole.</small></fieldset>
+<label class="registration-consent"><input type="checkbox" name="terms" value="accepted" required> J'accepte les conditions d'utilisation et la politique de confidentialité applicables.</label>
+<button class="primary" type="submit">Créer mon compte et accéder à mon espace</button></form>
+<p class="auth-foot"><a href="{{ url_for('portal') }}">← Déjà inscrit ? Se connecter</a></p></section></main>
+{% endblock %}

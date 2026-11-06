@@ -1792,3 +1792,15 @@ button.calendar-day:hover{transform:translateY(-3px);border-color:#65d9c7;box-sh
 .client-workspace[data-theme="light"] .panel p,.client-workspace[data-theme="light"] .page-header p{color:#365567}
 .client-workspace[data-theme="light"] .preference-option{background:#edf5f8}
 @media(max-width:600px){.preference-option{gap:12px;padding:12px}}
+
+/* Inscription client : formulaire lisible et adaptatif */
+.registration-card{width:min(100%,900px);max-width:900px}
+.auth-shell:has(.registration-card){grid-template-columns:minmax(240px,0.75fr) minmax(0,1.5fr);gap:3vw}
+.registration-form fieldset{min-width:0;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0}
+.registration-form legend{color:var(--mint);font-weight:800;padding:0 8px}
+.registration-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.registration-wide{grid-column:1/-1}
+.registration-consent{display:flex!important;align-items:flex-start;gap:12px}
+.registration-consent input{width:20px;min-width:20px;height:20px;accent-color:var(--mint)}
+@media(max-width:950px){.auth-shell:has(.registration-card){grid-template-columns:1fr}}
+@media(max-width:600px){.registration-grid{grid-template-columns:1fr}.registration-form fieldset{padding:12px}}
