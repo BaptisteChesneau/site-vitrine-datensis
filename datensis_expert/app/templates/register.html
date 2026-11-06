@@ -1,19 +1,15 @@
 
 {% extends "base.html" %}
 
-{% block title %}
-Inscription client | DATENSIS Expert
-{% endblock %}
+{% block title %}Inscription client | DATENSIS Expert{% endblock %}
 
 {% block content %}
 
-<link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='css/style.css') }}"
->
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 <main class="auth-shell registration-shell">
 
+    <!-- LOGO DATENSIS EXPERT -->
     <div class="auth-intro">
         <div class="brand">
             ✦ DATENSIS <span>EXPERT</span>
@@ -45,6 +41,7 @@ Inscription client | DATENSIS Expert
         </p>
     </div>
 
+    <!-- FORMULAIRE D'INSCRIPTION -->
     <section class="auth-card registration-card">
 
         <div class="pill">INSCRIPTION CLIENT</div>
@@ -66,14 +63,14 @@ Inscription client | DATENSIS Expert
             class="registration-form"
         >
 
+            <!-- PROTECTION CSRF -->
             <input
                 type="hidden"
                 name="csrf_token"
                 value="{{ csrf_token() }}"
             >
 
-            <!-- IDENTITÉ ET CONTACT -->
-
+            <!-- ÉTAPE 01 : IDENTITÉ ET CONTACT -->
             <fieldset>
                 <legend>
                     <span class="step-number">01</span>
@@ -141,8 +138,7 @@ Inscription client | DATENSIS Expert
                 </div>
             </fieldset>
 
-            <!-- INFORMATIONS ENTREPRISE -->
-
+            <!-- ÉTAPE 02 : INFORMATIONS ENTREPRISE -->
             <fieldset>
                 <legend>
                     <span class="step-number">02</span>
@@ -203,14 +199,14 @@ Inscription client | DATENSIS Expert
                                 'Association',
                                 'Autre'
                             ] %}
-                            <option
-                                value="{{ x }}"
-                                {% if request.form.get('legal_form') == x %}
-                                    selected
-                                {% endif %}
-                            >
-                                {{ x }}
-                            </option>
+                                <option
+                                    value="{{ x }}"
+                                    {% if request.form.get('legal_form') == x %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ x }}
+                                </option>
                             {% endfor %}
                         </select>
                     </label>
@@ -228,10 +224,7 @@ Inscription client | DATENSIS Expert
                         >
                     </label>
 
-                    <label
-                        for="address"
-                        class="registration-wide"
-                    >
+                    <label for="address" class="registration-wide">
                         Adresse du siège *
                         <input
                             id="address"
@@ -273,10 +266,7 @@ Inscription client | DATENSIS Expert
                         >
                     </label>
 
-                    <label
-                        for="country"
-                        class="registration-wide"
-                    >
+                    <label for="country" class="registration-wide">
                         Pays
                         <input
                             id="country"
@@ -291,8 +281,7 @@ Inscription client | DATENSIS Expert
                 </div>
             </fieldset>
 
-            <!-- SÉCURITÉ -->
-
+            <!-- ÉTAPE 03 : SÉCURITÉ DU COMPTE -->
             <fieldset>
                 <legend>
                     <span class="step-number">03</span>
@@ -340,8 +329,7 @@ Inscription client | DATENSIS Expert
                 </div>
             </fieldset>
 
-            <!-- CONDITIONS -->
-
+            <!-- ACCEPTATION DES CONDITIONS -->
             <label class="registration-consent">
                 <input
                     type="checkbox"
@@ -349,13 +337,13 @@ Inscription client | DATENSIS Expert
                     value="accepted"
                     required
                 >
-
                 <span>
                     J'accepte les conditions d'utilisation et
                     la politique de confidentialité applicables.
                 </span>
             </label>
 
+            <!-- VALIDATION DE L'INSCRIPTION -->
             <button
                 class="primary registration-submit"
                 type="submit"
@@ -365,6 +353,7 @@ Inscription client | DATENSIS Expert
 
         </form>
 
+        <!-- RETOUR À LA CONNEXION -->
         <p class="auth-foot">
             Déjà inscrit ?
             <a href="{{ url_for('portal') }}">
@@ -375,4 +364,5 @@ Inscription client | DATENSIS Expert
     </section>
 
 </main>
+
 {% endblock %}

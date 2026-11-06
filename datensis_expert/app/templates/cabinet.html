@@ -1,1 +1,775 @@
-{% extends 'base.html' %}{% block content %}<div class="workspace"><aside class="sidebar"><div class="brand">✦ DATENSIS <span>EXPERT</span></div><div class="workspace-tag cabinet-tag">ESPACE CABINET</div><nav class="side-nav" aria-label="Navigation cabinet"><a href="#accueil" data-tab="accueil" class="active">▦ <span>Tableau de bord</span></a><a href="#dossiers" data-tab="dossiers">▤ <span>Mes dossiers</span></a><a href="#taches" data-tab="taches">☑ <span>Mes tâches</span></a><a href="#clients" data-tab="clients">♧ <span>Mes clients</span></a><a href="#pilotage" data-tab="pilotage">▥ <span>Pilotage</span></a><a href="#echeances" data-tab="echeances">◷ <span>Échéances</span></a><a href="#messages" data-tab="messages">◉ <span>Messagerie</span></a><a href="#equipe" data-tab="equipe">♙ <span>Équipe</span></a><a href="#parametres" data-tab="parametres">⚙ <span>Paramètres</span></a></nav><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout">Se déconnecter</button></form></aside><main class="content"><header class="page-header"><div><div class="eyebrow">DATENSIS EXPERT / CABINET</div><h1>Tableau de pilotage</h1><p>Bienvenue dans votre espace de gestion.</p></div><span class="avatar">D</span></header><section class="tab-panel active" id="accueil"><div class="section-title"><h2>Vue d'ensemble</h2><span class="pill">Pilotage du cabinet</span></div><div class="stats"><article class="stat"><span>Clients inscrits</span><strong>{{ users|length }}</strong><small>Comptes clients</small></article><article class="stat"><span>Tâches en cours</span><strong>{{ tasks|rejectattr('status','equalto','Terminée')|list|length }}</strong><small>À traiter</small></article><article class="stat"><span>Tâches terminées</span><strong>{{ tasks|selectattr('status','equalto','Terminée')|list|length }}</strong><small>Suivi des missions</small></article><article class="stat"><span>Documents référencés</span><strong>{{ docs|length }}</strong><small>20 derniers maximum</small></article></div><div class="two-col"><article class="panel"><h3>Priorités du cabinet</h3>{% for task in tasks[:5] %}<div class="record"><span>{{ task.title }}</span><span class="status">{{ task.status }}</span></div>{% else %}<p>Ajoutez votre première tâche dans l'onglet Mes tâches.</p>{% endfor %}</article><article class="panel"><h3>Activité récente</h3>{% for msg in messages[:5] %}<div class="record"><span>{{ msg.client_name }} · {{ msg.body[:45] }}</span></div>{% else %}<p>Aucun échange pour le moment.</p>{% endfor %}</article></div></section><section class="tab-panel" id="dossiers"><article class="panel"><h2>Mes dossiers</h2><p>Le portefeuille de dossiers reprend les clients inscrits. La gestion des missions sera enrichie ultérieurement.</p><input class="filter" data-filter-target="dossier-list" placeholder="Rechercher un client..."><div id="dossier-list">{% for user in users %}<div class="record searchable"><span>▤ {{ user.name }}</span><small>{{ user.email }}</small></div>{% else %}<p>Aucun dossier client.</p>{% endfor %}</div></article></section><section class="tab-panel" id="taches"><div class="two-col"><article class="panel"><h2>Créer une tâche</h2><form class="stack-form" method="post" action="{{ url_for('cabinet_task') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Intitulé<input name="title" maxlength="150" required placeholder="Ex. Préparer la TVA"></label><label>Priorité<select name="priority"><option>Normale</option><option>Haute</option><option>Urgente</option></select></label><button class="primary">Ajouter la tâche</button></form></article><article class="panel"><h2>Liste des tâches</h2>{% for task in tasks %}<div class="record"><div><strong>{{ task.title }}</strong><small>{{ task.priority }} · {{ task.status }}</small></div>{% if task.status != 'Terminée' %}<form method="post" action="{{ url_for('complete_task',task_id=task.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="small-btn">Terminer</button></form>{% endif %}</div>{% else %}<p>Aucune tâche enregistrée.</p>{% endfor %}</article></div></section><section class="tab-panel" id="clients"><article class="panel"><h2>Mes clients</h2><input class="filter" data-filter-target="client-list" placeholder="Rechercher un client..."><div id="client-list">{% for user in users %}<div class="record searchable"><strong>{{ user.name }}</strong><small>{{ user.email }}</small></div>{% else %}<p>Aucun client inscrit.</p>{% endfor %}</div></article></section><section class="tab-panel" id="pilotage"><article class="panel"><h2>Pilotage</h2><p>Statistiques de missions, temps de travail et charge des collaborateurs à connecter aux futures données métier.</p><span class="status">Module en préparation</span></article></section><section class="tab-panel" id="echeances"><article class="panel"><h2>Échéances</h2><p>Calendrier TVA, obligations comptables et alertes à intégrer.</p><span class="status">Module en préparation</span></article></section><section class="tab-panel" id="messages"><div class="two-col"><article class="panel"><h2>Écrire à un client</h2><form class="stack-form" method="post" action="{{ url_for('cabinet_message') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Destinataire<select name="user_id" required>{% for user in users %}<option value="{{ user.id }}">{{ user.name }} — {{ user.email }}</option>{% endfor %}</select></label><label>Message<textarea name="body" required maxlength="2000"></textarea></label><button class="primary">Envoyer →</button></form></article><article class="panel"><h2>Messages récents</h2>{% for msg in messages %}<div class="record"><div><strong>{{ msg.client_name }}</strong><small>{{ 'Cabinet' if msg.author_role=='cabinet' else 'Client' }} : {{ msg.body }}</small></div></div>{% else %}<p>Aucun message.</p>{% endfor %}</article></div></section><section class="tab-panel" id="equipe"><article class="panel"><h2>Équipe</h2><p>Gestion des collaborateurs et des autorisations à développer. L'accès cabinet actuel est limité à un compte interne configuré dans l'environnement.</p><span class="status">Module en préparation</span></article></section><section class="tab-panel" id="parametres"><article class="panel"><h2>Paramètres</h2><p>Compte interne, préférences et audit des actions à développer avant mise en production.</p></article></section></main></div>{% endblock %}
+
+{% extends "base.html" %}
+
+{% block title %}Espace cabinet | DATENSIS Expert{% endblock %}
+
+{% block content %}
+
+<div class="workspace cabinet-workspace">
+
+    <!-- ========================================= -->
+    <!-- NAVIGATION LATÉRALE -->
+    <!-- ========================================= -->
+
+    <aside class="sidebar" aria-label="Menu espace cabinet">
+
+        <div class="brand">
+            ✦ DATENSIS <span>EXPERT</span>
+        </div>
+
+        <div class="workspace-tag cabinet-tag">
+            ESPACE CABINET
+        </div>
+
+        <nav class="side-nav" aria-label="Navigation cabinet">
+
+            <a
+                href="#accueil"
+                data-tab="accueil"
+                class="active"
+                aria-current="page"
+            >
+                ▦ <span>Tableau de bord</span>
+            </a>
+
+            <a href="#dossiers" data-tab="dossiers">
+                ▤ <span>Mes dossiers</span>
+            </a>
+
+            <a href="#taches" data-tab="taches">
+                ☑ <span>Mes tâches</span>
+            </a>
+
+            <a href="#clients" data-tab="clients">
+                ♧ <span>Mes clients</span>
+            </a>
+
+            <a href="#pilotage" data-tab="pilotage">
+                ▥ <span>Pilotage</span>
+            </a>
+
+            <a href="#echeances" data-tab="echeances">
+                ◷ <span>Échéances</span>
+            </a>
+
+            <a href="#messages" data-tab="messages">
+                ◉ <span>Messagerie</span>
+            </a>
+
+            <a href="#equipe" data-tab="equipe">
+                ♙ <span>Équipe</span>
+            </a>
+
+            <a href="#parametres" data-tab="parametres">
+                ⚙ <span>Paramètres</span>
+            </a>
+
+        </nav>
+
+        <!-- DÉCONNEXION -->
+        <div class="sidebar-footer">
+
+            <form
+                method="post"
+                action="{{ url_for('logout') }}"
+            >
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button type="submit" class="logout">
+                    Se déconnecter
+                </button>
+            </form>
+
+        </div>
+
+    </aside>
+
+    <!-- ========================================= -->
+    <!-- CONTENU PRINCIPAL -->
+    <!-- ========================================= -->
+
+    <main class="content" id="cabinet-main">
+
+        <!-- EN-TÊTE -->
+        <header class="page-header">
+
+            <div>
+                <div class="eyebrow">
+                    DATENSIS EXPERT / CABINET
+                </div>
+
+                <h1>Tableau de pilotage</h1>
+
+                <p>
+                    Bienvenue dans votre espace de gestion.
+                </p>
+            </div>
+
+            <span class="avatar" aria-label="Profil cabinet">
+                D
+            </span>
+
+        </header>
+
+        <!-- MESSAGES FLASH -->
+        {% with flash_messages = get_flashed_messages(with_categories=true) %}
+            {% if flash_messages %}
+                <div class="flash-container" role="status">
+
+                    {% for category, message in flash_messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- ========================================= -->
+        <!-- ONGLET 01 : ACCUEIL -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel active"
+            id="accueil"
+            aria-labelledby="titre-accueil"
+        >
+
+            <div class="section-title">
+                <h2 id="titre-accueil">Vue d'ensemble</h2>
+                <span class="pill">Pilotage du cabinet</span>
+            </div>
+
+            <!-- STATISTIQUES -->
+            <div class="stats">
+
+                <article class="stat">
+                    <span>Clients inscrits</span>
+                    <strong>{{ users|length }}</strong>
+                    <small>Comptes clients</small>
+                </article>
+
+                <article class="stat">
+                    <span>Tâches en cours</span>
+                    <strong>
+                        {{ tasks
+                           |rejectattr('status', 'equalto', 'Terminée')
+                           |list
+                           |length }}
+                    </strong>
+                    <small>À traiter</small>
+                </article>
+
+                <article class="stat">
+                    <span>Tâches terminées</span>
+                    <strong>
+                        {{ tasks
+                           |selectattr('status', 'equalto', 'Terminée')
+                           |list
+                           |length }}
+                    </strong>
+                    <small>Suivi des missions</small>
+                </article>
+
+                <article class="stat">
+                    <span>Documents référencés</span>
+                    <strong>{{ docs|length }}</strong>
+                    <small>20 derniers maximum</small>
+                </article>
+
+            </div>
+
+            <!-- ACTIVITÉ DU CABINET -->
+            <div class="two-col">
+
+                <article class="panel">
+
+                    <h3>Priorités du cabinet</h3>
+
+                    {% for task in tasks[:5] %}
+
+                        <div class="record">
+
+                            <div>
+                                <strong>{{ task.title }}</strong>
+                                <small>{{ task.priority }}</small>
+                            </div>
+
+                            <span class="status">
+                                {{ task.status }}
+                            </span>
+
+                        </div>
+
+                    {% else %}
+
+                        <p>
+                            Ajoutez votre première tâche
+                            dans l'onglet Mes tâches.
+                        </p>
+
+                    {% endfor %}
+
+                </article>
+
+                <article class="panel">
+
+                    <h3>Activité récente</h3>
+
+                    {% for msg in messages[:5] %}
+
+                        <div class="record">
+                            <div>
+                                <strong>{{ msg.client_name }}</strong>
+                                <small>
+                                    {{ msg.body|truncate(80) }}
+                                </small>
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <p>Aucun échange pour le moment.</p>
+
+                    {% endfor %}
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET 02 : DOSSIERS -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="dossiers"
+            aria-labelledby="titre-dossiers"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-dossiers">Mes dossiers</h2>
+                <span class="pill">Portefeuille clients</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Portefeuille de dossiers</h3>
+
+                <p>
+                    Retrouvez les clients inscrits et
+                    consultez leurs informations principales.
+                    La gestion détaillée des missions
+                    sera enrichie ultérieurement.
+                </p>
+
+                <label for="dossier-filter">
+                    Rechercher un dossier
+                </label>
+
+                <input
+                    id="dossier-filter"
+                    class="filter"
+                    type="search"
+                    data-filter-target="dossier-list"
+                    placeholder="Rechercher un client..."
+                    autocomplete="off"
+                >
+
+                <div id="dossier-list">
+
+                    {% for user in users %}
+
+                        <div class="record searchable">
+
+                            <div>
+                                <strong>▤ {{ user.name }}</strong>
+                                <small>{{ user.email }}</small>
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <p>Aucun dossier client.</p>
+
+                    {% endfor %}
+
+                </div>
+
+            </article>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET 03 : TÂCHES -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="taches"
+            aria-labelledby="titre-taches"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-taches">Mes tâches</h2>
+                <span class="pill">Organisation</span>
+            </div>
+
+            <div class="two-col">
+
+                <!-- CRÉATION D'UNE TÂCHE -->
+                <article class="panel">
+
+                    <h3>Créer une tâche</h3>
+
+                    <form
+                        class="stack-form"
+                        method="post"
+                        action="{{ url_for('cabinet_task') }}"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <label for="task-title">
+                            Intitulé
+
+                            <input
+                                id="task-title"
+                                type="text"
+                                name="title"
+                                maxlength="150"
+                                required
+                                placeholder="Ex. Préparer la TVA"
+                            >
+                        </label>
+
+                        <label for="task-priority">
+                            Priorité
+
+                            <select
+                                id="task-priority"
+                                name="priority"
+                            >
+                                <option value="Normale">
+                                    Normale
+                                </option>
+
+                                <option value="Haute">
+                                    Haute
+                                </option>
+
+                                <option value="Urgente">
+                                    Urgente
+                                </option>
+                            </select>
+                        </label>
+
+                        <button class="primary" type="submit">
+                            Ajouter la tâche →
+                        </button>
+
+                    </form>
+
+                </article>
+
+                <!-- LISTE DES TÂCHES -->
+                <article class="panel">
+
+                    <h3>Liste des tâches</h3>
+
+                    {% for task in tasks %}
+
+                        <div class="record">
+
+                            <div>
+                                <strong>{{ task.title }}</strong>
+
+                                <small>
+                                    {{ task.priority }}
+                                    · {{ task.status }}
+                                </small>
+                            </div>
+
+                            {% if task.status != 'Terminée' %}
+
+                                <form
+                                    method="post"
+                                    action="{{ url_for(
+                                        'complete_task',
+                                        task_id=task.id
+                                    ) }}"
+                                >
+
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="{{ csrf_token() }}"
+                                    >
+
+                                    <button
+                                        class="small-btn"
+                                        type="submit"
+                                    >
+                                        Terminer
+                                    </button>
+
+                                </form>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% else %}
+
+                        <p>Aucune tâche enregistrée.</p>
+
+                    {% endfor %}
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET 04 : CLIENTS -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="clients"
+            aria-labelledby="titre-clients"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-clients">Mes clients</h2>
+                <span class="pill">Annuaire clients</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Clients inscrits</h3>
+
+                <label for="client-filter">
+                    Rechercher un client
+                </label>
+
+                <input
+                    id="client-filter"
+                    class="filter"
+                    type="search"
+                    data-filter-target="client-list"
+                    placeholder="Rechercher un client..."
+                    autocomplete="off"
+                >
+
+                <div id="client-list">
+
+                    {% for user in users %}
+
+                        <div class="record searchable">
+
+                            <div>
+                                <strong>{{ user.name }}</strong>
+                                <small>{{ user.email }}</small>
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <p>Aucun client inscrit.</p>
+
+                    {% endfor %}
+
+                </div>
+
+            </article>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET 05 : PILOTAGE -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="pilotage"
+            aria-labelledby="titre-pilotage"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-pilotage">Pilotage</h2>
+                <span class="pill">Analyse de l'activité</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Suivi de performance</h3>
+
+                <p>
+                    Les statistiques de missions,
+                    le temps de travail et la charge
+                    des collaborateurs seront connectés
+                    aux futures données métier.
+                </p>
+
+                <span class="status">
+                    Module en préparation
+                </span>
+
+            </article>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET 06 : ÉCHÉANCES -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="echeances"
+            aria-labelledby="titre-echeances"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-echeances">Échéances</h2>
+                <span class="pill">Suivi des obligations</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Calendrier des échéances</h3>
+
+                <p>
+                    Le calendrier permettra de suivre
+                    les déclarations de TVA, les obligations
+                    comptables, les rendez-vous et les alertes
+                    propres aux dossiers clients.
+                </p>
+
+                <span class="status">
+                    Module en préparation
+                </span>
+
+            </article>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET 07 : MESSAGERIE -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="messages"
+            aria-labelledby="titre-messages"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-messages">Messagerie</h2>
+                <span class="pill">Échanges clients</span>
+            </div>
+
+            <div class="two-col">
+
+                <!-- ENVOYER UN MESSAGE -->
+                <article class="panel">
+
+                    <h3>Écrire à un client</h3>
+
+                    <form
+                        class="stack-form"
+                        method="post"
+                        action="{{ url_for('cabinet_message') }}"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <label for="message-recipient">
+                            Destinataire
+
+                            <select
+                                id="message-recipient"
+                                name="user_id"
+                                required
+                            >
+                                <option value="" selected disabled>
+                                    Sélectionner un client
+                                </option>
+
+                                {% for user in users %}
+
+                                    <option value="{{ user.id }}">
+                                        {{ user.name }} — {{ user.email }}
+                                    </option>
+
+                                {% endfor %}
+                            </select>
+                        </label>
+
+                        <label for="cabinet-message-body">
+                            Message
+
+                            <textarea
+                                id="cabinet-message-body"
+                                name="body"
+                                required
+                                minlength="1"
+                                maxlength="2000"
+                                rows="6"
+                                placeholder="Rédigez votre message..."
+                            ></textarea>
+                        </label>
+
+                        <button
+                            class="primary"
+                            type="submit"
+                            {% if not users %}disabled{% endif %}
+                        >
+                            Envoyer au client →
+                        </button>
+
+                    </form>
+
+                </article>
+
+                <!-- HISTORIQUE DES MESSAGES -->
+                <article class="panel">
+
+                    <h3>Messages récents</h3>
+
+                    {% for msg in messages %}
+
+                        <div class="record">
+
+                            <div>
+                                <strong>{{ msg.client_name }}</strong>
+
+                                <small>
+                                    {% if msg.author_role == 'cabinet' %}
+                                        Cabinet
+                                    {% else %}
+                                        Client
+                                    {% endif %}
+                                </small>
+
+                                <p>{{ msg.body }}</p>
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <p>Aucun message pour le moment.</p>
+
+                    {% endfor %}
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET 08 : ÉQUIPE -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="equipe"
+            aria-labelledby="titre-equipe"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-equipe">Équipe</h2>
+                <span class="pill">Collaborateurs</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Gestion de l'équipe</h3>
+
+                <p>
+                    La gestion des collaborateurs,
+                    des rôles et des autorisations
+                    sera développée ultérieurement.
+                </p>
+
+                <p>
+                    L'accès cabinet actuel est limité
+                    à un compte interne configuré
+                    dans l'environnement.
+                </p>
+
+                <span class="status">
+                    Module en préparation
+                </span>
+
+            </article>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET 09 : PARAMÈTRES -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="parametres"
+            aria-labelledby="titre-parametres"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-parametres">Paramètres</h2>
+                <span class="pill">Administration du compte</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Configuration du compte cabinet</h3>
+
+                <p>
+                    La gestion du compte interne,
+                    les préférences d'affichage
+                    et l'audit des actions seront
+                    développés avant la mise en production.
+                </p>
+
+                <span class="status">
+                    Module en préparation
+                </span>
+
+            </article>
+
+        </section>
+
+    </main>
+
+</div>
+
+{% endblock %}

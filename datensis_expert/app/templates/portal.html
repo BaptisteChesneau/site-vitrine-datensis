@@ -1,36 +1,28 @@
 
 {% extends "base.html" %}
 
-{% block title %}
-Portail client | DATENSIS Expert
-{% endblock %}
+{% block title %}Portail client | DATENSIS Expert{% endblock %}
 
 {% block content %}
 
 <link
     rel="stylesheet"
-    href="{{ url_for('static', filename='css/style.css') }}"
+    href="{{ url_for('static', filename='style.css') }}"
 >
 
 <main class="auth-shell">
 
-    <!-- PRÉSENTATION DATENSIS -->
-
+    <!-- LOGO DATENSIS EXPERT -->
     <div class="auth-intro">
-
         <div class="brand">
             ✦ DATENSIS <span>EXPERT</span>
         </div>
-
     </div>
 
-    <!-- CONNEXION CLIENT -->
-
+    <!-- FORMULAIRE DE CONNEXION -->
     <section class="auth-card">
 
-        <div class="pill">
-            ESPACE CLIENT
-        </div>
+        <div class="pill">ESPACE CLIENT</div>
 
         <h2>Bienvenue</h2>
 
@@ -38,20 +30,18 @@ Portail client | DATENSIS Expert
             Connectez-vous à votre espace personnel.
         </p>
 
-        <form
-            method="post"
-            action="{{ url_for('portal') }}"
-        >
+        <form method="post" action="{{ url_for('portal') }}">
 
+            <!-- PROTECTION CSRF -->
             <input
                 type="hidden"
                 name="csrf_token"
                 value="{{ csrf_token() }}"
             >
 
+            <!-- ADRESSE E-MAIL -->
             <label for="login-email">
                 Adresse e-mail
-
                 <input
                     id="login-email"
                     type="email"
@@ -63,9 +53,9 @@ Portail client | DATENSIS Expert
                 >
             </label>
 
+            <!-- MOT DE PASSE -->
             <label for="login-password">
                 Mot de passe
-
                 <input
                     id="login-password"
                     type="password"
@@ -76,21 +66,21 @@ Portail client | DATENSIS Expert
                 >
             </label>
 
-            <button
-                class="primary"
-                type="submit"
-            >
+            <!-- BOUTON DE CONNEXION -->
+            <button class="primary" type="submit">
                 Accéder à mon espace →
             </button>
 
         </form>
 
+        <!-- MOT DE PASSE OUBLIÉ -->
         <p class="auth-foot">
             <a href="{{ url_for('forgot_password') }}">
                 Mot de passe oublié ?
             </a>
         </p>
 
+        <!-- CRÉATION DE COMPTE -->
         <p class="auth-foot">
             Première visite ?
             <a href="{{ url_for('register') }}">
@@ -98,6 +88,7 @@ Portail client | DATENSIS Expert
             </a>
         </p>
 
+        <!-- INFORMATION CABINET -->
         <small>
             L'accès cabinet est réservé à l'équipe DATENSIS.
         </small>

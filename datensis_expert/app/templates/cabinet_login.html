@@ -1,1 +1,129 @@
-{% extends 'base.html' %}{% block content %}<main class="auth-shell"><div class="auth-intro"><div class="brand">✦ DATENSIS <span>EXPERT</span></div><h1>Administration<br><em>du cabinet.</em></h1><p>Accès exclusivement réservé à l'équipe DATENSIS.</p></div><section class="auth-card"><div class="pill">ACCÈS INTERNE</div><h2>Connexion cabinet</h2><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Adresse professionnelle<input type="email" name="email" required></label><label>Mot de passe<input type="password" name="password" required></label><button class="primary">Ouvrir l'espace cabinet →</button></form><p class="auth-foot"><a href="{{ url_for('portal') }}">← Portail client</a></p></section></main>{% endblock %}
+
+{% extends "base.html" %}
+
+{% block title %}Connexion cabinet | DATENSIS Expert{% endblock %}
+
+{% block content %}
+
+<main class="auth-shell cabinet-login-page">
+
+    <!-- ========================================= -->
+    <!-- IDENTITÉ DATENSIS EXPERT -->
+    <!-- ========================================= -->
+
+    <div class="auth-intro">
+
+        <div class="brand">
+            ✦ DATENSIS <span>EXPERT</span>
+        </div>
+
+        <div class="auth-intro-content">
+
+            <div class="eyebrow">
+                ESPACE PROFESSIONNEL SÉCURISÉ
+            </div>
+
+            <h1>
+                Administration<br>
+                <em>du cabinet.</em>
+            </h1>
+
+            <p>
+                Accès exclusivement réservé
+                à l'équipe DATENSIS.
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- ========================================= -->
+    <!-- FORMULAIRE DE CONNEXION CABINET -->
+    <!-- ========================================= -->
+
+    <section
+        class="auth-card cabinet-login-card"
+        aria-labelledby="cabinet-login-title"
+    >
+
+        <div class="pill">
+            ACCÈS INTERNE
+        </div>
+
+        <h2 id="cabinet-login-title">
+            Connexion cabinet
+        </h2>
+
+        <p class="auth-description">
+            Identifiez-vous avec vos identifiants
+            professionnels pour accéder à votre
+            espace de gestion.
+        </p>
+
+        <form method="post">
+
+            <!-- PROTECTION CSRF -->
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <!-- ADRESSE E-MAIL -->
+            <label for="cabinet-email">
+                Adresse professionnelle
+
+                <input
+                    id="cabinet-email"
+                    type="email"
+                    name="email"
+                    maxlength="254"
+                    required
+                    autocomplete="username"
+                    placeholder="nom@entreprise.fr"
+                    value="{{ request.form.get('email', '') }}"
+                >
+            </label>
+
+            <!-- MOT DE PASSE -->
+            <label for="cabinet-password">
+                Mot de passe
+
+                <input
+                    id="cabinet-password"
+                    type="password"
+                    name="password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="Votre mot de passe"
+                >
+            </label>
+
+            <!-- VALIDATION -->
+            <button
+                class="primary"
+                type="submit"
+            >
+                Ouvrir l'espace cabinet →
+            </button>
+
+        </form>
+
+        <!-- RETOUR AU PORTAIL CLIENT -->
+        <p class="auth-foot">
+            <a href="{{ url_for('portal') }}">
+                ← Retour au portail client
+            </a>
+        </p>
+
+        <!-- INFORMATION DE SÉCURITÉ -->
+        <small class="auth-security-note">
+            Espace réservé aux utilisateurs
+            internes autorisés.
+        </small>
+
+    </section>
+
+</main>
+
+{% endblock %}

@@ -2239,3 +2239,53 @@ button.calendar-day:hover{transform:translateY(-3px);border-color:#65d9c7;box-sh
     .auth-shell .reset-benefits { display: none; }
 
 }
+
+
+/* ==========================================================
+   COMPLEMENTS - CABINET, MESSAGES ET ACCESSIBILITE
+   ========================================================== */
+
+/* Barre laterale du cabinet : defilement sur petits ecrans */
+.cabinet-workspace .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #365a6c transparent;
+}
+
+.cabinet-workspace .content { min-height: 100vh; }
+.cabinet-workspace .stack-form .primary { justify-self: start; }
+
+/* Connexion cabinet : utilise le theme d'authentification commun */
+.cabinet-login-page .cabinet-login-card { width: min(100%, 520px); }
+.auth-security-note { display: block; margin-top: 16px; line-height: 1.5; }
+.auth-description { line-height: 1.65; }
+
+/* Messages flash du layout commun */
+.flash-container { width: min(100% - 32px, 900px); margin: 16px auto; }
+.flash-container .toast { width: 100%; max-width: none; margin: 0; }
+.toast.error, .toast.danger { border-color: #b7646d; background: #58333a; }
+.toast.warning { border-color: #a47a3c; background: #604b2a; color: #fff1d4; }
+.toast.info { border-color: #327c99; background: #173d53; color: #e3f5ff; }
+
+/* Recherche et interactions */
+.filter { display: block; }
+.record form { flex-shrink: 0; }
+.record .small-btn { white-space: nowrap; }
+.side-nav a:focus-visible, .logout:focus-visible, .small-btn:focus-visible {
+    outline: 2px solid var(--mint);
+    outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+    .cabinet-workspace .sidebar {
+        position: relative;
+        top: auto;
+        height: auto;
+        overflow: visible;
+    }
+    .cabinet-workspace .stack-form .primary { width: 100%; }
+    .record form { max-width: 100%; }
+}
