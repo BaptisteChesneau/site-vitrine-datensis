@@ -1,1 +1,831 @@
-{% extends 'base.html' %}{% block content %}<div class="workspace"><aside class="sidebar"><div class="brand">✦ DATENSIS <span>EXPERT</span></div><div class="workspace-tag">ESPACE CLIENT</div><nav class="side-nav" aria-label="Navigation client"><a href="#accueil" data-tab="accueil" class="active">▦ <span>Mon accueil</span></a><a href="#documents" data-tab="documents">▤ <span>Mes documents</span></a><a href="#messages" data-tab="messages">◉ <span>Mes échanges</span></a><a href="#demandes" data-tab="demandes">◇ <span>Mes demandes</span></a><a href="#echeances" data-tab="echeances">◷ <span>Mes échéances</span></a><a href="#entreprise" data-tab="entreprise">▣ <span>Mon entreprise</span></a><a href="#notifications" data-tab="notifications">♧ <span>Notifications</span></a><a href="#parametres" data-tab="parametres">⚙ <span>Paramètres</span></a></nav><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout">Se déconnecter</button></form></aside><main class="content"><header class="page-header"><div><div class="eyebrow">DATENSIS EXPERT / CLIENT</div><h1>Bonjour {{ session.name }}</h1><p>Votre espace de collaboration avec le cabinet.</p></div><span class="avatar">{{ session.name[0]|upper }}</span></header><section class="tab-panel active" id="accueil"><div class="section-title"><h2>Vue d'ensemble</h2><span class="pill">Espace personnel</span></div><div class="stats"><article class="stat"><span>Documents enregistrés</span><strong>{{ docs|length }}</strong><small>Références déposées</small></article><article class="stat"><span>Messages</span><strong>{{ messages|length }}</strong><small>Historique récent</small></article><article class="stat"><span>Demandes</span><strong>—</strong><small>Module à connecter</small></article><article class="stat"><span>Prochaine échéance</span><strong>—</strong><small>Calendrier à connecter</small></article></div><div class="two-col"><article class="panel"><h3>Accès rapide</h3><p>Retrouvez les fonctions principales de votre espace.</p><div class="quick"><a href="#documents" data-go="documents">▤ Gérer mes documents →</a><a href="#messages" data-go="messages">◉ Écrire au cabinet →</a></div></article><article class="panel"><h3>Votre accompagnement</h3><p>Le cabinet DATENSIS centralise vos demandes et facilite vos échanges professionnels.</p><span class="status">● Espace client actif</span></article></div></section><section class="tab-panel" id="documents"><div class="section-title"><h2>Mes documents</h2><span class="pill">Suivi documentaire</span></div><div class="two-col"><article class="panel"><h3>Enregistrer une référence</h3><p>Cette première version enregistre le nom du document, sans transfert de fichier.</p><form method="post" action="{{ url_for('client_document') }}" class="stack-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Nom du document<input name="title" required maxlength="120" placeholder="Ex. Facture fournisseur octobre"></label><button class="primary">Enregistrer la référence</button></form></article><article class="panel"><h3>Documents enregistrés</h3>{% for doc in docs %}<div class="record"><span>▤ {{ doc.title }}</span><span class="status">{{ doc.status }}</span></div>{% else %}<p>Aucun document enregistré pour le moment.</p>{% endfor %}</article></div></section><section class="tab-panel" id="messages"><div class="section-title"><h2>Mes échanges</h2><span class="pill">Messagerie</span></div><article class="panel"><div class="chat-history">{% for msg in messages %}<div class="chat-bubble {{ 'mine' if msg.author_role=='client' else 'theirs' }}"><small>{{ 'Vous' if msg.author_role=='client' else 'Cabinet DATENSIS' }}</small><p>{{ msg.body }}</p></div>{% else %}<p>Commencez une conversation avec votre cabinet.</p>{% endfor %}</div><form method="post" action="{{ url_for('client_message') }}" class="stack-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Votre message<textarea name="body" required maxlength="2000" placeholder="Rédigez votre message..."></textarea></label><button class="primary">Envoyer au cabinet →</button></form></article></section><section class="tab-panel" id="demandes"><article class="panel"><h2>Mes demandes</h2><p>Le suivi des demandes et des justificatifs attendus sera connecté à la gestion des missions du cabinet.</p><span class="status">Module en préparation</span></article></section><section class="tab-panel" id="echeances"><article class="panel"><h2>Mes échéances</h2><p>Calendrier fiscal et comptable personnalisé à connecter aux données du dossier.</p><span class="status">Module en préparation</span></article></section><section class="tab-panel" id="entreprise"><article class="panel"><h2>Mon entreprise</h2><p>Profil du compte : {{ session.name }}. Les données juridiques et administratives seront ajoutées ultérieurement.</p></article></section><section class="tab-panel" id="notifications"><article class="panel"><h2>Notifications</h2><p>Les notifications automatiques seront activées après l'intégration des événements métier.</p><span class="status">Module en préparation</span></article></section><section class="tab-panel" id="parametres"><article class="panel"><h2>Paramètres</h2><p>Les réglages de compte et la modification du mot de passe seront disponibles dans une prochaine étape.</p></article></section></main></div>{% endblock %}
+
+{% extends "base.html" %}
+
+{% block content %}
+{% set client_name = session.get("name", "Client") %}
+{% set document_count = docs|length %}
+{% set message_count = messages|length %}
+
+<div class="workspace client-workspace">
+
+    <!-- ============================================= -->
+    <!-- NAVIGATION LATERALE -->
+    <!-- ============================================= -->
+
+    <aside class="sidebar" aria-label="Menu espace client">
+
+        <div class="brand">
+            ✦ DATENSIS <span>EXPERT</span>
+        </div>
+
+        <div class="workspace-tag">ESPACE CLIENT</div>
+
+        <nav class="side-nav" aria-label="Navigation client">
+
+            <a href="#accueil" data-tab="accueil" class="active"
+               aria-current="page">
+                ▦ <span>Mon accueil</span>
+            </a>
+
+            <a href="#documents" data-tab="documents">
+                ▤ <span>Mes documents</span>
+            </a>
+
+            <a href="#messages" data-tab="messages">
+                ◉ <span>Mes échanges</span>
+            </a>
+
+            <a href="#demandes" data-tab="demandes">
+                ◇ <span>Mes demandes</span>
+            </a>
+
+            <a href="#echeances" data-tab="echeances">
+                ◷ <span>Mes échéances</span>
+            </a>
+
+            <a href="#entreprise" data-tab="entreprise">
+                ▣ <span>Mon entreprise</span>
+            </a>
+
+            <a href="#notifications" data-tab="notifications">
+                ♧ <span>Notifications</span>
+            </a>
+
+            <a href="#parametres" data-tab="parametres">
+                ⚙ <span>Paramètres</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <div class="sidebar-profile">
+                <span class="avatar">
+                    {{ client_name[:1]|upper }}
+                </span>
+
+                <div>
+                    <strong>{{ client_name }}</strong>
+                    <small>Compte client</small>
+                </div>
+            </div>
+
+            <form method="post" action="{{ url_for('logout') }}">
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <button type="submit" class="logout">
+                    Se déconnecter
+                </button>
+            </form>
+
+        </div>
+
+    </aside>
+
+    <!-- ============================================= -->
+    <!-- CONTENU PRINCIPAL -->
+    <!-- ============================================= -->
+
+    <main class="content" id="client-main">
+
+        <header class="page-header">
+
+            <div>
+                <div class="eyebrow">
+                    DATENSIS EXPERT / ESPACE CLIENT
+                </div>
+
+                <h1>Bonjour {{ client_name }}</h1>
+
+                <p>
+                    Gérez vos documents, vos échanges et
+                    votre suivi avec le cabinet.
+                </p>
+            </div>
+
+            <span class="avatar" aria-label="Profil client">
+                {{ client_name[:1]|upper }}
+            </span>
+
+        </header>
+
+        <!-- MESSAGES FLASH -->
+
+        {% with flash_messages = get_flashed_messages(
+            with_categories=true
+        ) %}
+
+            {% if flash_messages %}
+                <div class="flash-container" role="status">
+                    {% for category, message in flash_messages %}
+                        <div class="flash-message {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+        {% endwith %}
+
+        <!-- ========================================= -->
+        <!-- ONGLET : ACCUEIL -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel active"
+            id="accueil"
+            aria-labelledby="titre-accueil"
+        >
+
+            <div class="section-title">
+                <h2 id="titre-accueil">Vue d'ensemble</h2>
+                <span class="pill">Espace personnel</span>
+            </div>
+
+            <div class="stats">
+
+                <article class="stat">
+                    <span>Documents enregistrés</span>
+                    <strong>{{ document_count }}</strong>
+                    <small>Références documentaires</small>
+                </article>
+
+                <article class="stat">
+                    <span>Messages récents</span>
+                    <strong>{{ message_count }}</strong>
+                    <small>
+                        Dans les 30 derniers messages chargés
+                    </small>
+                </article>
+
+                <article class="stat">
+                    <span>Demandes en cours</span>
+                    <strong>—</strong>
+                    <small>Suivi bientôt disponible</small>
+                </article>
+
+                <article class="stat">
+                    <span>Prochaine échéance</span>
+                    <strong>—</strong>
+                    <small>Calendrier à configurer</small>
+                </article>
+
+            </div>
+
+            <div class="two-col">
+
+                <article class="panel">
+
+                    <h3>Accès rapide</h3>
+
+                    <p>
+                        Retrouvez les principales fonctionnalités
+                        de votre espace.
+                    </p>
+
+                    <div class="quick">
+
+                        <a href="#documents" data-go="documents">
+                            ▤ Gérer mes documents →
+                        </a>
+
+                        <a href="#messages" data-go="messages">
+                            ◉ Contacter le cabinet →
+                        </a>
+
+                        <a href="#demandes" data-go="demandes">
+                            ◇ Consulter mes demandes →
+                        </a>
+
+                        <a href="#echeances" data-go="echeances">
+                            ◷ Voir mes échéances →
+                        </a>
+
+                    </div>
+
+                </article>
+
+                <article class="panel">
+
+                    <h3>Votre accompagnement</h3>
+
+                    <p>
+                        DATENSIS Expert centralise les échanges
+                        entre votre entreprise et votre cabinet.
+                    </p>
+
+                    <p>
+                        Vous pouvez enregistrer des références
+                        documentaires et transmettre vos messages
+                        directement depuis cet espace.
+                    </p>
+
+                    <span class="status">
+                        ● Espace client actif
+                    </span>
+
+                </article>
+
+            </div>
+
+            <div class="two-col">
+
+                <article class="panel">
+
+                    <h3>Derniers documents</h3>
+
+                    {% for doc in docs[:5] %}
+
+                        <div class="record">
+                            <div>
+                                <strong>▤ {{ doc.title }}</strong>
+                                <small>
+                                    {{ doc.created_at }}
+                                </small>
+                            </div>
+
+                            <span class="status">
+                                {{ doc.status }}
+                            </span>
+                        </div>
+
+                    {% else %}
+
+                        <p>
+                            Aucun document enregistré.
+                        </p>
+
+                    {% endfor %}
+
+                    <div class="quick">
+                        <a href="#documents" data-go="documents">
+                            Voir mes documents →
+                        </a>
+                    </div>
+
+                </article>
+
+                <article class="panel">
+
+                    <h3>Derniers échanges</h3>
+
+                    {% for msg in messages[-3:]|reverse %}
+
+                        <div class="record">
+                            <div>
+                                <strong>
+                                    {% if msg.author_role == "client" %}
+                                        Vous
+                                    {% else %}
+                                        Cabinet DATENSIS
+                                    {% endif %}
+                                </strong>
+
+                                <p>
+                                    {{ msg.body|truncate(100) }}
+                                </p>
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <p>
+                            Aucun échange pour le moment.
+                        </p>
+
+                    {% endfor %}
+
+                    <div class="quick">
+                        <a href="#messages" data-go="messages">
+                            Ouvrir la messagerie →
+                        </a>
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET : DOCUMENTS -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="documents"
+            aria-labelledby="titre-documents"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-documents">Mes documents</h2>
+                <span class="pill">Suivi documentaire</span>
+            </div>
+
+            <div class="two-col">
+
+                <article class="panel">
+
+                    <h3>Ajouter une référence documentaire</h3>
+
+                    <p>
+                        Enregistrez le nom d'un document pour
+                        faciliter son suivi avec votre cabinet.
+                    </p>
+
+                    <p>
+                        Cette fonctionnalité n'effectue pas encore
+                        de transfert de fichier.
+                    </p>
+
+                    <form
+                        method="post"
+                        action="{{ url_for('client_document') }}"
+                        class="stack-form"
+                    >
+
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <label for="document-title">
+                            Nom du document
+
+                            <input
+                                id="document-title"
+                                type="text"
+                                name="title"
+                                required
+                                minlength="2"
+                                maxlength="120"
+                                placeholder="Ex. Facture fournisseur octobre"
+                            >
+                        </label>
+
+                        <button type="submit" class="primary">
+                            Enregistrer la référence →
+                        </button>
+
+                    </form>
+
+                </article>
+
+                <article class="panel">
+
+                    <h3>Documents enregistrés</h3>
+
+                    <p>
+                        {{ document_count }}
+                        référence{% if document_count != 1 %}s{% endif %}
+                        enregistrée{% if document_count != 1 %}s{% endif %}.
+                    </p>
+
+                    {% for doc in docs %}
+
+                        <div class="record">
+
+                            <div>
+                                <strong>▤ {{ doc.title }}</strong>
+
+                                <small>
+                                    Enregistré le {{ doc.created_at }}
+                                </small>
+                            </div>
+
+                            <span class="status">
+                                {{ doc.status }}
+                            </span>
+
+                        </div>
+
+                    {% else %}
+
+                        <p>
+                            Vous n'avez enregistré aucun document.
+                        </p>
+
+                    {% endfor %}
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET : MESSAGERIE -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="messages"
+            aria-labelledby="titre-messages"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-messages">Mes échanges</h2>
+                <span class="pill">Messagerie sécurisée</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Conversation avec votre cabinet</h3>
+
+                <p>
+                    Échangez directement avec votre interlocuteur
+                    DATENSIS.
+                </p>
+
+                <div
+                    class="chat-history"
+                    role="log"
+                    aria-label="Historique de conversation"
+                >
+
+                    {% for msg in messages %}
+
+                        <div class="chat-bubble {{
+                            'mine' if msg.author_role == 'client'
+                            else 'theirs'
+                        }}">
+
+                            <small>
+                                {% if msg.author_role == "client" %}
+                                    Vous
+                                {% else %}
+                                    Cabinet DATENSIS
+                                {% endif %}
+                                · {{ msg.created_at }}
+                            </small>
+
+                            <p>{{ msg.body }}</p>
+
+                        </div>
+
+                    {% else %}
+
+                        <p>
+                            Aucun message pour le moment.
+                            Commencez une conversation avec votre cabinet.
+                        </p>
+
+                    {% endfor %}
+
+                </div>
+
+                <form
+                    method="post"
+                    action="{{ url_for('client_message') }}"
+                    class="stack-form"
+                >
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <label for="message-body">
+                        Votre message
+
+                        <textarea
+                            id="message-body"
+                            name="body"
+                            required
+                            minlength="1"
+                            maxlength="2000"
+                            rows="5"
+                            placeholder="Rédigez votre message..."
+                        ></textarea>
+                    </label>
+
+                    <button type="submit" class="primary">
+                        Envoyer au cabinet →
+                    </button>
+
+                </form>
+
+            </article>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET : DEMANDES -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="demandes"
+            aria-labelledby="titre-demandes"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-demandes">Mes demandes</h2>
+                <span class="pill">Suivi des demandes</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Centralisez vos demandes</h3>
+
+                <p>
+                    Ce module permettra de créer et suivre
+                    vos demandes auprès du cabinet.
+                </p>
+
+                <p>
+                    Les demandes pourront concerner la
+                    comptabilité, la fiscalité, le social,
+                    le juridique ou les conseils.
+                </p>
+
+                <span class="status">
+                    Module en préparation
+                </span>
+
+                <div class="quick">
+                    <a href="#messages" data-go="messages">
+                        Contacter le cabinet pour une demande →
+                    </a>
+                </div>
+
+            </article>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET : ECHEANCES -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="echeances"
+            aria-labelledby="titre-echeances"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-echeances">Mes échéances</h2>
+                <span class="pill">Calendrier</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Suivi de vos obligations</h3>
+
+                <p>
+                    Vous retrouverez ici les échéances
+                    comptables, fiscales et sociales
+                    applicables à votre entreprise.
+                </p>
+
+                <p>
+                    Les dates seront renseignées en fonction
+                    de votre dossier et des obligations
+                    suivies par le cabinet.
+                </p>
+
+                <span class="status">
+                    Calendrier en préparation
+                </span>
+
+            </article>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET : ENTREPRISE -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="entreprise"
+            aria-labelledby="titre-entreprise"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-entreprise">Mon entreprise</h2>
+                <span class="pill">Informations du compte</span>
+            </div>
+
+            <div class="two-col">
+
+                <article class="panel">
+
+                    <h3>Mon profil</h3>
+
+                    <div class="record">
+                        <span>Nom du compte</span>
+                        <strong>{{ client_name }}</strong>
+                    </div>
+
+                    <div class="record">
+                        <span>Type de compte</span>
+                        <strong>Client</strong>
+                    </div>
+
+                    <div class="record">
+                        <span>Statut</span>
+                        <span class="status">Actif</span>
+                    </div>
+
+                </article>
+
+                <article class="panel">
+
+                    <h3>Informations administratives</h3>
+
+                    <p>
+                        Les coordonnées de votre société,
+                        son numéro SIREN, son adresse et ses
+                        interlocuteurs seront disponibles
+                        après l'intégration du module entreprise.
+                    </p>
+
+                    <span class="status">
+                        Module en préparation
+                    </span>
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET : NOTIFICATIONS -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="notifications"
+            aria-labelledby="titre-notifications"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-notifications">Notifications</h2>
+                <span class="pill">Centre d'alertes</span>
+            </div>
+
+            <article class="panel">
+
+                <h3>Vos notifications</h3>
+
+                <p>
+                    Ce module affichera les alertes liées
+                    à vos documents, messages, demandes
+                    et échéances.
+                </p>
+
+                <span class="status">
+                    Notifications en préparation
+                </span>
+
+            </article>
+
+        </section>
+
+        <!-- ========================================= -->
+        <!-- ONGLET : PARAMETRES -->
+        <!-- ========================================= -->
+
+        <section
+            class="tab-panel"
+            id="parametres"
+            aria-labelledby="titre-parametres"
+            hidden
+        >
+
+            <div class="section-title">
+                <h2 id="titre-parametres">Paramètres</h2>
+                <span class="pill">Gestion du compte</span>
+            </div>
+
+            <div class="two-col">
+
+                <article class="panel">
+
+                    <h3>Compte utilisateur</h3>
+
+                    <div class="record">
+                        <span>Utilisateur</span>
+                        <strong>{{ client_name }}</strong>
+                    </div>
+
+                    <div class="record">
+                        <span>Profil</span>
+                        <strong>Client DATENSIS Expert</strong>
+                    </div>
+
+                    <div class="record">
+                        <span>Session</span>
+                        <span class="status">Connectée</span>
+                    </div>
+
+                </article>
+
+                <article class="panel">
+
+                    <h3>Sécurité et préférences</h3>
+
+                    <p>
+                        La modification du mot de passe,
+                        les préférences de notification
+                        et les paramètres de sécurité
+                        seront ajoutés prochainement.
+                    </p>
+
+                    <span class="status">
+                        Fonctionnalités en préparation
+                    </span>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<!-- ============================================= -->
+<!-- NAVIGATION DES ONGLETS -->
+<!-- ============================================= -->
+
+<script>
+(function () {
+    "use strict";
+
+    const panels = Array.from(
+        document.querySelectorAll(".client-workspace .tab-panel")
+    );
+
+    const navigationLinks = Array.from(
+        document.querySelectorAll(".client-workspace [data-tab]")
+    );
+
+    const validTabs = new Set(
+        panels.map((panel) => panel.id)
+    );
+
+    function activateTab(tabId) {
+        const target = validTabs.has(tabId)
+            ? tabId
+            : "accueil";
+
+        panels.forEach((panel) => {
+            const active = panel.id === target;
+
+            panel.classList.toggle("active", active);
+            panel.hidden = !active;
+        });
+
+        navigationLinks.forEach((link) => {
+            const active = link.dataset.tab === target;
+
+            link.classList.toggle("active", active);
+
+            if (active) {
+                link.setAttribute("aria-current", "page");
+            } else {
+                link.removeAttribute("aria-current");
+            }
+        });
+    }
+
+    function updateFromHash() {
+        const tabId = window.location.hash.slice(1);
+        activateTab(tabId);
+    }
+
+    document.querySelectorAll(
+        ".client-workspace [data-go]"
+    ).forEach((link) => {
+        link.addEventListener("click", () => {
+            const tabId = link.dataset.go;
+
+            if (validTabs.has(tabId)) {
+                activateTab(tabId);
+            }
+        });
+    });
+
+    window.addEventListener("hashchange", updateFromHash);
+
+    updateFromHash();
+})();
+</script>
+
+{% endblock %}
