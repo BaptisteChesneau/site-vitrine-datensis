@@ -1,48 +1,76 @@
 "use strict";
-(() => {
-  const root = document.querySelector(".client-workspace");
-  if (!root) return;
-  const tabs = [...root.querySelectorAll("[data-tab]")];
-  const panels = [...root.querySelectorAll(".tab-panel")];
-  const valid = new Set(panels.map(p => p.id));
-  function activate() {
-    let id;
-    try { id = decodeURIComponent(location.hash.slice(1)); }
-    catch { id = "accueil"; }
-    if (!valid.has(id)) id = "accueil";
-    tabs.forEach(link => {
-      const active = link.dataset.tab === id;
-      link.classList.toggle("active", active);
-      if (active) link.setAttribute("aria-current", "page");
-      else link.removeAttribute("aria-current");
-    });
-    panels.forEach(panel => {
-      const active = panel.id === id;
-      panel.classList.toggle("active", active);
-      panel.hidden = !active;
-    });
-  }
-  window.addEventListener("hashchange", activate);
-  root.querySelectorAll("[data-go]").forEach(link => link.addEventListener("click", () => {
-    const target = link.dataset.go;
-    if (valid.has(target)) activatePanel(target);
-  }));
-  function activatePanel(id) {
-    panels.forEach(p => { p.hidden = p.id !== id; p.classList.toggle("active", p.id === id); });
-    tabs.forEach(t => { const on = t.dataset.tab === id; t.classList.toggle("active", on); if(on)t.setAttribute("aria-current","page");else t.removeAttribute("aria-current"); });
-  }
-  root.querySelectorAll("[data-filter-target]").forEach(input => input.addEventListener("input", () => {
-    const target = document.getElementById(input.dataset.filterTarget);
-    if (!target) return;
-    const search = input.value.trim().toLocaleLowerCase("fr-FR");
-    target.querySelectorAll(".searchable").forEach(item => {
-      item.hidden = !item.textContent.toLocaleLowerCase("fr-FR").includes(search);
-    });
-  }));
-  activate();
 
+(() => {
+  function initialize() {
+    const root = document.querySelector(".client-workspace");
+    if (!root) return;
+
+    const tabs = [...root.querySelectorAll(".side-nav [data-tab]")];
+    const panels = [...root.querySelectorAll(".tab-panel[id]")];
+    const valid = new Set(panels.map(panel => panel.id));
+    if (!panels.length) return;
+
+    function currentTab() {
+      let id = "";
+      try {
+        id = decodeURIComponent(window.location.hash.slice(1));
+      } catch (error) {
+        console.warn("DATENSIS : fragment d'URL invalide", error);
+      }
+      return valid.has(id) ? id : (valid.has("accueil") ? "accueil" : panels[0].id);
+    }
+
+    function activatePanel(id, updateUrl = false) {
+      if (!valid.has(id)) return;
+      panels.forEach(panel => {
+        const active = panel.id === id;
+        panel.hidden = !active;
+        panel.classList.toggle("active", active);
+      });
+      tabs.forEach(link => {
+        const active = link.dataset.tab === id;
+        link.classList.toggle("active", active);
+        if (active) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
+      });
+      if (updateUrl && window.location.hash !== `#${id}`) {
+        window.history.pushState(null, "", `#${encodeURIComponent(id)}`);
+      }
+    }
+
+    root.addEventListener("click", event => {
+      if (!(event.target instanceof Element)) return;
+      const link = event.target.closest("[data-tab], [data-go]");
+      if (!link || !root.contains(link)) return;
+      const id = link.dataset.tab || link.dataset.go;
+      if (!valid.has(id)) return;
+      event.preventDefault();
+      activatePanel(id, true);
+    });
+
+    window.addEventListener("hashchange", () => activatePanel(currentTab()));
+    window.addEventListener("popstate", () => activatePanel(currentTab()));
+    activatePanel(currentTab());
+
+    root.querySelectorAll("[data-filter-target]").forEach(input => {
+      const target = document.getElementById(input.dataset.filterTarget);
+      if (!target) return;
+      input.addEventListener("input", () => {
+        const search = input.value.trim().toLocaleLowerCase("fr-FR");
+        target.querySelectorAll(".searchable").forEach(item => {
+          item.hidden = !item.textContent.toLocaleLowerCase("fr-FR").includes(search);
+        });
+      });
+    });
+
+    // Calendrier : les échéances réelles sont fournies par Flask en JSON.
   const app = document.getElementById("calendar-app");
   if (!app) return;
+  const required = ["calendar-days", "calendar-month-title", "calendar-event-list", "calendar-category-filter", "calendar-selected-day", "calendar-date-short", "calendar-selected-full-date", "calendar-selected-count", "calendar-month-count", "calendar-prev", "calendar-next", "calendar-today"];
+  if (required.some(id => !document.getElementById(id))) {
+    console.warn("DATENSIS : éléments du calendrier manquants");
+    return;
+  }
   const el = id => document.getElementById(id);
   const days = el("calendar-days"), monthTitle = el("calendar-month-title"), list = el("calendar-event-list");
   const filter = el("calendar-category-filter");
@@ -150,4 +178,11 @@
   el("calendar-today").addEventListener("click",()=>{selected=new Date(today);year=selected.getFullYear();month=selected.getMonth();render();});
   filter.addEventListener("change",render);
   render();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initialize, { once: true });
+  } else {
+    initialize();
+  }
 })();
