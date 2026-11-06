@@ -1779,3 +1779,16 @@ button.calendar-day:hover{transform:translateY(-3px);border-color:#65d9c7;box-sh
   .deadline-event-title { overflow-wrap: anywhere; }
 
 }
+
+/* Préférences utilisateur */
+.preference-option{display:flex!important;align-items:center;justify-content:space-between;gap:20px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface-light)}
+.preference-option span{display:grid;gap:4px;min-width:0}.preference-option small{font-weight:400;color:var(--muted)}
+.preference-option input[type="checkbox"]{width:22px;height:22px;min-width:22px;accent-color:var(--mint);cursor:pointer}
+.settings-secondary{margin-top:20px}.preferences-form{max-width:760px}
+.client-workspace[data-theme="light"]{--text:#142b3b;--muted:#3f5a6a;--surface:#f6fbfd;--surface-light:#e7f2f5;--line:#bed1db;color:#142b3b}
+.client-workspace[data-theme="light"] .content{background:#eaf3f7;color:#142b3b}
+.client-workspace[data-theme="light"] .panel,.client-workspace[data-theme="light"] .stat{background:#fff;border-color:#c6d7df;color:#142b3b}
+.client-workspace[data-theme="light"] .panel h3,.client-workspace[data-theme="light"] .stat strong,.client-workspace[data-theme="light"] .record strong{color:#102b3d}
+.client-workspace[data-theme="light"] .panel p,.client-workspace[data-theme="light"] .page-header p{color:#365567}
+.client-workspace[data-theme="light"] .preference-option{background:#edf5f8}
+@media(max-width:600px){.preference-option{gap:12px;padding:12px}}
