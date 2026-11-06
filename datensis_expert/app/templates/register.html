@@ -1,30 +1,378 @@
-{% extends 'base.html' %}
+
+{% extends "base.html" %}
+
+{% block title %}
+Inscription client | DATENSIS Expert
+{% endblock %}
+
 {% block content %}
-<main class="auth-shell"><div class="auth-intro"><div class="brand">✦ DATENSIS <span>EXPERT</span></div><h1>Votre espace client,<br><em>à portée de main.</em></h1><p>Renseignez les informations de votre entreprise pour créer votre espace sécurisé.</p></div>
-<section class="auth-card registration-card"><div class="pill">INSCRIPTION CLIENT</div><h2>Créer mon compte</h2><p>Les champs marqués * sont obligatoires.</p>
-<form method="post" action="{{ url_for('register') }}" class="registration-form">
-<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-<fieldset><legend>1. Identité et contact</legend><div class="registration-grid">
-<label>Prénom *<input name="first_name" maxlength="80" required autocomplete="given-name" value="{{ request.form.get('first_name','') }}"></label>
-<label>Nom *<input name="last_name" maxlength="80" required autocomplete="family-name" value="{{ request.form.get('last_name','') }}"></label>
-<label>Adresse e-mail professionnelle *<input name="email" type="email" maxlength="254" required autocomplete="email" value="{{ request.form.get('email','') }}"></label>
-<label>Téléphone *<input name="phone" type="tel" maxlength="30" required autocomplete="tel" value="{{ request.form.get('phone','') }}"></label>
-</div></fieldset>
-<fieldset><legend>2. Informations de l'entreprise</legend><div class="registration-grid">
-<label>Raison sociale *<input name="company_name" maxlength="200" required autocomplete="organization" value="{{ request.form.get('company_name','') }}"></label>
-<label>SIRET (14 chiffres) *<input name="siret" inputmode="numeric" pattern="[0-9]{14}" maxlength="14" required value="{{ request.form.get('siret','') }}"></label>
-<label>Forme juridique *<select name="legal_form" required><option value="">Sélectionner</option>{% for x in ['EI','Micro-entreprise','EURL','SARL','SASU','SAS','SA','SCI','Association','Autre'] %}<option value="{{ x }}" {% if request.form.get('legal_form') == x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select></label>
-<label>Activité principale *<input name="activity" maxlength="150" required value="{{ request.form.get('activity','') }}"></label>
-<label class="registration-wide">Adresse du siège *<input name="address" maxlength="200" required autocomplete="street-address" value="{{ request.form.get('address','') }}"></label>
-<label>Code postal *<input name="postal_code" maxlength="10" required autocomplete="postal-code" value="{{ request.form.get('postal_code','') }}"></label>
-<label>Ville *<input name="city" maxlength="100" required autocomplete="address-level2" value="{{ request.form.get('city','') }}"></label>
-<label>Pays<input name="country" maxlength="80" autocomplete="country-name" value="{{ request.form.get('country','France') }}"></label>
-</div></fieldset>
-<fieldset><legend>3. Sécurité du compte</legend><div class="registration-grid">
-<label>Mot de passe *<input name="password" type="password" minlength="12" maxlength="256" required autocomplete="new-password"></label>
-<label>Confirmer le mot de passe *<input name="confirm_password" type="password" minlength="12" maxlength="256" required autocomplete="new-password"></label>
-</div><small>12 caractères minimum, avec une majuscule, un chiffre et un symbole.</small></fieldset>
-<label class="registration-consent"><input type="checkbox" name="terms" value="accepted" required> J'accepte les conditions d'utilisation et la politique de confidentialité applicables.</label>
-<button class="primary" type="submit">Créer mon compte et accéder à mon espace</button></form>
-<p class="auth-foot"><a href="{{ url_for('portal') }}">← Déjà inscrit ? Se connecter</a></p></section></main>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}"
+>
+
+<main class="auth-shell registration-shell">
+
+    <div class="auth-intro">
+        <div class="brand">
+            ✦ DATENSIS <span>EXPERT</span>
+        </div>
+
+        <div class="auth-intro-content">
+            <div class="eyebrow">VOTRE ESPACE PROFESSIONNEL</div>
+
+            <h1>
+                Votre espace client,<br>
+                <em>à portée de main.</em>
+            </h1>
+
+            <p>
+                Renseignez les informations de votre entreprise
+                pour créer votre espace sécurisé et simplifier
+                votre gestion quotidienne.
+            </p>
+
+            <div class="auth-points">
+                <span>◈ Documents centralisés</span>
+                <span>◈ Échanges avec votre cabinet</span>
+                <span>◈ Suivi simplifié de votre activité</span>
+            </div>
+        </div>
+
+        <p class="intro-footer">
+            DATENSIS EXPERT — Votre gestion, simplifiée.
+        </p>
+    </div>
+
+    <section class="auth-card registration-card">
+
+        <div class="pill">INSCRIPTION CLIENT</div>
+
+        <h2>Créer mon compte</h2>
+
+        <p class="auth-description">
+            Complétez les informations ci-dessous pour accéder
+            à votre espace professionnel.
+        </p>
+
+        <p class="required-note">
+            Les champs marqués <strong>*</strong> sont obligatoires.
+        </p>
+
+        <form
+            method="post"
+            action="{{ url_for('register') }}"
+            class="registration-form"
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+            >
+
+            <!-- IDENTITÉ ET CONTACT -->
+
+            <fieldset>
+                <legend>
+                    <span class="step-number">01</span>
+                    Identité et contact
+                </legend>
+
+                <div class="registration-grid">
+
+                    <label for="first_name">
+                        Prénom *
+                        <input
+                            id="first_name"
+                            type="text"
+                            name="first_name"
+                            maxlength="80"
+                            required
+                            autocomplete="given-name"
+                            placeholder="Votre prénom"
+                            value="{{ request.form.get('first_name', '') }}"
+                        >
+                    </label>
+
+                    <label for="last_name">
+                        Nom *
+                        <input
+                            id="last_name"
+                            type="text"
+                            name="last_name"
+                            maxlength="80"
+                            required
+                            autocomplete="family-name"
+                            placeholder="Votre nom"
+                            value="{{ request.form.get('last_name', '') }}"
+                        >
+                    </label>
+
+                    <label for="email">
+                        Adresse e-mail professionnelle *
+                        <input
+                            id="email"
+                            type="email"
+                            name="email"
+                            maxlength="254"
+                            required
+                            autocomplete="email"
+                            placeholder="nom@entreprise.fr"
+                            value="{{ request.form.get('email', '') }}"
+                        >
+                    </label>
+
+                    <label for="phone">
+                        Téléphone *
+                        <input
+                            id="phone"
+                            type="tel"
+                            name="phone"
+                            maxlength="30"
+                            required
+                            autocomplete="tel"
+                            placeholder="06 00 00 00 00"
+                            value="{{ request.form.get('phone', '') }}"
+                        >
+                    </label>
+
+                </div>
+            </fieldset>
+
+            <!-- INFORMATIONS ENTREPRISE -->
+
+            <fieldset>
+                <legend>
+                    <span class="step-number">02</span>
+                    Informations de l'entreprise
+                </legend>
+
+                <div class="registration-grid">
+
+                    <label for="company_name">
+                        Raison sociale *
+                        <input
+                            id="company_name"
+                            type="text"
+                            name="company_name"
+                            maxlength="200"
+                            required
+                            autocomplete="organization"
+                            placeholder="Nom de votre entreprise"
+                            value="{{ request.form.get('company_name', '') }}"
+                        >
+                    </label>
+
+                    <label for="siret">
+                        SIRET (14 chiffres) *
+                        <input
+                            id="siret"
+                            type="text"
+                            name="siret"
+                            inputmode="numeric"
+                            pattern="[0-9]{14}"
+                            minlength="14"
+                            maxlength="14"
+                            required
+                            placeholder="12345678900012"
+                            title="Le SIRET doit contenir exactement 14 chiffres."
+                            value="{{ request.form.get('siret', '') }}"
+                        >
+                    </label>
+
+                    <label for="legal_form">
+                        Forme juridique *
+                        <select
+                            id="legal_form"
+                            name="legal_form"
+                            required
+                        >
+                            <option value="">Sélectionner</option>
+
+                            {% for x in [
+                                'EI',
+                                'Micro-entreprise',
+                                'EURL',
+                                'SARL',
+                                'SASU',
+                                'SAS',
+                                'SA',
+                                'SCI',
+                                'Association',
+                                'Autre'
+                            ] %}
+                            <option
+                                value="{{ x }}"
+                                {% if request.form.get('legal_form') == x %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ x }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <label for="activity">
+                        Activité principale *
+                        <input
+                            id="activity"
+                            type="text"
+                            name="activity"
+                            maxlength="150"
+                            required
+                            placeholder="Ex. Conseil, commerce, artisanat"
+                            value="{{ request.form.get('activity', '') }}"
+                        >
+                    </label>
+
+                    <label
+                        for="address"
+                        class="registration-wide"
+                    >
+                        Adresse du siège *
+                        <input
+                            id="address"
+                            type="text"
+                            name="address"
+                            maxlength="200"
+                            required
+                            autocomplete="street-address"
+                            placeholder="Numéro et nom de rue"
+                            value="{{ request.form.get('address', '') }}"
+                        >
+                    </label>
+
+                    <label for="postal_code">
+                        Code postal *
+                        <input
+                            id="postal_code"
+                            type="text"
+                            name="postal_code"
+                            maxlength="10"
+                            required
+                            autocomplete="postal-code"
+                            placeholder="28000"
+                            value="{{ request.form.get('postal_code', '') }}"
+                        >
+                    </label>
+
+                    <label for="city">
+                        Ville *
+                        <input
+                            id="city"
+                            type="text"
+                            name="city"
+                            maxlength="100"
+                            required
+                            autocomplete="address-level2"
+                            placeholder="Votre ville"
+                            value="{{ request.form.get('city', '') }}"
+                        >
+                    </label>
+
+                    <label
+                        for="country"
+                        class="registration-wide"
+                    >
+                        Pays
+                        <input
+                            id="country"
+                            type="text"
+                            name="country"
+                            maxlength="80"
+                            autocomplete="country-name"
+                            value="{{ request.form.get('country', 'France') }}"
+                        >
+                    </label>
+
+                </div>
+            </fieldset>
+
+            <!-- SÉCURITÉ -->
+
+            <fieldset>
+                <legend>
+                    <span class="step-number">03</span>
+                    Sécurité du compte
+                </legend>
+
+                <div class="registration-grid">
+
+                    <label for="password">
+                        Mot de passe *
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            minlength="12"
+                            maxlength="256"
+                            required
+                            autocomplete="new-password"
+                            placeholder="Votre mot de passe"
+                        >
+                    </label>
+
+                    <label for="confirm_password">
+                        Confirmer le mot de passe *
+                        <input
+                            id="confirm_password"
+                            type="password"
+                            name="confirm_password"
+                            minlength="12"
+                            maxlength="256"
+                            required
+                            autocomplete="new-password"
+                            placeholder="Confirmez votre mot de passe"
+                        >
+                    </label>
+
+                </div>
+
+                <div class="password-information">
+                    <strong>Conditions de sécurité</strong>
+                    <p>
+                        12 caractères minimum, avec une majuscule,
+                        un chiffre et un symbole.
+                    </p>
+                </div>
+            </fieldset>
+
+            <!-- CONDITIONS -->
+
+            <label class="registration-consent">
+                <input
+                    type="checkbox"
+                    name="terms"
+                    value="accepted"
+                    required
+                >
+
+                <span>
+                    J'accepte les conditions d'utilisation et
+                    la politique de confidentialité applicables.
+                </span>
+            </label>
+
+            <button
+                class="primary registration-submit"
+                type="submit"
+            >
+                Créer mon compte et accéder à mon espace →
+            </button>
+
+        </form>
+
+        <p class="auth-foot">
+            Déjà inscrit ?
+            <a href="{{ url_for('portal') }}">
+                Se connecter à mon espace
+            </a>
+        </p>
+
+    </section>
+
+</main>
 {% endblock %}

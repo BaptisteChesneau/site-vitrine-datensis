@@ -486,7 +486,7 @@ select option {
 
     border-radius: 10px;
 
-    background: linear-gradient(120deg, #00a7ac, #4bd7be);
+    background: #e96148;
 
     color: #06202b;
 
@@ -1781,26 +1781,461 @@ button.calendar-day:hover{transform:translateY(-3px);border-color:#65d9c7;box-sh
 }
 
 /* Préférences utilisateur */
+
 .preference-option{display:flex!important;align-items:center;justify-content:space-between;gap:20px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface-light)}
+
 .preference-option span{display:grid;gap:4px;min-width:0}.preference-option small{font-weight:400;color:var(--muted)}
+
 .preference-option input[type="checkbox"]{width:22px;height:22px;min-width:22px;accent-color:var(--mint);cursor:pointer}
+
 .settings-secondary{margin-top:20px}.preferences-form{max-width:760px}
+
 .client-workspace[data-theme="light"]{--text:#142b3b;--muted:#3f5a6a;--surface:#f6fbfd;--surface-light:#e7f2f5;--line:#bed1db;color:#142b3b}
+
 .client-workspace[data-theme="light"] .content{background:#eaf3f7;color:#142b3b}
+
 .client-workspace[data-theme="light"] .panel,.client-workspace[data-theme="light"] .stat{background:#fff;border-color:#c6d7df;color:#142b3b}
+
 .client-workspace[data-theme="light"] .panel h3,.client-workspace[data-theme="light"] .stat strong,.client-workspace[data-theme="light"] .record strong{color:#102b3d}
+
 .client-workspace[data-theme="light"] .panel p,.client-workspace[data-theme="light"] .page-header p{color:#365567}
+
 .client-workspace[data-theme="light"] .preference-option{background:#edf5f8}
+
 @media(max-width:600px){.preference-option{gap:12px;padding:12px}}
 
 /* Inscription client : formulaire lisible et adaptatif */
+
 .registration-card{width:min(100%,900px);max-width:900px}
+
 .auth-shell:has(.registration-card){grid-template-columns:minmax(240px,0.75fr) minmax(0,1.5fr);gap:3vw}
+
 .registration-form fieldset{min-width:0;border:1px solid var(--line);border-radius:14px;padding:18px;margin:0}
+
 .registration-form legend{color:var(--mint);font-weight:800;padding:0 8px}
+
 .registration-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+
 .registration-wide{grid-column:1/-1}
+
 .registration-consent{display:flex!important;align-items:flex-start;gap:12px}
+
 .registration-consent input{width:20px;min-width:20px;height:20px;accent-color:var(--mint)}
+
 @media(max-width:950px){.auth-shell:has(.registration-card){grid-template-columns:1fr}}
+
 @media(max-width:600px){.registration-grid{grid-template-columns:1fr}.registration-form fieldset{padding:12px}}
+
+/* ==========================================================
+
+   DATENSIS EXPERT - AUTHENTIFICATION UNIFIEE
+
+   Portail, inscription, mot de passe oublie, reinitialisation
+
+   Fond bleu integral et cartes bleu fonce
+
+   ========================================================== */
+
+:root {
+
+    --auth-blue: #00778b;
+
+    --auth-blue-dark: #003e53;
+
+    --auth-mint: #82c4a8;
+
+    --auth-coral: #e96148;
+
+}
+
+.auth-shell,
+
+.auth-shell.registration-shell,
+
+.auth-shell.reset-shell,
+
+.auth-shell.forgot-password-page {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 28px;
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    padding: clamp(28px, 5vw, 70px) 20px;
+
+    background: radial-gradient(circle at 15% 12%, #168a99 0, transparent 38%),
+
+                linear-gradient(145deg, #003e53 0%, #00778b 55%, #00566a 100%);
+
+}
+
+.auth-shell .auth-intro {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 15px;
+
+    width: 100%;
+
+    max-width: 850px;
+
+    padding: 0;
+
+    margin: 0;
+
+    background: transparent;
+
+    color: #fff;
+
+    text-align: center;
+
+}
+
+.auth-shell .auth-intro .brand {
+
+    margin: 0;
+
+    color: #fff;
+
+    font-size: clamp(1.35rem, 3vw, 1.8rem);
+
+    font-weight: 800;
+
+}
+
+.auth-shell .auth-intro .brand span { color: #b9efd8; }
+
+.auth-shell .auth-intro h1 {
+
+    margin: 12px 0 0;
+
+    color: #fff;
+
+    font-size: clamp(2rem, 4vw, 3.4rem);
+
+}
+
+.auth-shell .auth-intro h1 em { color: #b9efd8; font-style: normal; }
+
+.auth-shell .auth-intro p { margin: 0; color: #e0f1f1; font-size: 1rem; }
+
+.auth-shell .auth-intro .eyebrow {
+
+    margin: 0;
+
+    padding: 8px 15px;
+
+    border: 1px solid #ffffff55;
+
+    border-radius: 999px;
+
+    color: #fff;
+
+}
+
+.auth-shell .auth-points,
+
+.auth-shell .reset-benefits {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-top: 8px;
+
+}
+
+.auth-shell .auth-points span,
+
+.auth-shell .reset-benefits span {
+
+    padding: 10px 13px;
+
+    border: 1px solid #ffffff33;
+
+    border-radius: 9px;
+
+    background: #ffffff12;
+
+    color: #fff;
+
+    font-size: .83rem;
+
+}
+
+.auth-shell .auth-card,
+
+.auth-shell .registration-card {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    justify-content: center;
+
+    width: min(100%, 520px);
+
+    max-width: 100%;
+
+    min-width: 0;
+
+    margin: 0;
+
+    padding: clamp(24px, 4vw, 44px);
+
+    border: 1px solid #ffffff35;
+
+    border-radius: 20px;
+
+    background: #00566a;
+
+    box-shadow: 0 22px 58px #001e2d55;
+
+    color: #fff;
+
+}
+
+.auth-shell .registration-card { width: min(100%, 880px); }
+
+.auth-shell .auth-card .pill {
+
+    align-self: flex-start;
+
+    background: var(--auth-mint);
+
+    color: var(--auth-blue-dark);
+
+}
+
+.auth-shell .auth-card h2 { margin: 20px 0 10px; color: #fff; font-size: clamp(1.6rem, 3vw, 2.2rem); }
+
+.auth-shell .auth-card > p,
+
+.auth-shell .auth-card > small,
+
+.auth-shell .auth-card .auth-description,
+
+.auth-shell .auth-card .required-note { color: #e0f1f1; }
+
+.auth-shell .auth-card form { display: flex; flex-direction: column; gap: 20px; width: 100%; margin-top: 16px; }
+
+.auth-shell .auth-card form label:not(.registration-consent) {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    color: #fff;
+
+    font-size: .9rem;
+
+    font-weight: 700;
+
+}
+
+.auth-shell .auth-card form input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+
+.auth-shell .auth-card form select,
+
+.auth-shell .auth-card form textarea {
+
+    display: block;
+
+    width: 100%;
+
+    min-width: 0;
+
+    min-height: 51px;
+
+    margin: 0;
+
+    padding: 12px 15px;
+
+    border: 1px solid #b9d5da;
+
+    border-radius: 10px;
+
+    background: #fff;
+
+    color: #17394a;
+
+    font: inherit;
+
+}
+
+.auth-shell .auth-card form input::placeholder,
+
+.auth-shell .auth-card form textarea::placeholder { color: #6b818c; }
+
+.auth-shell .auth-card form select option { background: #fff; color: #17394a; }
+
+.auth-shell .auth-card form input:focus,
+
+.auth-shell .auth-card form select:focus,
+
+.auth-shell .auth-card form textarea:focus {
+
+    border-color: var(--auth-mint);
+
+    box-shadow: 0 0 0 3px #82c4a855;
+
+}
+
+.auth-shell .auth-card form .primary {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    width: 100%;
+
+    min-height: 54px;
+
+    padding: 14px 18px;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    background: var(--auth-coral);
+
+    color: #fff;
+
+    font-weight: 800;
+
+    text-align: center;
+
+}
+
+.auth-shell .auth-card form .primary:hover { background: #d94e36; filter: none; }
+
+.auth-shell .auth-card form .primary:focus-visible { outline: 3px solid var(--auth-mint); outline-offset: 3px; }
+
+.auth-shell .auth-foot { color: #e0f1f1; }
+
+.auth-shell .auth-foot a { color: #b9efd8; font-weight: 700; }
+
+.auth-shell .auth-foot a:hover { color: #fff; }
+
+.auth-shell .registration-form fieldset {
+
+    min-width: 0;
+
+    margin: 0;
+
+    padding: 22px;
+
+    border: 1px solid #ffffff44;
+
+    border-radius: 14px;
+
+    background: #003e5333;
+
+}
+
+.auth-shell .registration-form legend { padding: 0 8px; color: #b9efd8; font-weight: 800; }
+
+.auth-shell .registration-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+
+.auth-shell .registration-wide { grid-column: 1 / -1; }
+
+.auth-shell .registration-consent {
+
+    display: flex !important;
+
+    flex-direction: row;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    color: #fff;
+
+    font-weight: 400;
+
+}
+
+.auth-shell .registration-consent input[type="checkbox"] {
+
+    flex: 0 0 20px;
+
+    width: 20px;
+
+    min-width: 20px;
+
+    height: 20px;
+
+    margin: 3px 0 0;
+
+    accent-color: var(--auth-mint);
+
+}
+
+.auth-shell .password-information,
+
+.auth-shell .reset-password-info {
+
+    padding: 15px 18px;
+
+    border-left: 4px solid var(--auth-mint);
+
+    border-radius: 10px;
+
+    background: #003e5388;
+
+}
+
+.auth-shell .password-information strong,
+
+.auth-shell .password-information p,
+
+.auth-shell .reset-password-info strong,
+
+.auth-shell .reset-password-info p { color: #fff; }
+
+@media (max-width: 760px) {
+
+    .auth-shell,
+
+    .auth-shell.registration-shell,
+
+    .auth-shell.reset-shell,
+
+    .auth-shell.forgot-password-page { padding: 30px 15px; gap: 22px; }
+
+    .auth-shell .auth-card { padding: 25px 20px; }
+
+    .auth-shell .registration-grid { grid-template-columns: 1fr; }
+
+    .auth-shell .registration-wide { grid-column: auto; }
+
+    .auth-shell .auth-points,
+
+    .auth-shell .reset-benefits { display: none; }
+
+}
