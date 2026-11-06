@@ -565,41 +565,67 @@
         <!-- ========================================= -->
         <!-- ONGLET : ECHEANCES -->
         <!-- ========================================= -->
-
-        <section
-            class="tab-panel"
-            id="echeances"
-            aria-labelledby="titre-echeances"
-            hidden
-        >
-
+        <section class="tab-panel" id="echeances" aria-labelledby="titre-echeances" hidden>
             <div class="section-title">
                 <h2 id="titre-echeances">Mes échéances</h2>
-                <span class="pill">Calendrier</span>
+                <span class="pill">Agenda du dossier</span>
             </div>
-
-            <article class="panel">
-
-                <h3>Suivi de vos obligations</h3>
-
-                <p>
-                    Vous retrouverez ici les échéances
-                    comptables, fiscales et sociales
-                    applicables à votre entreprise.
-                </p>
-
-                <p>
-                    Les dates seront renseignées en fonction
-                    de votre dossier et des obligations
-                    suivies par le cabinet.
-                </p>
-
-                <span class="status">
-                    Calendrier en préparation
-                </span>
-
-            </article>
-
+            <div class="calendar-shell" id="calendar-app">
+                <header class="calendar-heading">
+                    <div>
+                        <span class="calendar-kicker">SUIVI DES OBLIGATIONS</span>
+                        <h3>Calendrier de votre entreprise</h3>
+                        <p>Retrouvez les dates renseignées par votre cabinet et les rendez-vous prévus.</p>
+                    </div>
+                    <span class="calendar-total" id="calendar-month-count">0 échéance ce mois</span>
+                </header>
+                <div class="calendar-layout">
+                    <div class="calendar-board" id="calendar-board">
+                        <div class="calendar-toolbar">
+                            <h3 id="calendar-month-title">Calendrier</h3>
+                            <div class="calendar-controls">
+                                <button type="button" id="calendar-prev" aria-label="Mois précédent">&#8249;</button>
+                                <button type="button" id="calendar-today">Aujourd'hui</button>
+                                <button type="button" id="calendar-next" aria-label="Mois suivant">&#8250;</button>
+                            </div>
+                        </div>
+                        <label class="calendar-filter-label" for="calendar-category-filter">Catégorie</label>
+                        <select id="calendar-category-filter">
+                            <option value="all">Toutes les catégories</option>
+                            <option value="comptabilite">Comptabilité</option>
+                            <option value="fiscalite">Fiscalité</option>
+                            <option value="social">Social</option>
+                            <option value="juridique">Juridique</option>
+                            <option value="rendez_vous">Rendez-vous</option>
+                            <option value="urgent">Prioritaire</option>
+                        </select>
+                        <div class="calendar-weekdays" aria-hidden="true">
+                            <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+                        </div>
+                        <div class="calendar-days" id="calendar-days" role="group" aria-label="Dates du calendrier"></div>
+                        <div class="calendar-legend" aria-label="Légende des catégories">
+                            <span style="--legend-color:#38bdf8">Comptabilité</span>
+                            <span style="--legend-color:#f5b75b">Fiscalité</span>
+                            <span style="--legend-color:#ad9cf4">Social</span>
+                            <span style="--legend-color:#ee92bc">Juridique</span>
+                            <span style="--legend-color:#65d9c7">Rendez-vous</span>
+                            <span style="--legend-color:#f07d7d">Prioritaire</span>
+                        </div>
+                    </div>
+                    <aside class="calendar-detail" aria-label="Détails des échéances">
+                        <header class="deadline-header">
+                            <div class="deadline-date-box"><strong id="calendar-selected-day">--</strong><span id="calendar-date-short">--</span></div>
+                            <div class="deadline-header-content">
+                                <span class="deadline-eyebrow">VOTRE AGENDA</span>
+                                <h3 id="calendar-selected-full-date">Date sélectionnée</h3>
+                                <p class="deadline-summary" id="calendar-selected-count">Aucune échéance</p>
+                            </div>
+                        </header>
+                        <div class="deadline-list" id="calendar-event-list" aria-live="polite"></div>
+                        <footer class="deadline-footer">Les échéances affichées dépendent des obligations suivies par votre cabinet.</footer>
+                    </aside>
+                </div>
+            </div>
         </section>
 
         <!-- ========================================= -->
@@ -760,72 +786,9 @@
 
 </div>
 
-<!-- ============================================= -->
-<!-- NAVIGATION DES ONGLETS -->
-<!-- ============================================= -->
-
-<script>
-(function () {
-    "use strict";
-
-    const panels = Array.from(
-        document.querySelectorAll(".client-workspace .tab-panel")
-    );
-
-    const navigationLinks = Array.from(
-        document.querySelectorAll(".client-workspace [data-tab]")
-    );
-
-    const validTabs = new Set(
-        panels.map((panel) => panel.id)
-    );
-
-    function activateTab(tabId) {
-        const target = validTabs.has(tabId)
-            ? tabId
-            : "accueil";
-
-        panels.forEach((panel) => {
-            const active = panel.id === target;
-
-            panel.classList.toggle("active", active);
-            panel.hidden = !active;
-        });
-
-        navigationLinks.forEach((link) => {
-            const active = link.dataset.tab === target;
-
-            link.classList.toggle("active", active);
-
-            if (active) {
-                link.setAttribute("aria-current", "page");
-            } else {
-                link.removeAttribute("aria-current");
-            }
-        });
-    }
-
-    function updateFromHash() {
-        const tabId = window.location.hash.slice(1);
-        activateTab(tabId);
-    }
-
-    document.querySelectorAll(
-        ".client-workspace [data-go]"
-    ).forEach((link) => {
-        link.addEventListener("click", () => {
-            const tabId = link.dataset.go;
-
-            if (validTabs.has(tabId)) {
-                activateTab(tabId);
-            }
-        });
-    });
-
-    window.addEventListener("hashchange", updateFromHash);
-
-    updateFromHash();
-})();
+<script id="datensis-echeances-data" type="application/json">
+{{ echeances | default([], true) | tojson }}
 </script>
+<script src="{{ url_for('static', filename='js/client.js') }}" defer></script>
 
 {% endblock %}
