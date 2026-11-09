@@ -1,0 +1,69 @@
+
+{% extends "base.html" %}
+
+{% block title %}Création administrateur | DATENSIS Expert{% endblock %}
+
+{% block content %}
+<main class="auth-shell cabinet-login-page">
+    <div class="auth-intro">
+        <div class="brand">✦ DATENSIS <span>EXPERT</span></div>
+        <div class="auth-intro-content">
+            <div class="eyebrow">INITIALISATION SÉCURISÉE</div>
+            <h1>Créer votre<br><em>compte administrateur.</em></h1>
+            <p>Réservé à la configuration initiale du cabinet.</p>
+        </div>
+    </div>
+
+    <section class="auth-card cabinet-login-card">
+        <div class="pill">PREMIER ADMINISTRATEUR</div>
+        <h2>Création du compte</h2>
+
+        {% with alerts = get_flashed_messages(with_categories=true) %}
+            {% for category, message in alerts %}
+                <p class="flash-message {{ category }}" role="alert">
+                    {{ message }}
+                </p>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="post" class="stack-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <label for="setup-key">Clé d'initialisation
+                <input id="setup-key" type="password" name="setup_key" required>
+            </label>
+
+            <label for="admin-name">Nom complet
+                <input id="admin-name" type="text" name="name"
+                       minlength="2" maxlength="100" required>
+            </label>
+
+            <label for="admin-email">Adresse professionnelle
+                <input id="admin-email" type="email" name="email"
+                       maxlength="254" autocomplete="email" required>
+            </label>
+
+            <label for="admin-password">Mot de passe
+                <input id="admin-password" type="password" name="password"
+                       minlength="12" autocomplete="new-password" required>
+            </label>
+
+            <label for="admin-confirm">Confirmation du mot de passe
+                <input id="admin-confirm" type="password"
+                       name="confirm_password" minlength="12"
+                       autocomplete="new-password" required>
+            </label>
+
+            <button class="primary" type="submit">
+                Créer mon compte administrateur →
+            </button>
+        </form>
+
+        <p class="auth-foot">
+            <a href="{{ url_for('cabinet_login') }}">
+                ← Retour à la connexion
+            </a>
+        </p>
+    </section>
+</main>
+{% endblock %}

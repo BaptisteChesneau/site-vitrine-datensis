@@ -4,21 +4,14 @@
 {% block title %}Connexion cabinet | DATENSIS Expert{% endblock %}
 
 {% block content %}
-
 <main class="auth-shell cabinet-login-page">
 
-    <!-- ========================================= -->
-    <!-- IDENTITÉ DATENSIS EXPERT -->
-    <!-- ========================================= -->
-
     <div class="auth-intro">
-
         <div class="brand">
             ✦ DATENSIS <span>EXPERT</span>
         </div>
 
         <div class="auth-intro-content">
-
             <div class="eyebrow">
                 ESPACE PROFESSIONNEL SÉCURISÉ
             </div>
@@ -32,44 +25,44 @@
                 Accès exclusivement réservé
                 à l'équipe DATENSIS.
             </p>
-
         </div>
-
     </div>
-
-    <!-- ========================================= -->
-    <!-- FORMULAIRE DE CONNEXION CABINET -->
-    <!-- ========================================= -->
 
     <section
         class="auth-card cabinet-login-card"
         aria-labelledby="cabinet-login-title"
     >
 
-        <div class="pill">
-            ACCÈS INTERNE
-        </div>
+        <div class="pill">ACCÈS INTERNE</div>
 
         <h2 id="cabinet-login-title">
             Connexion cabinet
         </h2>
 
         <p class="auth-description">
-            Identifiez-vous avec vos identifiants
-            professionnels pour accéder à votre
-            espace de gestion.
+            Identifiez-vous avec votre adresse
+            professionnelle et votre mot de passe.
         </p>
 
-        <form method="post">
+        {% with alerts = get_flashed_messages(with_categories=true) %}
+            {% for category, message in alerts %}
+                <p
+                    class="flash-message {{ category }}"
+                    role="alert"
+                >
+                    {{ message }}
+                </p>
+            {% endfor %}
+        {% endwith %}
 
-            <!-- PROTECTION CSRF -->
+        <form method="post" class="stack-form">
+
             <input
                 type="hidden"
                 name="csrf_token"
                 value="{{ csrf_token() }}"
             >
 
-            <!-- ADRESSE E-MAIL -->
             <label for="cabinet-email">
                 Adresse professionnelle
 
@@ -78,14 +71,13 @@
                     type="email"
                     name="email"
                     maxlength="254"
-                    required
                     autocomplete="username"
                     placeholder="nom@entreprise.fr"
                     value="{{ request.form.get('email', '') }}"
+                    required
                 >
             </label>
 
-            <!-- MOT DE PASSE -->
             <label for="cabinet-password">
                 Mot de passe
 
@@ -93,37 +85,29 @@
                     id="cabinet-password"
                     type="password"
                     name="password"
-                    required
                     autocomplete="current-password"
                     placeholder="Votre mot de passe"
+                    required
                 >
             </label>
 
-            <!-- VALIDATION -->
-            <button
-                class="primary"
-                type="submit"
-            >
+            <button class="primary" type="submit">
                 Ouvrir l'espace cabinet →
             </button>
 
         </form>
 
-        <!-- RETOUR AU PORTAIL CLIENT -->
         <p class="auth-foot">
             <a href="{{ url_for('portal') }}">
                 ← Retour au portail client
             </a>
         </p>
 
-        <!-- INFORMATION DE SÉCURITÉ -->
         <small class="auth-security-note">
             Espace réservé aux utilisateurs
             internes autorisés.
         </small>
 
     </section>
-
 </main>
-
 {% endblock %}

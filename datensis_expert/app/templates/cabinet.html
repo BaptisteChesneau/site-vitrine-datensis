@@ -4,14 +4,19 @@
 {% block title %}Espace cabinet | DATENSIS Expert{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% set active_tasks = tasks|rejectattr('status', 'equalto', 'Terminée')|list %}
+{% set done_tasks = tasks|selectattr('status', 'equalto', 'Terminée')|list %}
+{% set urgent_tasks = tasks|selectattr('priority', 'equalto', 'Urgente')|list %}
 
-<div class="workspace cabinet-workspace">
+
+<div class="workspace cabinet-workspace" data-cabinet-app>
 
     <!-- ========================================= -->
     <!-- NAVIGATION LATÉRALE -->
     <!-- ========================================= -->
 
-    <aside class="sidebar" aria-label="Menu espace cabinet">
+    <aside class="sidebar cabinet-sidebar" aria-label="Menu espace cabinet">
 
         <div class="brand">
             ✦ DATENSIS <span>EXPERT</span>
@@ -21,7 +26,7 @@
             ESPACE CABINET
         </div>
 
-        <nav class="side-nav" aria-label="Navigation cabinet">
+        <nav class="side-nav cabinet-nav" aria-label="Navigation cabinet">
 
             <a
                 href="#accueil"
@@ -92,17 +97,17 @@
     <!-- CONTENU PRINCIPAL -->
     <!-- ========================================= -->
 
-    <main class="content" id="cabinet-main">
+    <main class="content cabinet-main" id="cabinet-main">
 
         <!-- EN-TÊTE -->
-        <header class="page-header">
+        <header class="page-header cabinet-topbar">
 
             <div>
                 <div class="eyebrow">
                     DATENSIS EXPERT / CABINET
                 </div>
 
-                <h1>Tableau de pilotage</h1>
+                <h1 id="cabinet-page-title">Tableau de pilotage</h1>
 
                 <p>
                     Bienvenue dans votre espace de gestion.
@@ -137,6 +142,7 @@
         <section
             class="tab-panel active"
             id="accueil"
+            data-panel="accueil"
             aria-labelledby="titre-accueil"
         >
 
@@ -146,15 +152,15 @@
             </div>
 
             <!-- STATISTIQUES -->
-            <div class="stats">
+            <div class="stats cabinet-stats">
 
-                <article class="stat">
+                <article class="stat cabinet-stat">
                     <span>Clients inscrits</span>
                     <strong>{{ users|length }}</strong>
                     <small>Comptes clients</small>
                 </article>
 
-                <article class="stat">
+                <article class="stat cabinet-stat">
                     <span>Tâches en cours</span>
                     <strong>
                         {{ tasks
@@ -165,7 +171,7 @@
                     <small>À traiter</small>
                 </article>
 
-                <article class="stat">
+                <article class="stat cabinet-stat">
                     <span>Tâches terminées</span>
                     <strong>
                         {{ tasks
@@ -176,7 +182,7 @@
                     <small>Suivi des missions</small>
                 </article>
 
-                <article class="stat">
+                <article class="stat cabinet-stat">
                     <span>Documents référencés</span>
                     <strong>{{ docs|length }}</strong>
                     <small>20 derniers maximum</small>
@@ -185,15 +191,15 @@
             </div>
 
             <!-- ACTIVITÉ DU CABINET -->
-            <div class="two-col">
+            <div class="two-col cabinet-grid two">
 
-                <article class="panel">
+                <article class="panel cabinet-panel">
 
                     <h3>Priorités du cabinet</h3>
 
                     {% for task in tasks[:5] %}
 
-                        <div class="record">
+                        <div class="record cabinet-record">
 
                             <div>
                                 <strong>{{ task.title }}</strong>
@@ -217,13 +223,13 @@
 
                 </article>
 
-                <article class="panel">
+                <article class="panel cabinet-panel">
 
                     <h3>Activité récente</h3>
 
                     {% for msg in messages[:5] %}
 
-                        <div class="record">
+                        <div class="record cabinet-record">
                             <div>
                                 <strong>{{ msg.client_name }}</strong>
                                 <small>
@@ -242,6 +248,53 @@
 
             </div>
 
+        
+            <!-- ANALYSE DETAILLEE DE L'ACTIVITE -->
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <div class="panel-head">
+                        <h3>Indicateurs de traitement</h3>
+                        <span class="pill">Synthèse des tâches</span>
+                    </div>
+                    <p class="section-help">Les indicateurs sont calculés à partir des tâches actuellement enregistrées dans SQLite.</p>
+                    <div class="metric-row"><span>Tâches totales</span><strong>{{ tasks|length }}</strong></div>
+                    <div class="metric-row"><span>Tâches en cours</span><strong>{{ active_tasks|length }}</strong></div>
+                    <div class="metric-row"><span>Tâches clôturées</span><strong>{{ done_tasks|length }}</strong></div>
+                    <div class="metric-row"><span>Tâches urgentes</span><strong>{{ urgent_tasks|length }}</strong></div>
+                    <div class="progress-line" role="progressbar" aria-valuenow="{{ (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 }}" aria-valuemin="0" aria-valuemax="100">
+                        <div data-progress="{{ (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 }}"></div>
+                    </div>
+                    <small>{{ (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 }} % de tâches terminées</small>
+                </article>
+                <article class="cabinet-panel">
+                    <div class="panel-head">
+                        <h3>Actions rapides</h3>
+                        <span class="pill">Accès direct</span>
+                    </div>
+                    <p>Accédez aux principales opérations sans parcourir l'ensemble de l'interface.</p>
+                    <div class="quick-actions">
+                        <button type="button" data-go-tab="taches" data-focus-target="task-title">Créer une tâche</button>
+                        <button type="button" data-go-tab="messages" data-focus-target="message-recipient">Contacter un client</button>
+                        <button type="button" data-go-tab="dossiers">Consulter les dossiers</button>
+                        <button type="button" data-go-tab="echeances">Voir le calendrier</button>
+                    </div>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <div class="panel-head"><h3>Derniers documents référencés</h3><span class="muted-label">20 références au maximum</span></div>
+                <div class="cabinet-list">
+                    {% for doc in docs[:6] %}
+                    <div class="cabinet-record">
+                        <div><strong>{{ doc.title }}</strong><small>{{ doc.client_name }} · {{ doc.created_at }}</small></div>
+                        <span class="status">{{ doc.status }}</span>
+                    </div>
+                    {% else %}
+                    <p class="empty-state">Aucun document référencé pour le moment.</p>
+                    {% endfor %}
+                </div>
+                <p class="section-help">Cette version enregistre des références documentaires, pas des fichiers joints.</p>
+            </article>
+
         </section>
 
         <!-- ========================================= -->
@@ -251,6 +304,7 @@
         <section
             class="tab-panel"
             id="dossiers"
+            data-panel="dossiers"
             aria-labelledby="titre-dossiers"
             hidden
         >
@@ -260,7 +314,7 @@
                 <span class="pill">Portefeuille clients</span>
             </div>
 
-            <article class="panel">
+            <article class="panel cabinet-panel">
 
                 <h3>Portefeuille de dossiers</h3>
 
@@ -277,7 +331,7 @@
 
                 <input
                     id="dossier-filter"
-                    class="filter"
+                    class="filter cabinet-search"
                     type="search"
                     data-filter-target="dossier-list"
                     placeholder="Rechercher un client..."
@@ -288,7 +342,7 @@
 
                     {% for user in users %}
 
-                        <div class="record searchable">
+                        <div class="record searchable cabinet-record">
 
                             <div>
                                 <strong>▤ {{ user.name }}</strong>
@@ -307,6 +361,42 @@
 
             </article>
 
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <div class="panel-head"><h3>Répartition du portefeuille</h3><span class="pill">Vue actuelle</span></div>
+                    <div class="metric-row"><span>Dossiers associés à des comptes clients</span><strong>{{ users|length }}</strong></div>
+                    <div class="metric-row"><span>Références documentaires affichées</span><strong>{{ docs|length }}</strong></div>
+                    <p class="section-help">Un compte client est présenté comme un dossier dans cette version. Les missions, exercices et responsables de dossiers nécessiteront des tables dédiées.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Informations disponibles</h3>
+                    <ul class="cabinet-checklist">
+                        <li>Identification du client</li>
+                        <li>Adresse électronique du compte</li>
+                        <li>Historique récent des documents référencés</li>
+                        <li>Contact depuis la messagerie du cabinet</li>
+                    </ul>
+                    <p class="section-help">Les pièces comptables téléversées et le suivi détaillé des missions ne sont pas encore implémentés.</p>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <div class="panel-head"><h3>Références documentaires récentes</h3><span class="muted-label">Documents liés aux clients</span></div>
+                <label for="document-filter">Rechercher une référence ou un client</label>
+                <input id="document-filter" class="filter cabinet-search" type="search" data-filter-target="document-list" placeholder="Titre, client ou statut…" autocomplete="off">
+                <div id="document-list" class="cabinet-list">
+                    {% for doc in docs %}
+                    <article class="cabinet-record searchable">
+                        <div><strong>{{ doc.title }}</strong><small>{{ doc.client_name }} · {{ doc.created_at }}</small></div>
+                        <span class="status">{{ doc.status }}</span>
+                    </article>
+                    {% else %}
+                    <p class="empty-state">Aucune référence documentaire disponible.</p>
+                    {% endfor %}
+                </div>
+                <p class="filter-empty" data-empty-for="document-list" hidden>Aucune référence ne correspond à la recherche.</p>
+            </article>
+
         </section>
 
         <!-- ========================================= -->
@@ -316,6 +406,7 @@
         <section
             class="tab-panel"
             id="taches"
+            data-panel="taches"
             aria-labelledby="titre-taches"
             hidden
         >
@@ -325,15 +416,15 @@
                 <span class="pill">Organisation</span>
             </div>
 
-            <div class="two-col">
+            <div class="two-col cabinet-grid two">
 
                 <!-- CRÉATION D'UNE TÂCHE -->
-                <article class="panel">
+                <article class="panel cabinet-panel">
 
                     <h3>Créer une tâche</h3>
 
                     <form
-                        class="stack-form"
+                        class="stack-form cabinet-form"
                         method="post"
                         action="{{ url_for('cabinet_task') }}"
                     >
@@ -387,13 +478,13 @@
                 </article>
 
                 <!-- LISTE DES TÂCHES -->
-                <article class="panel">
+                <article class="panel cabinet-panel">
 
                     <h3>Liste des tâches</h3>
 
                     {% for task in tasks %}
 
-                        <div class="record">
+                        <div class="record cabinet-record">
 
                             <div>
                                 <strong>{{ task.title }}</strong>
@@ -443,6 +534,57 @@
 
             </div>
 
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <h3>Suivi de l'avancement</h3>
+                    <div class="metric-row"><span>En attente</span><strong>{{ active_tasks|length }}</strong></div>
+                    <div class="metric-row"><span>Terminées</span><strong>{{ done_tasks|length }}</strong></div>
+                    <div class="metric-row"><span>Urgentes (tous statuts)</span><strong>{{ urgent_tasks|length }}</strong></div>
+                    <div class="progress-line"><div data-progress="{{ (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 }}"></div></div>
+                    <p class="section-help">{{ (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 }} % de tâches terminées.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Filtrer les tâches</h3>
+                    <p class="section-help">Filtre local sur les tâches affichées, sans modification de la base.</p>
+                    <div class="filter-row" role="group" aria-label="Filtre des tâches">
+                        <button type="button" class="filter-chip active" data-task-filter="all">Toutes</button>
+                        <button type="button" class="filter-chip" data-task-filter="open">En cours</button>
+                        <button type="button" class="filter-chip" data-task-filter="done">Terminées</button>
+                    </div>
+                    <label for="task-search">Recherche par intitulé ou priorité</label>
+                    <input id="task-search" class="filter cabinet-search" type="search" data-filter-target="task-detail-list" placeholder="Ex. TVA, urgente…">
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <div class="panel-head"><h3>Registre détaillé des tâches</h3><span class="pill">{{ tasks|length }} tâches</span></div>
+                <div id="task-detail-list" class="cabinet-list">
+                    {% for task in tasks %}
+                    <article class="cabinet-record searchable task-row" data-task-status="{{ 'done' if task.status == 'Terminée' else 'open' }}">
+                        <div>
+                            <strong>{{ task.title }}</strong>
+                            <small>Créée le {{ task.created_at }}</small>
+                            <small>Statut : {{ task.status }}</small>
+                        </div>
+                        <div class="record-actions">
+                            <span class="priority priority-{{ task.priority|lower }}">{{ task.priority }}</span>
+                            {% if task.status != 'Terminée' %}
+                            <form method="post" action="{{ url_for('complete_task', task_id=task.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="small-btn">Terminer</button>
+                            </form>
+                            {% else %}
+                            <span class="completed-label">Terminée</span>
+                            {% endif %}
+                        </div>
+                    </article>
+                    {% else %}
+                    <p class="empty-state">Aucune tâche enregistrée.</p>
+                    {% endfor %}
+                </div>
+                <p class="filter-empty" data-empty-for="task-detail-list" hidden>Aucune tâche ne correspond aux filtres.</p>
+            </article>
+
         </section>
 
         <!-- ========================================= -->
@@ -452,6 +594,7 @@
         <section
             class="tab-panel"
             id="clients"
+            data-panel="clients"
             aria-labelledby="titre-clients"
             hidden
         >
@@ -461,7 +604,7 @@
                 <span class="pill">Annuaire clients</span>
             </div>
 
-            <article class="panel">
+            <article class="panel cabinet-panel">
 
                 <h3>Clients inscrits</h3>
 
@@ -471,7 +614,7 @@
 
                 <input
                     id="client-filter"
-                    class="filter"
+                    class="filter cabinet-search"
                     type="search"
                     data-filter-target="client-list"
                     placeholder="Rechercher un client..."
@@ -482,7 +625,7 @@
 
                     {% for user in users %}
 
-                        <div class="record searchable">
+                        <div class="record searchable cabinet-record">
 
                             <div>
                                 <strong>{{ user.name }}</strong>
@@ -501,6 +644,44 @@
 
             </article>
 
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <h3>Fiche contact rapide</h3>
+                    <p class="section-help">Sélectionnez un client pour préparer un message depuis l'espace cabinet.</p>
+                    <label for="client-quick-select">Choisir un client</label>
+                    <select id="client-quick-select" data-client-quick-select>
+                        <option value="">Sélectionner un client</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.name }} — {{ user.email }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="primary" data-client-quick-message {% if not users %}disabled{% endif %}>Préparer un message</button>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Qualité des données</h3>
+                    <div class="metric-row"><span>Comptes clients inscrits</span><strong>{{ users|length }}</strong></div>
+                    <p class="section-help">L'annuaire affiche les noms et e-mails fournis par les comptes existants. Les informations juridiques détaillées et les habilitations seront ajoutées côté serveur.</p>
+                    <ul class="cabinet-checklist"><li>Vérifier l'identité avant de partager des documents</li><li>Utiliser la messagerie du dossier concerné</li><li>Ne pas considérer un compte inscrit comme un dossier validé</li></ul>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <h3>Annuaire enrichi</h3>
+                <div class="cabinet-list">
+                    {% for user in users %}
+                    <div class="cabinet-record">
+                        <div class="client-identity">
+                            <span class="client-avatar">{{ user.name[:1]|upper }}</span>
+                            <div><strong>{{ user.name }}</strong><small>{{ user.email }}</small></div>
+                        </div>
+                        <button type="button" class="outline-btn" data-message-client="{{ user.id }}">Écrire</button>
+                    </div>
+                    {% else %}
+                    <p class="empty-state">Aucun client inscrit.</p>
+                    {% endfor %}
+                </div>
+            </article>
+
         </section>
 
         <!-- ========================================= -->
@@ -510,6 +691,7 @@
         <section
             class="tab-panel"
             id="pilotage"
+            data-panel="pilotage"
             aria-labelledby="titre-pilotage"
             hidden
         >
@@ -519,7 +701,7 @@
                 <span class="pill">Analyse de l'activité</span>
             </div>
 
-            <article class="panel">
+            <article class="panel cabinet-panel">
 
                 <h3>Suivi de performance</h3>
 
@@ -536,6 +718,36 @@
 
             </article>
 
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <div class="panel-head"><h3>Performance opérationnelle</h3><span class="pill">Données disponibles</span></div>
+                    <div class="metric-row"><span>Clients inscrits</span><strong>{{ users|length }}</strong></div>
+                    <div class="metric-row"><span>Tâches créées</span><strong>{{ tasks|length }}</strong></div>
+                    <div class="metric-row"><span>Tâches clôturées</span><strong>{{ done_tasks|length }}</strong></div>
+                    <div class="metric-row"><span>Messages récents affichés</span><strong>{{ messages|length }}</strong></div>
+                    <div class="metric-row"><span>Documents récents affichés</span><strong>{{ docs|length }}</strong></div>
+                    <p class="section-help">Messages limités aux 30 derniers et documents limités aux 20 derniers par la route Flask actuelle.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Répartition des priorités</h3>
+                    {% for priority in ['Normale', 'Haute', 'Urgente'] %}
+                    {% set count = tasks|selectattr('priority', 'equalto', priority)|list|length %}
+                    <div class="metric-row"><span>{{ priority }}</span><strong>{{ count }}</strong></div>
+                    <div class="progress-line"><div data-progress="{{ (count * 100 / tasks|length)|round|int if tasks|length else 0 }}"></div></div>
+                    {% endfor %}
+                    <p class="section-help">Les pourcentages correspondent aux tâches enregistrées, pas au temps de travail.</p>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <h3>Indicateurs métier à connecter ultérieurement</h3>
+                <div class="cabinet-grid three">
+                    <div class="cabinet-feature"><strong>Temps de mission</strong><p>Pointage par collaborateur, dossier et mission.</p><span class="status">Backend requis</span></div>
+                    <div class="cabinet-feature"><strong>Charge de travail</strong><p>Planification des capacités et affectations.</p><span class="status">Backend requis</span></div>
+                    <div class="cabinet-feature"><strong>Délais de réponse</strong><p>Mesure du temps de traitement des demandes.</p><span class="status">Backend requis</span></div>
+                </div>
+            </article>
+
         </section>
 
         <!-- ========================================= -->
@@ -545,6 +757,7 @@
         <section
             class="tab-panel"
             id="echeances"
+            data-panel="echeances"
             aria-labelledby="titre-echeances"
             hidden
         >
@@ -554,7 +767,7 @@
                 <span class="pill">Suivi des obligations</span>
             </div>
 
-            <article class="panel">
+            <article class="panel cabinet-panel">
 
                 <h3>Calendrier des échéances</h3>
 
@@ -571,6 +784,36 @@
 
             </article>
 
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <div class="panel-head"><h3>Calendrier mensuel</h3><span class="pill">Vue de calendrier</span></div>
+                    <div class="calendar-controls">
+                        <button type="button" data-cal-prev aria-label="Mois précédent">‹</button>
+                        <strong data-cal-label></strong>
+                        <button type="button" data-cal-next aria-label="Mois suivant">›</button>
+                    </div>
+                    <div class="calendar-grid" data-cal-grid aria-label="Calendrier du mois"></div>
+                    <p class="section-help">Le calendrier est interactif mais ne contient pas encore d'échéances enregistrées.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Catégories d'échéances prévues</h3>
+                    <ul class="cabinet-checklist">
+                        <li>Déclarations fiscales et TVA</li>
+                        <li>Clôtures et révisions comptables</li>
+                        <li>Obligations sociales</li>
+                        <li>Rendez-vous et demandes de pièces</li>
+                        <li>Alertes internes et rappels clients</li>
+                    </ul>
+                    <p class="section-help">Les dates et obligations exactes doivent être issues de données métier fiables, jamais générées automatiquement depuis ce calendrier visuel.</p>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <h3>Préparation du module</h3>
+                <p>Pour rendre les échéances opérationnelles, il faudra enregistrer au minimum le dossier client, le type d'obligation, la date d'échéance, le statut, le responsable et l'historique de modification.</p>
+                <span class="status">Module serveur non connecté</span>
+            </article>
+
         </section>
 
         <!-- ========================================= -->
@@ -580,6 +823,7 @@
         <section
             class="tab-panel"
             id="messages"
+            data-panel="messages"
             aria-labelledby="titre-messages"
             hidden
         >
@@ -589,15 +833,15 @@
                 <span class="pill">Échanges clients</span>
             </div>
 
-            <div class="two-col">
+            <div class="two-col cabinet-grid two">
 
                 <!-- ENVOYER UN MESSAGE -->
-                <article class="panel">
+                <article class="panel cabinet-panel">
 
                     <h3>Écrire à un client</h3>
 
                     <form
-                        class="stack-form"
+                        class="stack-form cabinet-form"
                         method="post"
                         action="{{ url_for('cabinet_message') }}"
                     >
@@ -642,6 +886,7 @@
                                 rows="6"
                                 placeholder="Rédigez votre message..."
                             ></textarea>
+                            <small data-counter-for="cabinet-message-body" class="char-counter">0 / 2000 caractères</small>
                         </label>
 
                         <button
@@ -657,13 +902,13 @@
                 </article>
 
                 <!-- HISTORIQUE DES MESSAGES -->
-                <article class="panel">
+                <article class="panel cabinet-panel">
 
                     <h3>Messages récents</h3>
 
                     {% for msg in messages %}
 
-                        <div class="record">
+                        <div class="record cabinet-record">
 
                             <div>
                                 <strong>{{ msg.client_name }}</strong>
@@ -691,6 +936,38 @@
 
             </div>
 
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <h3>Recherche dans l'historique affiché</h3>
+                    <label for="message-search">Rechercher un client ou un contenu</label>
+                    <input id="message-search" class="cabinet-search" type="search" data-filter-target="message-detail-list" placeholder="Nom, contenu, date…">
+                    <p class="section-help">La recherche concerne uniquement les 30 derniers messages chargés.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Conseils de confidentialité</h3>
+                    <ul class="cabinet-checklist"><li>Vérifier le destinataire avant l'envoi</li><li>Éviter les données sensibles non nécessaires</li><li>Utiliser un canal sécurisé pour les pièces confidentielles</li></ul>
+                    <p class="section-help">La messagerie utilise les routes Flask existantes. Elle ne fournit pas de chiffrement de bout en bout ni de rafraîchissement temps réel dans cette version.</p>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <div class="panel-head"><h3>Historique consultable</h3><span class="pill">{{ messages|length }} derniers messages</span></div>
+                <div id="message-detail-list" class="cabinet-list">
+                    {% for msg in messages %}
+                    <article class="cabinet-record searchable">
+                        <div>
+                            <strong>{{ msg.client_name }}</strong>
+                            <small>{{ 'Cabinet' if msg.author_role == 'cabinet' else 'Client' }} · {{ msg.created_at }}</small>
+                            <p>{{ msg.body }}</p>
+                        </div>
+                    </article>
+                    {% else %}
+                    <p class="empty-state">Aucun message disponible.</p>
+                    {% endfor %}
+                </div>
+                <p class="filter-empty" data-empty-for="message-detail-list" hidden>Aucun résultat.</p>
+            </article>
+
         </section>
 
         <!-- ========================================= -->
@@ -700,6 +977,7 @@
         <section
             class="tab-panel"
             id="equipe"
+            data-panel="equipe"
             aria-labelledby="titre-equipe"
             hidden
         >
@@ -709,7 +987,7 @@
                 <span class="pill">Collaborateurs</span>
             </div>
 
-            <article class="panel">
+            <article class="panel cabinet-panel">
 
                 <h3>Gestion de l'équipe</h3>
 
@@ -731,6 +1009,39 @@
 
             </article>
 
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <h3>Session actuellement ouverte</h3>
+                    <div class="cabinet-record">
+                        <div class="client-identity">
+                            <span class="client-avatar">{{ session.get('name', 'D')[:1]|upper }}</span>
+                            <div><strong>{{ session.get('name', 'Cabinet DATENSIS') }}</strong><small>Rôle : {{ session.get('role', 'inconnu') }}</small></div>
+                        </div>
+                        <span class="status">Session active</span>
+                    </div>
+                    <p class="section-help">Cette information provient de la session Flask. Elle ne constitue pas un annuaire des collaborateurs.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Organisation cible</h3>
+                    <ul class="cabinet-checklist">
+                        <li>Administrateur : configuration et habilitations</li>
+                        <li>Responsable de dossier : supervision des missions</li>
+                        <li>Collaborateur : traitement des dossiers attribués</li>
+                        <li>Consultation : accès limité aux informations autorisées</li>
+                    </ul>
+                    <p class="section-help">Ces rôles sont des propositions fonctionnelles et ne sont pas encore des autorisations appliquées par Flask.</p>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <h3>Étapes nécessaires avant l'activation</h3>
+                <div class="cabinet-grid three">
+                    <div class="cabinet-feature"><strong>1. Comptes</strong><p>Créer une table collaborateurs avec identifiants uniques et mots de passe hashés.</p></div>
+                    <div class="cabinet-feature"><strong>2. Permissions</strong><p>Contrôler chaque route et chaque dossier par rôle et affectation.</p></div>
+                    <div class="cabinet-feature"><strong>3. Traçabilité</strong><p>Journaliser les actions sensibles et prévoir la révocation d'accès.</p></div>
+                </div>
+            </article>
+
         </section>
 
         <!-- ========================================= -->
@@ -740,6 +1051,7 @@
         <section
             class="tab-panel"
             id="parametres"
+            data-panel="parametres"
             aria-labelledby="titre-parametres"
             hidden
         >
@@ -749,7 +1061,7 @@
                 <span class="pill">Administration du compte</span>
             </div>
 
-            <article class="panel">
+            <article class="panel cabinet-panel">
 
                 <h3>Configuration du compte cabinet</h3>
 
@@ -766,10 +1078,42 @@
 
             </article>
 
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <h3>Préférences d'affichage</h3>
+                    <p class="section-help">Ces préférences sont enregistrées uniquement dans le navigateur utilisé.</p>
+                    <label class="setting-line"><span>Mode compact</span><input type="checkbox" data-compact-toggle></label>
+                    <label class="setting-line"><span>Réduire les animations</span><input type="checkbox" data-motion-toggle></label>
+                    <p class="section-help">Les préférences visuelles ne modifient ni les droits ni les données du compte.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Sécurité de la session</h3>
+                    <div class="metric-row"><span>Type de session</span><strong>{{ session.get('role', 'inconnu') }}</strong></div>
+                    <p>Les actions du cabinet utilisent les contrôles d'accès et les jetons CSRF configurés dans Flask.</p>
+                    <p class="section-help">La modification du mot de passe administrateur, la double authentification et le journal d'audit nécessitent des routes supplémentaires.</p>
+                    <form method="post" action="{{ url_for('logout') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="outline-btn">Fermer la session</button>
+                    </form>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <h3>Préparation à la mise en production</h3>
+                <ul class="cabinet-checklist">
+                    <li>Configurer HTTPS et les cookies sécurisés</li>
+                    <li>Limiter les tentatives de connexion</li>
+                    <li>Tester la restauration des sauvegardes SQLite</li>
+                    <li>Définir les habilitations par dossier et collaborateur</li>
+                    <li>Valider la politique de conservation et les obligations RGPD</li>
+                </ul>
+                <span class="status">Contrôles à effectuer</span>
+            </article>
+
         </section>
 
     </main>
 
 </div>
-
+<script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% endblock %}

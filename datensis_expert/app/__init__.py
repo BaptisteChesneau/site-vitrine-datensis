@@ -138,11 +138,19 @@ def password_valid(value):
     )
 
 
+
 def email_valid(value):
     return (
-        len(value) <= 254
-        and bool(re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", value))
+        isinstance(value, str)
+        and len(value) <= 254
+        and bool(
+            re.fullmatch(
+                r"[^@\s]+@[^@\s]+\.[^@\s]+",
+                value,
+            )
+        )
     )
+
 
 
 def phone_valid(value):
@@ -185,6 +193,14 @@ def init_database():
 
         db.executescript(
             """
+            CREATE TABLE IF NOT EXISTS cabinet_admins (
+                  id INTEGER PRIMARY KEY,
+                  name TEXT NOT NULL,
+                  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                  password_hash TEXT NOT NULL,
+                  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+              );
+
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
@@ -756,42 +772,44 @@ def create_app():
     # CONNEXION CABINET
     # =====================================================
 
-    @app.route(
-        "/cabinet/connexion",
-        methods=["GET", "POST"],
-    )
+    @app.route("/cabinet/connexion", methods=["GET", "POST"])
     def cabinet_login():
+        if session.get("role") == "cabinet":
+            return redirect(url_for("cabinet"))
+
         if request.method == "POST":
             require_csrf()
 
-            email = os.getenv("CABINET_EMAIL", "").strip().lower()
-            password = os.getenv("CABINET_PASSWORD", "")
+            email = request.form.get("email", "").strip().lower()
+            password = request.form.get("password", "")
 
-            submitted_email = request.form.get("email", "").strip().lower()
-            submitted_password = request.form.get("password", "")
+            admin = None
+            if email_valid(email) and password:
+                admin = database().execute(
+                    """
+                    SELECT id, name, password_hash
+                    FROM cabinet_admins
+                    WHERE email = ?
+                    """,
+                    (email,),
+                ).fetchone()
 
-            valid = (
-                bool(email)
-                and len(password) >= 12
-                and secrets.compare_digest(submitted_email, email)
-                and secrets.compare_digest(submitted_password, password)
-            )
-
-            if valid:
+            if admin and check_password_hash(admin["password_hash"], password):
                 session.clear()
                 session.permanent = True
-
                 session.update(
                     role="cabinet",
-                    name="Cabinet DATENSIS",
+                    admin_id=admin["id"],
+                    name=admin["name"],
                 )
-
                 return redirect(url_for("cabinet"))
 
-            flash("Accès cabinet refusé.", "error")
+            flash("Adresse e-mail ou mot de passe incorrect.", "error")
+            return render_template("cabinet_login.html"), 401
 
         return render_template("cabinet_login.html")
 
+    # =====================================================
     # =====================================================
     # ESPACE CLIENT
     # =====================================================

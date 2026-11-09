@@ -186,3 +186,54 @@
     initialize();
   }
 })();
+
+/* ==========================================================
+   DATENSIS EXPERT - ESPACE CABINET
+   Integration sans modifier le module client ci-dessus
+   ========================================================== */
+function datensisInitializeCabinet() {
+  'use strict';
+  const root = document.querySelector('[data-cabinet-app]');
+  if (!root) return;
+
+  // Les valeurs proviennent des attributs data-progress rendus par Jinja2.
+  root.querySelectorAll('.progress-line > [data-progress]').forEach(bar => {
+    const value = Number(bar.dataset.progress);
+    bar.style.width = `${Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0}%`;
+  });
+  const panels = [...root.querySelectorAll('[data-panel]')];
+  const navLinks = [...root.querySelectorAll('[data-tab]')];
+  const headings = {accueil:'Tableau de bord',dossiers:'Dossiers clients',taches:'Gestion des tâches',clients:'Annuaire clients',pilotage:'Pilotage',echeances:'Échéances',messages:'Messagerie',equipe:'Équipe',parametres:'Paramètres'};
+  function openTab(id, updateHash = true) {
+    if (!headings[id]) id = 'accueil';
+    panels.forEach(p => { const active = p.dataset.panel === id; p.hidden = !active; p.classList.toggle('active', active); });
+    navLinks.forEach(a => { const active = a.dataset.tab === id; a.classList.toggle('active', active); if(active) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+    const title = root.querySelector('#cabinet-page-title'); if(title) title.textContent = headings[id];
+    if(updateHash && window.location.hash !== '#' + id) history.replaceState(null,'','#' + id);
+  }
+  root.querySelectorAll('[data-tab],[data-go-tab]').forEach(el => el.addEventListener('click', ev => {ev.preventDefault(); openTab(el.dataset.tab || el.dataset.goTab); root.querySelector('#cabinet-main')?.scrollIntoView({behavior:'auto',block:'start'}); if(el.dataset.focusTarget) root.querySelector('#'+el.dataset.focusTarget)?.focus(); }));
+  window.addEventListener('hashchange', () => openTab(location.hash.slice(1),false));
+  openTab(location.hash.slice(1),false);
+  root.querySelectorAll('[data-filter-target]').forEach(input => {
+    const list = document.getElementById(input.dataset.filterTarget); if(!list) return;
+    const items = [...list.querySelectorAll('.searchable')];
+    input.addEventListener('input', () => {const query = input.value.trim().toLocaleLowerCase('fr');let visible=0;items.forEach(item=>{const match=item.textContent.toLocaleLowerCase('fr').includes(query);const taskFilter=root.querySelector('[data-task-filter].active')?.dataset.taskFilter || 'all';const statusOk=!item.matches('[data-task-status]')||taskFilter==='all'||item.dataset.taskStatus===taskFilter;item.hidden=!(match&&statusOk);if(match&&statusOk)visible++;});const empty=root.querySelector('[data-empty-for="'+input.dataset.filterTarget+'"]');if(empty)empty.hidden=visible!==0||items.length===0;});
+  });
+  const taskItems = [...root.querySelectorAll('[data-task-status]')];
+  root.querySelectorAll('[data-task-filter]').forEach(btn=>btn.addEventListener('click',()=>{const filter=btn.dataset.taskFilter;root.querySelectorAll('[data-task-filter]').forEach(b=>b.classList.toggle('active',b===btn));let count=0;taskItems.forEach(item=>{const query=(root.querySelector('#task-search')?.value||'').trim().toLocaleLowerCase('fr');const show=(filter==='all'||item.dataset.taskStatus===filter)&&item.textContent.toLocaleLowerCase('fr').includes(query);item.hidden=!show;if(show)count++;});const empty=root.querySelector('[data-empty-for="task-detail-list"]');if(empty)empty.hidden=count!==0||taskItems.length===0;}));
+  root.querySelectorAll('[data-message-client]').forEach(btn=>btn.addEventListener('click',()=>{const select=root.querySelector('#message-recipient');if(select){select.value=btn.dataset.messageClient;openTab('messages');root.querySelector('#cabinet-message-body')?.focus();}}));
+  root.querySelector('[data-client-quick-message]')?.addEventListener('click',()=>{const selected=root.querySelector('[data-client-quick-select]')?.value;const target=root.querySelector('#message-recipient');if(selected&&target){target.value=selected;openTab('messages');root.querySelector('#cabinet-message-body')?.focus();}});
+  const body=root.querySelector('#cabinet-message-body');const counter=root.querySelector('[data-counter-for="cabinet-message-body"]');if(body&&counter){const update=()=>counter.textContent=body.value.length+' / 2000 caractères';body.addEventListener('input',update);update();}
+  const dateLabel=root.querySelector('[data-current-date]');if(dateLabel)dateLabel.textContent=new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric'}).format(new Date());
+  const calendar=root.querySelector('[data-cal-grid]');const calLabel=root.querySelector('[data-cal-label]');let month=new Date();month.setDate(1);
+  function renderCalendar(){if(!calendar||!calLabel)return;calendar.replaceChildren();calLabel.textContent=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month);['L','M','M','J','V','S','D'].forEach(day=>{const cell=document.createElement('span');cell.className='cal-weekday';cell.textContent=day;calendar.append(cell);});const offset=(month.getDay()+6)%7;const days=new Date(month.getFullYear(),month.getMonth()+1,0).getDate();const today=new Date();for(let i=0;i<offset+days;i++){const cell=document.createElement('span');if(i<offset){cell.className='cal-outside';cell.textContent='·';}else{const day=i-offset+1;cell.textContent=day;if(day===today.getDate()&&month.getMonth()===today.getMonth()&&month.getFullYear()===today.getFullYear())cell.classList.add('cal-today');}calendar.append(cell);}}
+  root.querySelector('[data-cal-prev]')?.addEventListener('click',()=>{month.setMonth(month.getMonth()-1);renderCalendar();});root.querySelector('[data-cal-next]')?.addEventListener('click',()=>{month.setMonth(month.getMonth()+1);renderCalendar();});renderCalendar();
+  const compact=root.querySelector('[data-compact-toggle]');const motion=root.querySelector('[data-motion-toggle]');
+  function preference(control,key,cssClass){if(!control)return;try{control.checked=localStorage.getItem(key)==='1';}catch(_e){}root.classList.toggle(cssClass,control.checked);control.addEventListener('change',()=>{root.classList.toggle(cssClass,control.checked);try{localStorage.setItem(key,control.checked?'1':'0');}catch(_e){}});}
+  preference(compact,'datensis-cabinet-compact','is-compact');preference(motion,'datensis-cabinet-reduce-motion','reduce-motion');
+ }
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', datensisInitializeCabinet, { once: true });
+} else {
+  datensisInitializeCabinet();
+}
