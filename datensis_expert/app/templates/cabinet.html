@@ -8,59 +8,30 @@
 {% set active_tasks = tasks|rejectattr('status', 'equalto', 'Terminée')|list %}
 {% set done_tasks = tasks|selectattr('status', 'equalto', 'Terminée')|list %}
 {% set urgent_tasks = tasks|selectattr('priority', 'equalto', 'Urgente')|list %}
+{% set open_tasks = active_tasks %}
+{% set high_tasks = active_tasks|selectattr('priority', 'equalto', 'Urgente')|list %}
+{% set completion = (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 %}
 
 
 <div class="workspace cabinet-workspace" data-cabinet-app>
+<aside class="sidebar cabinet-sidebar" aria-label="Navigation du cabinet">
+  <div class="workspace-tag cabinet-tag">ESPACE CABINET</div>
+  <nav class="side-nav cabinet-nav" aria-label="Menu principal">
+    <a href="#taches" data-tab="taches" class="active" aria-current="page">Mes tâches</a>
+    <a href="#parcours" data-tab="parcours">Mes parcours</a>
+    <a href="#dossiers" data-tab="dossiers">Mes dossiers</a>
+    <a href="#mon-cabinet" data-tab="mon-cabinet">Mon cabinet</a>
+    <a href="#pilotage" data-tab="pilotage">Pilotage</a>
+    <a href="#theme" data-tab="theme">Thème</a>
+    <a href="#aide" data-tab="aide">Aide</a>
+  </nav>
+  <div class="sidebar-footer"><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="logout">Déconnexion</button></form></div>
+</aside>
+<main class="content cabinet-main" id="cabinet-main">
+<header class="page-header cabinet-topbar"><a class="dash-brand" href="#taches" data-tab="taches">Datensis <span>Expert</span></a><div class="dash-top-actions"><input type="search" id="cabinet-global-search" aria-label="Rechercher une tâche" placeholder="Rechercher"><a href="{{ url_for('cabinet') }}" class="dash-visit">Voir Datensis</a></div><h2 class="sr-only" id="cabinet-page-title">Mes tâches</h2></header>
+{% with flash_messages = get_flashed_messages(with_categories=true) %}{% if flash_messages %}<div class="flash-container" role="status">{% for category, message in flash_messages %}<div class="flash-message {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% endwith %}
+<section class="tab-panel active cabinet-dashboard" id="taches" data-panel="taches" aria-labelledby="titre-accueil">
 
-    <!-- ========================================= -->
-    <!-- NAVIGATION LATÉRALE -->
-    <!-- ========================================= -->
-
-    <aside class="sidebar cabinet-sidebar" aria-label="Menu espace cabinet">
-      <div class="workspace-tag cabinet-tag">ESPACE CABINET</div>
-      <nav class="side-nav cabinet-nav" aria-label="Navigation cabinet">
-        <a href="#accueil" data-tab="accueil" class="active" aria-current="page">Tableau de bord</a>
-        <a href="#taches" data-tab="taches">Mes tâches</a>
-        <a href="#dossiers" data-tab="dossiers">Mes dossiers</a>
-        <a href="#clients" data-tab="clients">Mes clients</a>
-        <a href="#pilotage" data-tab="pilotage">Pilotage</a>
-        <a href="#echeances" data-tab="echeances">Échéances</a>
-        <a href="#messages" data-tab="messages">Messagerie</a>
-        <a href="#equipe" data-tab="equipe">Équipe</a>
-        <a href="#parametres" data-tab="parametres">Paramètres</a>
-      </nav>
-      <div class="sidebar-footer"><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="logout">Déconnexion</button></form></div>
-    </aside>
-
-    <!-- ========================================= -->
-    <!-- CONTENU PRINCIPAL -->
-    <!-- ========================================= -->
-
-    <main class="content cabinet-main" id="cabinet-main">
-
-        <!-- EN-TÊTE -->
-        <header class="page-header cabinet-topbar"><a class="dash-brand" href="#accueil" data-tab="accueil">Datensis <span>Expert</span></a><div class="dash-top-actions"><input type="search" id="cabinet-global-search" aria-label="Rechercher une tâche ou un client" placeholder="Rechercher"><a href="{{ url_for('cabinet') }}" class="dash-visit">Voir Datensis</a></div><h2 class="sr-only" id="cabinet-page-title">Tableau de bord</h2></header>
-
-        <!-- MESSAGES FLASH -->
-        {% with flash_messages = get_flashed_messages(with_categories=true) %}
-            {% if flash_messages %}
-                <div class="flash-container" role="status">
-
-                    {% for category, message in flash_messages %}
-                        <div class="flash-message {{ category }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-
-                </div>
-            {% endif %}
-        {% endwith %}
-
-        <!-- ACCUEIL : interface de référence, chiffres issus de SQLite -->
-        {% set open_tasks = tasks|rejectattr('status','equalto','Terminée')|list %}
-        {% set high_tasks = open_tasks|selectattr('priority','equalto','Urgente')|list %}
-        {% set completion = (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 %}
-        <section class="tab-panel active cabinet-dashboard" id="accueil" data-panel="accueil" aria-labelledby="titre-accueil">
           <div class="dash-welcome"><h1 id="titre-accueil">Bonjour {{ session.get('name', 'Cabinet DATENSIS')|e }}</h1><p><span data-live-date></span> · Datensis Expert</p><p>{{ users|length }} dossier{{ 's' if users|length != 1 else '' }} client{{ 's' if users|length != 1 else '' }} · <span class="dash-danger">{{ high_tasks|length }} tâche{{ 's' if high_tasks|length != 1 else '' }} urgente{{ 's' if high_tasks|length != 1 else '' }}</span></p></div>
           <div class="dash-chips"><span>{{ users|length }} dossier{{ 's' if users|length != 1 else '' }}</span><span>{{ open_tasks|length }} mission{{ 's' if open_tasks|length != 1 else '' }} en cours</span><span>{{ done_tasks|length }} terminée{{ 's' if done_tasks|length != 1 else '' }}</span></div>
           <div class="dash-kpis">
@@ -76,121 +47,7 @@
             <article class="dash-card dash-graph"><h2>Missions ouvertes</h2><div class="dash-missions">{% for task in open_tasks[:4] %}<div class="dash-mission"><div><span>{{ task.title }}</span><b>{{ task.priority }}</b></div><div class="dash-mission-track"><div class="dash-mission-fill"></div></div></div>{% else %}<p class="dash-muted">Aucune tâche ouverte.</p>{% endfor %}</div><button type="button" class="dash-link" data-go-tab="taches">Voir toutes les tâches</button></article>
           </div>
           <article class="dash-card dash-wide"><div class="dash-wide-heading"><h2>Temps de missions sur 6 semaines</h2><span>En attente de données de pointage</span></div><div class="dash-line-chart"><div class="dash-chart-placeholder">Le suivi du temps par mission nécessite un module de pointage.</div><div class="dash-line-axis"><span>S-5</span><span>S-4</span><span>S-3</span><span>S-2</span><span>S-1</span><span>Cette semaine</span></div></div></article>
-        </section>
-
-        <!-- ========================================= -->
-        <!-- ONGLET 02 : DOSSIERS -->
-        <!-- ========================================= -->
-
-        <section
-            class="tab-panel"
-            id="dossiers"
-            data-panel="dossiers"
-            aria-labelledby="titre-dossiers"
-            hidden
-        >
-
-            <div class="section-title">
-                <h2 id="titre-dossiers">Mes dossiers</h2>
-                <span class="pill">Portefeuille clients</span>
-            </div>
-
-            <article class="panel cabinet-panel">
-
-                <h3>Portefeuille de dossiers</h3>
-
-                <p>
-                    Retrouvez les clients inscrits et
-                    consultez leurs informations principales.
-                    La gestion détaillée des missions
-                    sera enrichie ultérieurement.
-                </p>
-
-                <label for="dossier-filter">
-                    Rechercher un dossier
-                </label>
-
-                <input
-                    id="dossier-filter"
-                    class="filter cabinet-search"
-                    type="search"
-                    data-filter-target="dossier-list"
-                    placeholder="Rechercher un client..."
-                    autocomplete="off"
-                >
-
-                <div id="dossier-list">
-
-                    {% for user in users %}
-
-                        <div class="record searchable cabinet-record">
-
-                            <div>
-                                <strong>▤ {{ user.name }}</strong>
-                                <small>{{ user.email }}</small>
-                            </div>
-
-                        </div>
-
-                    {% else %}
-
-                        <p>Aucun dossier client.</p>
-
-                    {% endfor %}
-
-                </div>
-
-            </article>
-
-        
-            <div class="cabinet-grid two">
-                <article class="cabinet-panel">
-                    <div class="panel-head"><h3>Répartition du portefeuille</h3><span class="pill">Vue actuelle</span></div>
-                    <div class="metric-row"><span>Dossiers associés à des comptes clients</span><strong>{{ users|length }}</strong></div>
-                    <div class="metric-row"><span>Références documentaires affichées</span><strong>{{ docs|length }}</strong></div>
-                    <p class="section-help">Un compte client est présenté comme un dossier dans cette version. Les missions, exercices et responsables de dossiers nécessiteront des tables dédiées.</p>
-                </article>
-                <article class="cabinet-panel">
-                    <h3>Informations disponibles</h3>
-                    <ul class="cabinet-checklist">
-                        <li>Identification du client</li>
-                        <li>Adresse électronique du compte</li>
-                        <li>Historique récent des documents référencés</li>
-                        <li>Contact depuis la messagerie du cabinet</li>
-                    </ul>
-                    <p class="section-help">Les pièces comptables téléversées et le suivi détaillé des missions ne sont pas encore implémentés.</p>
-                </article>
-            </div>
-            <article class="cabinet-panel">
-                <div class="panel-head"><h3>Références documentaires récentes</h3><span class="muted-label">Documents liés aux clients</span></div>
-                <label for="document-filter">Rechercher une référence ou un client</label>
-                <input id="document-filter" class="filter cabinet-search" type="search" data-filter-target="document-list" placeholder="Titre, client ou statut…" autocomplete="off">
-                <div id="document-list" class="cabinet-list">
-                    {% for doc in docs %}
-                    <article class="cabinet-record searchable">
-                        <div><strong>{{ doc.title }}</strong><small>{{ doc.client_name }} · {{ doc.created_at }}</small></div>
-                        <span class="status">{{ doc.status }}</span>
-                    </article>
-                    {% else %}
-                    <p class="empty-state">Aucune référence documentaire disponible.</p>
-                    {% endfor %}
-                </div>
-                <p class="filter-empty" data-empty-for="document-list" hidden>Aucune référence ne correspond à la recherche.</p>
-            </article>
-
-        </section>
-
-        <!-- ========================================= -->
-        <!-- ONGLET 03 : TÂCHES -->
-        <!-- ========================================= -->
-
-        <section
-            class="tab-panel"
-            id="taches"
-            data-panel="taches"
-            aria-labelledby="titre-taches"
-            hidden
-        >
+        <div class="cabinet-subsection"><div class="cabinet-section-divider"><h2>Gestion de mes tâches</h2><p>Créer, rechercher, filtrer et terminer les tâches du cabinet.</p></div>
 
             <div class="section-title">
                 <h2 id="titre-taches">Mes tâches</h2>
@@ -366,19 +223,177 @@
                 <p class="filter-empty" data-empty-for="task-detail-list" hidden>Aucune tâche ne correspond aux filtres.</p>
             </article>
 
+        </div></section>
+<section class="tab-panel" id="parcours" data-panel="parcours" aria-labelledby="titre-parcours" hidden>
+<div class="section-title"><h2 id="titre-parcours">Mes parcours</h2><span class="pill">Processus métier</span></div>
+
+<div class="expert-section-hero"><div><span class="expert-eyebrow">ORGANISATION DES MISSIONS</span><h3>Vos parcours de travail</h3><p>Consultez les procédures métier, préparez vos interventions et suivez votre progression personnelle sur chaque modèle.</p></div><span class="expert-hero-count">3 parcours guidés</span></div>
+<div class="expert-toolbar"><label for="expert-parcours-search">Rechercher un parcours</label><input id="expert-parcours-search" type="search" placeholder="TVA, tenue, clôture…" data-expert-filter="expert-parcours-grid"><span class="expert-note">Les coches sont mémorisées uniquement sur cet appareil. Elles ne valident aucune mission en base.</span></div>
+<div class="expert-parcours-grid" id="expert-parcours-grid">
+{% for parcours in [
+ ('tenue','Tenue comptable','Comptabilité courante','Collecte et contrôle des pièces|Classement et saisie des écritures|Rapprochement bancaire|Révision des comptes|Validation du dossier'),
+ ('tva','Déclaration de TVA','Fiscalité périodique','Vérifier la période déclarative|Contrôler les factures et la TVA|Rapprocher les comptes de TVA|Préparer les montants déclaratifs|Faire valider et archiver la preuve'),
+ ('cloture','Clôture annuelle','Révision et bilan','Identifier les documents manquants|Effectuer les écritures d’inventaire|Justifier les soldes et rapprochements|Préparer le dossier de révision|Soumettre à la validation du responsable')
+] %}
+<article class="expert-journey searchable" data-journey="{{ parcours[0] }}"><div class="expert-journey-head"><div><span class="expert-eyebrow">{{ parcours[2] }}</span><h3>{{ parcours[1] }}</h3></div><span class="expert-journey-counter" data-journey-count>0/5</span></div><div class="expert-progress"><div data-journey-progress></div></div><ol class="expert-journey-steps">{% for step in parcours[3].split('|') %}<li><label><input type="checkbox" data-journey-step="{{ parcours[0] }}-{{ loop.index }}"><span>{{ step }}</span></label></li>{% endfor %}</ol><div class="expert-journey-actions"><button type="button" class="outline-btn" data-journey-reset="{{ parcours[0] }}">Réinitialiser mon suivi</button><button type="button" class="outline-btn" data-go-tab="dossiers">Mes dossiers</button></div></article>
+{% endfor %}
+</div><p class="expert-empty" data-expert-empty="expert-parcours-grid" hidden>Aucun parcours correspondant.</p>
+<div class="expert-two"><article class="expert-card"><h3>Préparer une mission</h3><p>Avant de démarrer, vérifiez le client concerné, la période, les pièces disponibles et le responsable chargé de la validation.</p><div class="expert-action-row"><button type="button" class="outline-btn" data-go-tab="dossiers">Ouvrir les dossiers</button><button type="button" class="outline-btn" data-go-tab="taches">Consulter les tâches</button></div></article><article class="expert-card"><h3>Suivi métier</h3><p>Les parcours ci-dessus sont des guides interactifs. Pour affecter une mission à un collaborateur, enregistrer une date limite ou certifier une validation, un module serveur dédié reste nécessaire.</p><span class="status">Suivi local — non contractuel</span></article></div>
+
+<div class="cabinet-subsection"><div class="cabinet-section-divider"><h2>Calendrier de préparation</h2><p>Calendrier visuel : aucune échéance métier n'est encore enregistrée.</p></div>
+
+            <div class="section-title">
+                <h2 id="titre-echeances">Échéances</h2>
+                <span class="pill">Suivi des obligations</span>
+            </div>
+
+            <article class="panel cabinet-panel">
+
+                <h3>Calendrier des échéances</h3>
+
+                <p>
+                    Le calendrier permettra de suivre
+                    les déclarations de TVA, les obligations
+                    comptables, les rendez-vous et les alertes
+                    propres aux dossiers clients.
+                </p>
+
+                <span class="status">
+                    Module en préparation
+                </span>
+
+            </article>
+
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <div class="panel-head"><h3>Calendrier mensuel</h3><span class="pill">Vue de calendrier</span></div>
+                    <div class="calendar-controls">
+                        <button type="button" data-cal-prev aria-label="Mois précédent">‹</button>
+                        <strong data-cal-label></strong>
+                        <button type="button" data-cal-next aria-label="Mois suivant">›</button>
+                    </div>
+                    <div class="calendar-grid" data-cal-grid aria-label="Calendrier du mois"></div>
+                    <p class="section-help">Le calendrier est interactif mais ne contient pas encore d'échéances enregistrées.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Catégories d'échéances prévues</h3>
+                    <ul class="cabinet-checklist">
+                        <li>Déclarations fiscales et TVA</li>
+                        <li>Clôtures et révisions comptables</li>
+                        <li>Obligations sociales</li>
+                        <li>Rendez-vous et demandes de pièces</li>
+                        <li>Alertes internes et rappels clients</li>
+                    </ul>
+                    <p class="section-help">Les dates et obligations exactes doivent être issues de données métier fiables, jamais générées automatiquement depuis ce calendrier visuel.</p>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <h3>Préparation du module</h3>
+                <p>Pour rendre les échéances opérationnelles, il faudra enregistrer au minimum le dossier client, le type d'obligation, la date d'échéance, le statut, le responsable et l'historique de modification.</p>
+                <span class="status">Module serveur non connecté</span>
+            </article>
+
+        </div></section>
+<section class="tab-panel" id="dossiers" data-panel="dossiers" hidden>
+
+            <div class="section-title">
+                <h2 id="titre-dossiers">Mes dossiers</h2>
+                <span class="pill">Portefeuille clients</span>
+            </div>
+
+            <article class="panel cabinet-panel">
+
+                <h3>Portefeuille de dossiers</h3>
+
+                <p>
+                    Retrouvez les clients inscrits et
+                    consultez leurs informations principales.
+                    La gestion détaillée des missions
+                    sera enrichie ultérieurement.
+                </p>
+
+                <label for="dossier-filter">
+                    Rechercher un dossier
+                </label>
+
+                <input
+                    id="dossier-filter"
+                    class="filter cabinet-search"
+                    type="search"
+                    data-filter-target="dossier-list"
+                    placeholder="Rechercher un client..."
+                    autocomplete="off"
+                >
+
+                <div id="dossier-list">
+
+                    {% for user in users %}
+
+                        <div class="record searchable cabinet-record">
+
+                            <div>
+                                <strong>▤ {{ user.name }}</strong>
+                                <small>{{ user.email }}</small>
+                            </div>
+
+                        </div>
+
+                    {% else %}
+
+                        <p>Aucun dossier client.</p>
+
+                    {% endfor %}
+
+                </div>
+
+            </article>
+
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <div class="panel-head"><h3>Répartition du portefeuille</h3><span class="pill">Vue actuelle</span></div>
+                    <div class="metric-row"><span>Dossiers associés à des comptes clients</span><strong>{{ users|length }}</strong></div>
+                    <div class="metric-row"><span>Références documentaires affichées</span><strong>{{ docs|length }}</strong></div>
+                    <p class="section-help">Un compte client est présenté comme un dossier dans cette version. Les missions, exercices et responsables de dossiers nécessiteront des tables dédiées.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Informations disponibles</h3>
+                    <ul class="cabinet-checklist">
+                        <li>Identification du client</li>
+                        <li>Adresse électronique du compte</li>
+                        <li>Historique récent des documents référencés</li>
+                        <li>Contact depuis la messagerie du cabinet</li>
+                    </ul>
+                    <p class="section-help">Les pièces comptables téléversées et le suivi détaillé des missions ne sont pas encore implémentés.</p>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <div class="panel-head"><h3>Références documentaires récentes</h3><span class="muted-label">Documents liés aux clients</span></div>
+                <label for="document-filter">Rechercher une référence ou un client</label>
+                <input id="document-filter" class="filter cabinet-search" type="search" data-filter-target="document-list" placeholder="Titre, client ou statut…" autocomplete="off">
+                <div id="document-list" class="cabinet-list">
+                    {% for doc in docs %}
+                    <article class="cabinet-record searchable">
+                        <div><strong>{{ doc.title }}</strong><small>{{ doc.client_name }} · {{ doc.created_at }}</small></div>
+                        <span class="status">{{ doc.status }}</span>
+                    </article>
+                    {% else %}
+                    <p class="empty-state">Aucune référence documentaire disponible.</p>
+                    {% endfor %}
+                </div>
+                <p class="filter-empty" data-empty-for="document-list" hidden>Aucune référence ne correspond à la recherche.</p>
+            </article>
+
         </section>
+<section class="tab-panel" id="mon-cabinet" data-panel="mon-cabinet" hidden>
+<div class="section-title"><h2>Mon cabinet</h2><span class="pill">Clients, échanges et organisation</span></div>
 
-        <!-- ========================================= -->
-        <!-- ONGLET 04 : CLIENTS -->
-        <!-- ========================================= -->
-
-        <section
-            class="tab-panel"
-            id="clients"
-            data-panel="clients"
-            aria-labelledby="titre-clients"
-            hidden
-        >
+<div class="expert-section-hero"><div><span class="expert-eyebrow">ESPACE DE TRAVAIL INTERNE</span><h3>Vue d'ensemble du cabinet</h3><p>Centralisez les contacts, les échanges et les documents associés aux comptes clients.</p></div><span class="expert-hero-count">{{ users|length }} compte{{ 's' if users|length != 1 else '' }}</span></div>
+<div class="expert-quick-grid"><button type="button" class="expert-quick-action" data-go-tab="dossiers"><strong>Portefeuille clients</strong><span>Rechercher les dossiers et références</span></button><button type="button" class="expert-quick-action" data-go-tab="taches"><strong>Organisation des tâches</strong><span>Créer, prioriser et terminer une tâche</span></button><button type="button" class="expert-quick-action" data-go-tab="parcours"><strong>Procédures métier</strong><span>Consulter les étapes de travail</span></button></div>
+<div class="expert-two"><article class="expert-card"><h3>Activité du cabinet</h3><div class="expert-metric"><span>Tâches non terminées</span><strong>{{ active_tasks|length }}</strong></div><div class="expert-metric"><span>Tâches terminées</span><strong>{{ done_tasks|length }}</strong></div><div class="expert-metric"><span>Documents récents affichés</span><strong>{{ docs|length }}</strong></div><div class="expert-metric"><span>Messages récents affichés</span><strong>{{ messages|length }}</strong></div></article><article class="expert-card"><h3>Votre session</h3><div class="expert-profile"><span class="expert-avatar">{{ session.get('name', 'D')[:1]|upper }}</span><div><strong>{{ session.get('name', 'Cabinet DATENSIS') }}</strong><small>Accès interne · {{ session.get('role','cabinet') }}</small></div></div><p>La gestion des collaborateurs, l'attribution des dossiers et les habilitations individuelles ne sont pas encore disponibles dans le backend.</p><span class="status">Compte interne connecté</span></article></div>
+<div class="cabinet-grid three"><article class="cabinet-panel"><h3>Clients inscrits</h3><div class="cabinet-big-number">{{ users|length }}</div><p class="section-help">Comptes clients disponibles</p></article><article class="cabinet-panel"><h3>Documents récents</h3><div class="cabinet-big-number">{{ docs|length }}</div><p class="section-help">Références affichées</p></article><article class="cabinet-panel"><h3>Messages récents</h3><div class="cabinet-big-number">{{ messages|length }}</div><p class="section-help">Échanges chargés</p></article></div>
+<div class="cabinet-subsection"><div class="cabinet-section-divider"><h2>Annuaire et contacts</h2><p>Rechercher un client et préparer un message.</p></div>
 
             <div class="section-title">
                 <h2 id="titre-clients">Mes clients</h2>
@@ -463,151 +478,8 @@
                 </div>
             </article>
 
-        </section>
-
-        <!-- ========================================= -->
-        <!-- ONGLET 05 : PILOTAGE -->
-        <!-- ========================================= -->
-
-        <section
-            class="tab-panel"
-            id="pilotage"
-            data-panel="pilotage"
-            aria-labelledby="titre-pilotage"
-            hidden
-        >
-
-            <div class="section-title">
-                <h2 id="titre-pilotage">Pilotage</h2>
-                <span class="pill">Analyse de l'activité</span>
-            </div>
-
-            <article class="panel cabinet-panel">
-
-                <h3>Suivi de performance</h3>
-
-                <p>
-                    Les statistiques de missions,
-                    le temps de travail et la charge
-                    des collaborateurs seront connectés
-                    aux futures données métier.
-                </p>
-
-                <span class="status">
-                    Module en préparation
-                </span>
-
-            </article>
-
-        
-            <div class="cabinet-grid two">
-                <article class="cabinet-panel">
-                    <div class="panel-head"><h3>Performance opérationnelle</h3><span class="pill">Données disponibles</span></div>
-                    <div class="metric-row"><span>Clients inscrits</span><strong>{{ users|length }}</strong></div>
-                    <div class="metric-row"><span>Tâches créées</span><strong>{{ tasks|length }}</strong></div>
-                    <div class="metric-row"><span>Tâches clôturées</span><strong>{{ done_tasks|length }}</strong></div>
-                    <div class="metric-row"><span>Messages récents affichés</span><strong>{{ messages|length }}</strong></div>
-                    <div class="metric-row"><span>Documents récents affichés</span><strong>{{ docs|length }}</strong></div>
-                    <p class="section-help">Messages limités aux 30 derniers et documents limités aux 20 derniers par la route Flask actuelle.</p>
-                </article>
-                <article class="cabinet-panel">
-                    <h3>Répartition des priorités</h3>
-                    {% for priority in ['Normale', 'Haute', 'Urgente'] %}
-                    {% set count = tasks|selectattr('priority', 'equalto', priority)|list|length %}
-                    <div class="metric-row"><span>{{ priority }}</span><strong>{{ count }}</strong></div>
-                    <div class="progress-line"><div data-progress="{{ (count * 100 / tasks|length)|round|int if tasks|length else 0 }}"></div></div>
-                    {% endfor %}
-                    <p class="section-help">Les pourcentages correspondent aux tâches enregistrées, pas au temps de travail.</p>
-                </article>
-            </div>
-            <article class="cabinet-panel">
-                <h3>Indicateurs métier à connecter ultérieurement</h3>
-                <div class="cabinet-grid three">
-                    <div class="cabinet-feature"><strong>Temps de mission</strong><p>Pointage par collaborateur, dossier et mission.</p><span class="status">Backend requis</span></div>
-                    <div class="cabinet-feature"><strong>Charge de travail</strong><p>Planification des capacités et affectations.</p><span class="status">Backend requis</span></div>
-                    <div class="cabinet-feature"><strong>Délais de réponse</strong><p>Mesure du temps de traitement des demandes.</p><span class="status">Backend requis</span></div>
-                </div>
-            </article>
-
-        </section>
-
-        <!-- ========================================= -->
-        <!-- ONGLET 06 : ÉCHÉANCES -->
-        <!-- ========================================= -->
-
-        <section
-            class="tab-panel"
-            id="echeances"
-            data-panel="echeances"
-            aria-labelledby="titre-echeances"
-            hidden
-        >
-
-            <div class="section-title">
-                <h2 id="titre-echeances">Échéances</h2>
-                <span class="pill">Suivi des obligations</span>
-            </div>
-
-            <article class="panel cabinet-panel">
-
-                <h3>Calendrier des échéances</h3>
-
-                <p>
-                    Le calendrier permettra de suivre
-                    les déclarations de TVA, les obligations
-                    comptables, les rendez-vous et les alertes
-                    propres aux dossiers clients.
-                </p>
-
-                <span class="status">
-                    Module en préparation
-                </span>
-
-            </article>
-
-        
-            <div class="cabinet-grid two">
-                <article class="cabinet-panel">
-                    <div class="panel-head"><h3>Calendrier mensuel</h3><span class="pill">Vue de calendrier</span></div>
-                    <div class="calendar-controls">
-                        <button type="button" data-cal-prev aria-label="Mois précédent">‹</button>
-                        <strong data-cal-label></strong>
-                        <button type="button" data-cal-next aria-label="Mois suivant">›</button>
-                    </div>
-                    <div class="calendar-grid" data-cal-grid aria-label="Calendrier du mois"></div>
-                    <p class="section-help">Le calendrier est interactif mais ne contient pas encore d'échéances enregistrées.</p>
-                </article>
-                <article class="cabinet-panel">
-                    <h3>Catégories d'échéances prévues</h3>
-                    <ul class="cabinet-checklist">
-                        <li>Déclarations fiscales et TVA</li>
-                        <li>Clôtures et révisions comptables</li>
-                        <li>Obligations sociales</li>
-                        <li>Rendez-vous et demandes de pièces</li>
-                        <li>Alertes internes et rappels clients</li>
-                    </ul>
-                    <p class="section-help">Les dates et obligations exactes doivent être issues de données métier fiables, jamais générées automatiquement depuis ce calendrier visuel.</p>
-                </article>
-            </div>
-            <article class="cabinet-panel">
-                <h3>Préparation du module</h3>
-                <p>Pour rendre les échéances opérationnelles, il faudra enregistrer au minimum le dossier client, le type d'obligation, la date d'échéance, le statut, le responsable et l'historique de modification.</p>
-                <span class="status">Module serveur non connecté</span>
-            </article>
-
-        </section>
-
-        <!-- ========================================= -->
-        <!-- ONGLET 07 : MESSAGERIE -->
-        <!-- ========================================= -->
-
-        <section
-            class="tab-panel"
-            id="messages"
-            data-panel="messages"
-            aria-labelledby="titre-messages"
-            hidden
-        >
+        </div>
+<div class="cabinet-subsection"><div class="cabinet-section-divider"><h2>Messagerie clients</h2><p>Échanger avec les clients inscrits via les routes Flask existantes.</p></div>
 
             <div class="section-title">
                 <h2 id="titre-messages">Messagerie</h2>
@@ -749,19 +621,8 @@
                 <p class="filter-empty" data-empty-for="message-detail-list" hidden>Aucun résultat.</p>
             </article>
 
-        </section>
-
-        <!-- ========================================= -->
-        <!-- ONGLET 08 : ÉQUIPE -->
-        <!-- ========================================= -->
-
-        <section
-            class="tab-panel"
-            id="equipe"
-            data-panel="equipe"
-            aria-labelledby="titre-equipe"
-            hidden
-        >
+        </div>
+<div class="cabinet-subsection"><div class="cabinet-section-divider"><h2>Organisation de l'équipe</h2><p>Rôles et habilitations à mettre en œuvre côté serveur.</p></div>
 
             <div class="section-title">
                 <h2 id="titre-equipe">Équipe</h2>
@@ -823,19 +684,83 @@
                 </div>
             </article>
 
+        </div></section>
+<section class="tab-panel" id="pilotage" data-panel="pilotage" hidden>
+
+            <div class="section-title">
+                <h2 id="titre-pilotage">Pilotage</h2>
+                <span class="pill">Analyse de l'activité</span>
+            </div>
+
+            <article class="panel cabinet-panel">
+
+                <h3>Suivi de performance</h3>
+
+                <p>
+                    Les statistiques de missions,
+                    le temps de travail et la charge
+                    des collaborateurs seront connectés
+                    aux futures données métier.
+                </p>
+
+                <span class="status">
+                    Module en préparation
+                </span>
+
+            </article>
+
+        
+            <div class="cabinet-grid two">
+                <article class="cabinet-panel">
+                    <div class="panel-head"><h3>Performance opérationnelle</h3><span class="pill">Données disponibles</span></div>
+                    <div class="metric-row"><span>Clients inscrits</span><strong>{{ users|length }}</strong></div>
+                    <div class="metric-row"><span>Tâches créées</span><strong>{{ tasks|length }}</strong></div>
+                    <div class="metric-row"><span>Tâches clôturées</span><strong>{{ done_tasks|length }}</strong></div>
+                    <div class="metric-row"><span>Messages récents affichés</span><strong>{{ messages|length }}</strong></div>
+                    <div class="metric-row"><span>Documents récents affichés</span><strong>{{ docs|length }}</strong></div>
+                    <p class="section-help">Messages limités aux 30 derniers et documents limités aux 20 derniers par la route Flask actuelle.</p>
+                </article>
+                <article class="cabinet-panel">
+                    <h3>Répartition des priorités</h3>
+                    {% for priority in ['Normale', 'Haute', 'Urgente'] %}
+                    {% set count = tasks|selectattr('priority', 'equalto', priority)|list|length %}
+                    <div class="metric-row"><span>{{ priority }}</span><strong>{{ count }}</strong></div>
+                    <div class="progress-line"><div data-progress="{{ (count * 100 / tasks|length)|round|int if tasks|length else 0 }}"></div></div>
+                    {% endfor %}
+                    <p class="section-help">Les pourcentages correspondent aux tâches enregistrées, pas au temps de travail.</p>
+                </article>
+            </div>
+            <article class="cabinet-panel">
+                <h3>Indicateurs métier à connecter ultérieurement</h3>
+                <div class="cabinet-grid three">
+                    <div class="cabinet-feature"><strong>Temps de mission</strong><p>Pointage par collaborateur, dossier et mission.</p><span class="status">Backend requis</span></div>
+                    <div class="cabinet-feature"><strong>Charge de travail</strong><p>Planification des capacités et affectations.</p><span class="status">Backend requis</span></div>
+                    <div class="cabinet-feature"><strong>Délais de réponse</strong><p>Mesure du temps de traitement des demandes.</p><span class="status">Backend requis</span></div>
+                </div>
+            </article>
+
         </section>
+<section class="tab-panel" id="theme" data-panel="theme" hidden><div class="section-title"><h2>Thème</h2><span class="pill">Préférences d'affichage</span></div><p class="cabinet-intro">Personnalisez l'interface du cabinet. Les préférences restent dans ce navigateur et n'affectent pas les données.</p>
+<div class="cabinet-grid two"><article class="cabinet-panel"><h3>Apparence</h3><label class="setting-line"><span>Mode compact</span><input type="checkbox" data-compact-toggle></label><label class="setting-line"><span>Réduire les animations</span><input type="checkbox" data-motion-toggle></label><label class="setting-line"><span>Contraste renforcé</span><input type="checkbox" data-contrast-toggle></label><p class="section-help">Le thème sombre DATENSIS reste le thème principal.</p></article><article class="cabinet-panel"><h3>Palette DATENSIS Expert</h3><div class="cabinet-palette"><span style="--swatch:#0b101b">Bleu nuit</span><span style="--swatch:#151d2e">Panneaux</span><span style="--swatch:#12b8ad">Turquoise</span><span style="--swatch:#3b82f6">Graphiques</span><span style="--swatch:#ef4444">Alertes</span></div><p class="section-help">Les textes sont clairs pour rester lisibles sur fond sombre.</p></article></div></section>
+<section class="tab-panel" id="aide" data-panel="aide" hidden><div class="section-title"><h2>Aide</h2><span class="pill">Centre d'assistance</span></div>
+<div class="expert-section-hero"><div><span class="expert-eyebrow">CENTRE D'ASSISTANCE</span><h3>Comment pouvons-nous vous aider ?</h3><p>Recherchez une réponse, consultez les procédures et vérifiez les bonnes pratiques de sécurité.</p></div><span class="expert-hero-count">Documentation cabinet</span></div>
+<div class="expert-toolbar"><label for="expert-help-search">Rechercher dans l'aide</label><input id="expert-help-search" type="search" placeholder="Tâches, clients, documents, accès…" data-expert-filter="expert-faq-list"></div>
+<div class="expert-two"><article class="expert-card"><h3>Accès rapides</h3><div class="expert-help-actions"><button type="button" class="expert-quick-action" data-go-tab="taches"><strong>Gérer une tâche</strong><span>Création, priorité et clôture</span></button><button type="button" class="expert-quick-action" data-go-tab="parcours"><strong>Suivre un parcours</strong><span>Procédures comptables guidées</span></button><button type="button" class="expert-quick-action" data-go-tab="mon-cabinet"><strong>Contacter un client</strong><span>Annuaire et messagerie interne</span></button></div></article><article class="expert-card"><h3>Avant de contacter le support</h3><ul class="cabinet-checklist"><li>Vérifier que votre session est toujours active</li><li>Actualiser la page si les données semblent anciennes</li><li>Relever l'heure et le message d'erreur affiché</li><li>Ne jamais transmettre de mot de passe ou de données clients dans une capture</li></ul><p class="section-help">Aucun formulaire de ticket de support n'est connecté dans cette version.</p></article></div>
+<div class="expert-card"><div class="expert-card-heading"><h3>Questions fréquentes</h3><span class="pill">Réponses pratiques</span></div><div id="expert-faq-list" class="expert-faq-list">
+{% for question,answer in [
+ ('Comment créer une tâche ?','Dans Mes tâches, remplissez le formulaire de création, choisissez la priorité et enregistrez.'),
+ ('Comment terminer une tâche ?','Dans Mes tâches, cliquez sur Terminer. La modification est envoyée à Flask et enregistrée en base.'),
+ ('Comment suivre un parcours ?','Dans Mes parcours, cochez les étapes du guide. Votre progression est locale au navigateur et ne valide pas une mission.'),
+ ('Comment retrouver un client ?','Dans Mes dossiers ou Mon cabinet, utilisez la recherche par nom ou adresse électronique.'),
+ ('Comment envoyer un message ?','Dans Mon cabinet, choisissez un client, saisissez votre message et utilisez le formulaire prévu.'),
+ ('Comment retrouver un document ?','Dans Mes dossiers, recherchez une référence documentaire. Les fichiers eux-mêmes ne sont pas encore téléversés.'),
+ ('Pourquoi les heures ne sont-elles pas affichées ?','Le suivi du temps de mission exige un module de pointage qui n’est pas encore connecté.'),
+ ('Comment protéger les informations clients ?','Vérifiez le destinataire, limitez les informations partagées et déconnectez-vous sur un poste partagé.'),
+ ('Comment signaler un problème ?','Contactez votre administrateur interne par le canal habituel en indiquant la page, l’heure et le message d’erreur, sans divulguer de données sensibles.')
+] %}<details class="expert-faq-item searchable"><summary>{{ question }}</summary><p>{{ answer }}</p></details>{% endfor %}
+</div><p class="expert-empty" data-expert-empty="expert-faq-list" hidden>Aucune réponse ne correspond à cette recherche.</p></div>
 
-        <!-- ========================================= -->
-        <!-- ONGLET 09 : PARAMÈTRES -->
-        <!-- ========================================= -->
-
-        <section
-            class="tab-panel"
-            id="parametres"
-            data-panel="parametres"
-            aria-labelledby="titre-parametres"
-            hidden
-        >
+<div class="cabinet-subsection"><div class="cabinet-section-divider"><h2>Sécurité et paramètres</h2><p>Informations sur la session et contrôles à prévoir avant la mise en production.</p></div>
 
             <div class="section-title">
                 <h2 id="titre-parametres">Paramètres</h2>
@@ -864,8 +789,8 @@
                 <article class="cabinet-panel">
                     <h3>Préférences d'affichage</h3>
                     <p class="section-help">Ces préférences sont enregistrées uniquement dans le navigateur utilisé.</p>
-                    <label class="setting-line"><span>Mode compact</span><input type="checkbox" data-compact-toggle></label>
-                    <label class="setting-line"><span>Réduire les animations</span><input type="checkbox" data-motion-toggle></label>
+                    <label class="setting-line"><span>Mode compact</span><input type="checkbox" data-compact-toggle-old></label>
+                    <label class="setting-line"><span>Réduire les animations</span><input type="checkbox" data-motion-toggle-old></label>
                     <p class="section-help">Les préférences visuelles ne modifient ni les droits ni les données du compte.</p>
                 </article>
                 <article class="cabinet-panel">
@@ -891,10 +816,4 @@
                 <span class="status">Contrôles à effectuer</span>
             </article>
 
-        </section>
-
-    </main>
-
-</div>
-<script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
-{% endblock %}
+        </div></section></main></div><script defer src="{{ url_for('static', filename='js/app.js') }}"></script>{% endblock %}

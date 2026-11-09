@@ -5153,3 +5153,216 @@ body:has(.cabinet-workspace) .cabinet-workspace{--dash-bg:#0b101b;--dash-panel:#
 @media(max-width:1150px){body:has(.cabinet-workspace) .cabinet-workspace{grid-template-columns:190px minmax(0,1fr)!important}.cabinet-workspace .dash-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.cabinet-workspace .dash-triple{grid-template-columns:repeat(2,minmax(0,1fr))}.cabinet-workspace .dash-triple>.dash-card:last-child{grid-column:1/-1}}
 @media(max-width:750px){body:has(.cabinet-workspace) .cabinet-workspace{display:block!important}.cabinet-workspace .cabinet-sidebar{min-height:auto!important;padding:65px 12px 12px!important;width:100%!important}.cabinet-workspace .cabinet-nav{flex-direction:row!important;overflow-x:auto!important;gap:4px!important}.cabinet-workspace .cabinet-nav a{flex:0 0 auto!important}.cabinet-workspace .sidebar-footer{padding-top:4px!important}.cabinet-workspace .cabinet-main{padding:20px 14px 30px!important}.cabinet-workspace .cabinet-topbar{padding:0 12px!important}.cabinet-workspace .dash-top-actions input{width:110px}.cabinet-workspace .dash-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.cabinet-workspace .dash-triple{grid-template-columns:1fr}.cabinet-workspace .dash-triple>.dash-card:last-child{grid-column:auto}}
 @media(max-width:420px){.cabinet-workspace .dash-visit{padding:7px!important}.cabinet-workspace .dash-top-actions{gap:5px}.cabinet-workspace .dash-top-actions input{width:88px}.cabinet-workspace .dash-kpi{padding:12px!important}.cabinet-workspace .dash-wide-heading span{display:none}}
+
+/* ==============================================================
+   DATENSIS EXPERT - CORRECTION FINALE DES CONTRASTES CABINET
+   Espace client preserve. A maintenir apres les styles cabinet.
+   ============================================================== */
+.cabinet-workspace {
+    --cab-text: #f4f7ff;
+    --cab-muted: #c9d5e9;
+    --cab-card: #151d2e;
+    --cab-border: #29354a;
+    color: #f4f7ff;
+}
+/* Les panneaux secondaires conservaient des couleurs prevues pour
+   l'ancienne interface claire : correction sur fond bleu nuit. */
+.cabinet-workspace .cabinet-main,
+.cabinet-workspace .cabinet-main [data-panel],
+.cabinet-workspace .cabinet-main .tab-panel {
+    color: #f4f7ff;
+}
+.cabinet-workspace .cabinet-main h1,
+.cabinet-workspace .cabinet-main h2,
+.cabinet-workspace .cabinet-main h3,
+.cabinet-workspace .cabinet-main h4,
+.cabinet-workspace .cabinet-main .section-title h2,
+.cabinet-workspace .cabinet-main .cabinet-panel h2,
+.cabinet-workspace .cabinet-main .cabinet-panel h3,
+.cabinet-workspace .cabinet-main .panel h2,
+.cabinet-workspace .cabinet-main .panel h3,
+.cabinet-workspace .cabinet-main .cabinet-feature strong,
+.cabinet-workspace .cabinet-main .cabinet-record strong,
+.cabinet-workspace .cabinet-main .record strong,
+.cabinet-workspace .cabinet-main .metric-row strong {
+    color: #ffffff;
+}
+.cabinet-workspace .cabinet-main p,
+.cabinet-workspace .cabinet-main .section-help,
+.cabinet-workspace .cabinet-main .section-title p,
+.cabinet-workspace .cabinet-main .cabinet-subtitle,
+.cabinet-workspace .cabinet-main .empty-state,
+.cabinet-workspace .cabinet-main .filter-empty,
+.cabinet-workspace .cabinet-main .muted-label,
+.cabinet-workspace .cabinet-main .cabinet-feature p,
+.cabinet-workspace .cabinet-main .cabinet-record p,
+.cabinet-workspace .cabinet-main .record p,
+.cabinet-workspace .cabinet-main .metric-row span,
+.cabinet-workspace .cabinet-main .cabinet-stat span,
+.cabinet-workspace .cabinet-main .stat span {
+    color: #e8eef8;
+}
+.cabinet-workspace .cabinet-main small,
+.cabinet-workspace .cabinet-main .cabinet-record small,
+.cabinet-workspace .cabinet-main .record small,
+.cabinet-workspace .cabinet-main .cabinet-stat small,
+.cabinet-workspace .cabinet-main .stat small,
+.cabinet-workspace .cabinet-main .char-counter {
+    color: #cbd7eb;
+}
+.cabinet-workspace .cabinet-main .cabinet-panel,
+.cabinet-workspace .cabinet-main .panel,
+.cabinet-workspace .cabinet-main .cabinet-stat,
+.cabinet-workspace .cabinet-main .stat,
+.cabinet-workspace .cabinet-main .cabinet-feature {
+    background: #151d2e;
+    border-color: #29354a;
+    color: #f4f7ff;
+}
+.cabinet-workspace .cabinet-main .cabinet-record,
+.cabinet-workspace .cabinet-main .record,
+.cabinet-workspace .cabinet-main .metric-row,
+.cabinet-workspace .cabinet-main .setting-line {
+    border-color: #2a354b;
+    color: #e8eef8;
+}
+.cabinet-workspace .cabinet-main .cabinet-form label,
+.cabinet-workspace .cabinet-main .stack-form label,
+.cabinet-workspace .cabinet-main label,
+.cabinet-workspace .cabinet-main .setting-line {
+    color: #f1f5ff;
+}
+/* Formulaires : fonds sombres et valeurs saisies parfaitement lisibles. */
+.cabinet-workspace .cabinet-main input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+.cabinet-workspace .cabinet-main select,
+.cabinet-workspace .cabinet-main textarea {
+    background: #202c40;
+    border-color: #40516b;
+    color: #ffffff;
+}
+.cabinet-workspace .cabinet-main input::placeholder,
+.cabinet-workspace .cabinet-main textarea::placeholder {
+    color: #b8c8df;
+    opacity: 1;
+}
+.cabinet-workspace .cabinet-main select option {
+    background: #202c40;
+    color: #ffffff;
+}
+/* Composants clairs residuels de l'ancienne charte. */
+.cabinet-workspace .cabinet-main .cabinet-panel .cabinet-feature,
+.cabinet-workspace .cabinet-main .cal-weekday {
+    background: #202c40;
+    border-color: #35455e;
+    color: #edf4ff;
+}
+.cabinet-workspace .cabinet-main .calendar-grid > * {
+    border-color: #35455e;
+    color: #edf4ff;
+}
+.cabinet-workspace .cabinet-main .progress-line,
+.cabinet-workspace .cabinet-main .bar-track,
+.cabinet-workspace .cabinet-main .dash-mission-track {
+    background: #2a3850;
+}
+/* Conserver la semantique des couleurs : alertes, etats et boutons. */
+.cabinet-workspace .cabinet-main .dash-danger,
+.cabinet-workspace .cabinet-main .dash-kpi > strong.dash-danger {
+    color: #ff656d;
+}
+.cabinet-workspace .cabinet-main .priority {
+    background: #173c3d;
+    border-color: #2e7770;
+    color: #b8f4e2;
+}
+.cabinet-workspace .cabinet-main .priority-haute {
+    background: #49301d;
+    border-color: #976137;
+    color: #ffd5a8;
+}
+.cabinet-workspace .cabinet-main .priority-urgente {
+    background: #4b252c;
+    border-color: #a84b58;
+    color: #ffd2d5;
+}
+.cabinet-workspace .cabinet-main .status,
+.cabinet-workspace .cabinet-main .record .status {
+    background: #163b35;
+    border-color: #2d7665;
+    color: #b5f4d7;
+}
+.cabinet-workspace .cabinet-main .pill {
+    background: #1d3a42;
+    border-color: #356e70;
+    color: #c7fff0;
+}
+.cabinet-workspace .cabinet-main .outline-btn,
+.cabinet-workspace .cabinet-main .filter-chip,
+.cabinet-workspace .cabinet-main .quick-actions button,
+.cabinet-workspace .cabinet-main .small-btn {
+    background: #223149;
+    border-color: #405573;
+    color: #eaf4ff;
+}
+.cabinet-workspace .cabinet-main .outline-btn:hover,
+.cabinet-workspace .cabinet-main .filter-chip:hover,
+.cabinet-workspace .cabinet-main .filter-chip.active,
+.cabinet-workspace .cabinet-main .quick-actions button:hover,
+.cabinet-workspace .cabinet-main .small-btn:hover {
+    background: #304565;
+    color: #ffffff;
+}
+.cabinet-workspace .cabinet-main .chat-bubble {
+    background: #25354b;
+    border-color: #3c526c;
+    color: #f2f6ff;
+}
+.cabinet-workspace .cabinet-main .chat-bubble.mine {
+    background: #0b7082;
+    border-color: #1496a6;
+    color: #ffffff;
+}
+.cabinet-workspace .cabinet-main .chat-bubble p { color: inherit; }
+.cabinet-workspace .cabinet-main .chat-bubble small { color: #d1e2f8; }
+/* Le tableau de bord conserve ses accents et son contraste initial. */
+.cabinet-workspace .cabinet-main .dash-card,
+.cabinet-workspace .cabinet-main .dash-kpi {
+    background: #151d2e;
+    border-color: #243148;
+}
+.cabinet-workspace .cabinet-main .dash-welcome p,
+.cabinet-workspace .cabinet-main .dash-muted { color: #cbd7eb; }
+.cabinet-workspace .cabinet-main .dash-welcome .dash-danger { color: #ff656d; }
+
+/* ============================================================
+   DATENSIS EXPERT - LISTES ET PASTILLES LISIBLES (CABINET)
+   Fond sombre : texte clair et marqueurs visibles.
+   ============================================================ */
+.cabinet-workspace .cabinet-main ul,
+.cabinet-workspace .cabinet-main ol,
+.cabinet-workspace .cabinet-main .cabinet-checklist {
+    color: #edf4ff;
+}
+.cabinet-workspace .cabinet-main li,
+.cabinet-workspace .cabinet-main .cabinet-checklist li {
+    color: #edf4ff;
+    line-height: 1.75;
+}
+.cabinet-workspace .cabinet-main li::marker,
+.cabinet-workspace .cabinet-main .cabinet-checklist li::marker {
+    color: #82c4a8;
+    font-weight: 800;
+}
+/* Les textes dans les listes restent lisibles, meme si une
+   ancienne regle leur applique une couleur bleu fonce. */
+.cabinet-workspace .cabinet-main .cabinet-checklist li span,
+.cabinet-workspace .cabinet-main .cabinet-checklist li p,
+.cabinet-workspace .cabinet-main .cabinet-feature li,
+.cabinet-workspace .cabinet-main .cabinet-panel li,
+.cabinet-workspace .cabinet-main .panel li {
+    color: #edf4ff;
+}
+/* Cas des puces personnalisees (pseudo-elements). */
+.cabinet-workspace .cabinet-main .cabinet-checklist li::before {
+    color: #82c4a8;
+}
