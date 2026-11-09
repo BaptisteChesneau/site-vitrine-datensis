@@ -5366,3 +5366,139 @@ body:has(.cabinet-workspace) .cabinet-workspace{--dash-bg:#0b101b;--dash-panel:#
 .cabinet-workspace .cabinet-main .cabinet-checklist li::before {
     color: #82c4a8;
 }
+
+
+/* ==========================================================
+   DATENSIS EXPERT - TABLEAU DE BORD CABINET (REFERENCE 09/11)
+   Ne touche pas aux pages de l'espace client.
+   ========================================================== */
+body:has(.cabinet-workspace){background:#0b101b!important;color:#fff!important}
+body:has(.cabinet-workspace) .cabinet-workspace{--cab-bg:#0b101b;--cab-side:#101625;--cab-panel:#151d2e;--cab-blue:#3b82f6;--cab-text:#f7faff;--cab-muted:#d3e0f2;min-height:100vh!important;grid-template-columns:232px minmax(0,1fr)!important;background:var(--cab-bg)!important;color:var(--cab-text)!important;gap:0!important}
+.cabinet-workspace .cabinet-sidebar{background:#101625!important;border-right:1px solid #1c2739!important;padding:64px 20px 22px!important;min-height:100vh!important}
+.cabinet-workspace .cabinet-tag{display:block!important;background:#12b8ad!important;color:#fff!important;font-weight:800!important;border-radius:7px!important;padding:11px 15px!important;text-align:left!important;font-size:15px!important;letter-spacing:.01em!important;margin:0 0 22px!important}
+.cabinet-workspace .cabinet-nav{display:flex!important;flex-direction:column!important;gap:5px!important}
+.cabinet-workspace .cabinet-nav a{display:block!important;padding:10px 16px!important;font-size:13px!important;line-height:1.3!important;color:#f1f5ff!important;border-radius:6px!important;background:transparent!important;text-decoration:none!important;font-weight:500!important}
+.cabinet-workspace .cabinet-nav a.active,.cabinet-workspace .cabinet-nav a:hover,.cabinet-workspace .cabinet-nav a:focus-visible{background:#222e43!important;color:#fff!important}
+.cabinet-workspace .cabinet-nav-separator{height:16px}
+.cabinet-workspace .cabinet-nav-more{border-top:1px solid #273148;margin-top:12px;padding-top:10px}
+.cabinet-workspace .cabinet-nav-more summary{color:#cbd8ee;cursor:pointer;padding:8px 16px;font-size:12px}
+.cabinet-workspace .sidebar-footer{margin-top:18px!important}
+.cabinet-workspace .sidebar-footer .logout{color:#ff5964!important;background:none!important;border:0!important;padding:8px 16px!important;font-weight:700!important;font-size:13px!important}
+.cabinet-workspace .cabinet-main{background:#0b101b!important;color:#fff!important;min-width:0!important;padding:78px 28px 36px!important}
+.cabinet-workspace .cabinet-topbar{position:absolute!important;left:0!important;right:0!important;top:0!important;z-index:8!important;height:55px!important;min-height:55px!important;padding:0 24px!important;display:flex!important;justify-content:space-between!important;align-items:center!important;background:#111827!important;border-bottom:1px solid #1c2739!important;margin:0!important;border-radius:0!important;box-shadow:none!important}
+.cabinet-workspace .dash-brand{font-size:16px!important;font-weight:800!important;color:#fff!important}
+.cabinet-workspace .dash-brand span{color:#ff4c55!important}
+.cabinet-workspace .dash-top-actions input{background:#202b3c!important;border:1px solid #29354a!important;color:#fff!important;min-height:31px!important}
+.cabinet-workspace .dash-top-actions input::placeholder{color:#c5d4e8!important;opacity:1!important}
+.cabinet-workspace .dash-visit{border:1px solid #13c1b8!important;color:#3ce1d7!important}
+.cabinet-workspace .cabinet-dashboard{max-width:none!important;margin:0!important}
+.cabinet-workspace .dash-welcome h1{font-size:27px!important;letter-spacing:-.03em!important;margin-bottom:7px!important}
+.cabinet-workspace .dash-welcome p{color:#dce7f7!important;font-size:12px!important}
+.cabinet-workspace .dash-chips{margin:12px 0 20px!important}
+.cabinet-workspace .dash-chips span{background:#222d41!important;color:#fff!important;font-size:11px!important;padding:6px 18px!important}
+.cabinet-workspace .dash-kpis{gap:11px!important;margin-bottom:16px!important}
+.cabinet-workspace .dash-card{background:#151d2e!important;border:1px solid #1b263a!important;border-radius:10px!important;color:#fff!important}
+.cabinet-workspace .dash-kpi{min-height:105px!important;padding:15px!important}
+.cabinet-workspace .dash-kpi>span{color:#cbdcf3!important;font-size:12px!important}
+.cabinet-workspace .dash-kpi>strong{font-size:31px!important;color:#fff!important}
+.cabinet-workspace .dash-kpi>strong.dash-danger{color:#ff515e!important}
+.cabinet-workspace .dash-kpi>small{color:#c1d2eb!important;font-size:10px!important}
+.cabinet-workspace .dash-triple{grid-template-columns:1.05fr 1.05fr .9fr!important;gap:12px!important;margin-bottom:16px!important}
+.cabinet-workspace .dash-graph{min-height:218px!important;padding:16px!important}
+.cabinet-workspace .dash-card h2{color:#fff!important;font-size:13px!important}
+.cabinet-workspace .dash-legend,.cabinet-workspace .dash-legend b,.cabinet-workspace .dash-mission,.cabinet-workspace .dash-mission b{color:#f4f7ff!important}
+.cabinet-workspace .dash-week-empty,.cabinet-workspace .dash-chart-placeholder{color:#d0dcf0!important}
+.cabinet-workspace .dash-week-axis,.cabinet-workspace .dash-line-axis{color:#c7d6ec!important}
+.cabinet-workspace .dash-wide{min-height:215px!important;padding:16px!important}
+.cabinet-workspace .dash-wide-heading span{color:#cbd8ea!important}
+.cabinet-workspace .cabinet-main p,.cabinet-workspace .cabinet-main li,.cabinet-workspace .cabinet-main .section-help,.cabinet-workspace .cabinet-main .muted-label{color:#e9f1ff!important}
+.cabinet-workspace .cabinet-main .dash-danger{color:#ff5964!important}
+.cabinet-workspace .cabinet-main .cabinet-checklist li{color:#eef5ff!important;list-style:disc!important}
+.cabinet-workspace .cabinet-main .cabinet-checklist li::marker{color:#82c4a8!important}
+.cabinet-workspace .cabinet-main .pill,.cabinet-workspace .cabinet-main .status,.cabinet-workspace .cabinet-main .filter-chip{color:#f6fbff!important;border-color:#40536c!important}
+.cabinet-workspace .cabinet-main .cabinet-record small,.cabinet-workspace .cabinet-main small{color:#cbdcf2!important}
+.cabinet-workspace .cabinet-main label{color:#f1f6ff!important}
+.cabinet-workspace .cabinet-main input,.cabinet-workspace .cabinet-main select,.cabinet-workspace .cabinet-main textarea{color:#fff!important;background:#202c40!important;border-color:#3a4a61!important}
+.cabinet-workspace .cabinet-main input::placeholder,.cabinet-workspace .cabinet-main textarea::placeholder{color:#bacbe3!important;opacity:1!important}
+.cabinet-workspace .cabinet-main input:focus-visible,.cabinet-workspace .cabinet-main select:focus-visible,.cabinet-workspace .cabinet-main textarea:focus-visible{outline:2px solid #28d3c9!important;outline-offset:2px!important}
+.cabinet-workspace [hidden]{display:none!important}
+@media(max-width:1150px){body:has(.cabinet-workspace) .cabinet-workspace{grid-template-columns:195px minmax(0,1fr)!important}.cabinet-workspace .cabinet-sidebar{padding-left:12px!important;padding-right:12px!important}.cabinet-workspace .dash-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}.cabinet-workspace .dash-triple{grid-template-columns:repeat(2,minmax(0,1fr))!important}.cabinet-workspace .dash-triple>.dash-card:last-child{grid-column:1/-1!important}}
+@media(max-width:750px){body:has(.cabinet-workspace) .cabinet-workspace{display:block!important}.cabinet-workspace .cabinet-sidebar{min-height:auto!important;padding:70px 12px 12px!important}.cabinet-workspace .cabinet-nav{flex-direction:row!important;overflow-x:auto!important;align-items:center!important}.cabinet-workspace .cabinet-nav a{white-space:nowrap!important}.cabinet-workspace .cabinet-nav-separator,.cabinet-workspace .cabinet-nav-more{display:none!important}.cabinet-workspace .cabinet-main{padding:24px 14px 32px!important}.cabinet-workspace .dash-triple{grid-template-columns:1fr!important}.cabinet-workspace .dash-triple>.dash-card:last-child{grid-column:auto!important}.cabinet-workspace .dash-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.cabinet-workspace .cabinet-topbar{padding:0 12px!important}.cabinet-workspace .dash-top-actions input{width:110px!important}}
+@media(max-width:430px){.cabinet-workspace .dash-kpis{gap:8px!important}.cabinet-workspace .dash-kpi{padding:12px!important}.cabinet-workspace .dash-welcome h1{font-size:23px!important}.cabinet-workspace .dash-top-actions input{width:90px!important}}
+
+/* DATENSIS EXPERT : pages métier 8 onglets */
+.cabinet-workspace .cabinet-subsection{margin-top:28px;padding-top:8px}
+.cabinet-workspace .cabinet-section-divider{margin:0 0 15px;border-bottom:1px solid #2a3951;padding-bottom:12px}
+.cabinet-workspace .cabinet-section-divider h2{color:#fff!important;font-size:19px;margin:0 0 6px}
+.cabinet-workspace .cabinet-section-divider p,.cabinet-workspace .cabinet-intro{color:#dce8f8!important;line-height:1.6}
+.cabinet-workspace .cabinet-steps{padding-left:22px;color:#eaf2ff;line-height:1.9}
+.cabinet-workspace .cabinet-steps li{color:#eaf2ff!important;padding-left:4px}
+.cabinet-workspace .cabinet-steps li::marker{color:#82c4a8}
+.cabinet-workspace .cabinet-big-number{font-size:32px;font-weight:800;color:#fff}
+.cabinet-workspace .cabinet-palette{display:flex;gap:12px;flex-wrap:wrap}
+.cabinet-workspace .cabinet-palette span{color:#eef5ff;display:flex;align-items:center;gap:7px;font-size:13px}
+.cabinet-workspace .cabinet-palette span:before{content:"";display:inline-block;width:20px;height:20px;border-radius:5px;background:var(--swatch);border:1px solid #73839b}
+.cabinet-workspace details{border-bottom:1px solid #304056;padding:12px 0;color:#eef5ff}
+.cabinet-workspace details summary{cursor:pointer;font-weight:650;color:#fff}
+.cabinet-workspace details p{margin:10px 0 0;color:#dce8f8!important}
+.cabinet-workspace.is-high-contrast .cabinet-main p,.cabinet-workspace.is-high-contrast .cabinet-main small,.cabinet-workspace.is-high-contrast .cabinet-main li{color:#fff!important}
+.cabinet-workspace .cabinet-nav a{color:#f4f7ff!important}
+.cabinet-workspace .cabinet-nav a.active{color:#fff!important}
+.cabinet-workspace .cabinet-sidebar .logout{color:#ff5362!important}
+
+/* DATENSIS EXPERT — Parcours, Mon cabinet, Aide — v2 */
+.cabinet-workspace .expert-section-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;background:linear-gradient(120deg,#18283b,#131c2c);border:1px solid #30445b;border-radius:12px;padding:22px;margin:14px 0 18px}
+.cabinet-workspace .expert-section-hero h3{font-size:1.35rem;margin:5px 0;color:#fff}.cabinet-workspace .expert-section-hero p{margin:0;color:#d9e5f3;max-width:680px}.cabinet-workspace .expert-eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.1em;color:#77e5d6}.cabinet-workspace .expert-hero-count{white-space:nowrap;background:#153f49;color:#c7fff4;padding:9px 14px;border-radius:20px;font-weight:700}
+.cabinet-workspace .expert-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:14px 0 18px}.cabinet-workspace .expert-toolbar label{color:#fff;font-weight:700}.cabinet-workspace .expert-toolbar input{background:#202c40;color:#fff;border:1px solid #50637b;border-radius:8px;padding:11px;min-width:220px}.cabinet-workspace .expert-note{font-size:.83rem;color:#cbd9ec}
+.cabinet-workspace .expert-parcours-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.cabinet-workspace .expert-journey,.cabinet-workspace .expert-card{background:#151e30;border:1px solid #2e3c55;border-radius:12px;padding:19px;color:#edf4ff;min-width:0}.cabinet-workspace .expert-journey-head,.cabinet-workspace .expert-card-heading{display:flex;justify-content:space-between;align-items:start;gap:10px}.cabinet-workspace .expert-journey h3,.cabinet-workspace .expert-card h3{color:#fff;margin:5px 0 13px;font-size:1.05rem}.cabinet-workspace .expert-journey-counter{color:#b9f5e8;font-weight:800}.cabinet-workspace .expert-progress{height:7px;border-radius:99px;background:#29354a;overflow:hidden;margin:8px 0 18px}.cabinet-workspace .expert-progress>div{height:100%;width:0;background:#12b8ad;transition:width .2s}.cabinet-workspace .expert-journey-steps{list-style:none;padding:0;margin:0}.cabinet-workspace .expert-journey-steps li{margin:0;border-bottom:1px solid #2b384d}.cabinet-workspace .expert-journey-steps label{display:flex;align-items:flex-start;gap:11px;padding:11px 0;color:#eef5ff;cursor:pointer;line-height:1.45}.cabinet-workspace .expert-journey-steps input{accent-color:#12b8ad;width:17px;height:17px;flex-shrink:0;margin-top:3px}.cabinet-workspace .expert-journey-steps input:checked+span{text-decoration:line-through;color:#b8c9d8}.cabinet-workspace .expert-journey-actions,.cabinet-workspace .expert-action-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.cabinet-workspace .expert-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:17px 0}.cabinet-workspace .expert-card p,.cabinet-workspace .expert-card li{color:#e1eaf5}.cabinet-workspace .expert-metric{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #2b394f;color:#e1eaf5}.cabinet-workspace .expert-metric strong{font-size:1.15rem;color:#fff}.cabinet-workspace .expert-profile{display:flex;gap:12px;align-items:center;margin-bottom:12px}.cabinet-workspace .expert-profile small{display:block;color:#d0dfee}.cabinet-workspace .expert-avatar{display:grid;place-items:center;background:#00778b;border-radius:50%;height:45px;width:45px;font-size:1.3rem;font-weight:800;color:#fff}
+.cabinet-workspace .expert-quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}.cabinet-workspace .expert-quick-action{display:flex;flex-direction:column;gap:7px;text-align:left;background:#19263a;border:1px solid #3c516a;border-radius:10px;padding:16px;color:#fff;cursor:pointer;width:100%}.cabinet-workspace .expert-quick-action:hover,.cabinet-workspace .expert-quick-action:focus-visible{border-color:#12b8ad;background:#213449}.cabinet-workspace .expert-quick-action strong{color:#fff}.cabinet-workspace .expert-quick-action span{color:#d0e0ef;font-size:.85rem}.cabinet-workspace .expert-help-actions{display:grid;gap:9px}.cabinet-workspace .expert-faq-list{display:grid;gap:9px}.cabinet-workspace .expert-faq-item{background:#1c293e;border:1px solid #3b4c65;border-radius:8px;padding:0 14px}.cabinet-workspace .expert-faq-item summary{cursor:pointer;padding:15px 0;color:#fff;font-weight:700}.cabinet-workspace .expert-faq-item p{margin:0;padding:0 0 15px;color:#e4edf7}.cabinet-workspace .expert-empty{color:#fff;background:#1c293e;padding:12px;border-radius:8px}.cabinet-workspace [hidden]{display:none!important}
+@media(max-width:1100px){.cabinet-workspace .expert-parcours-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.cabinet-workspace .expert-parcours-grid,.cabinet-workspace .expert-two,.cabinet-workspace .expert-quick-grid{grid-template-columns:1fr}.cabinet-workspace .expert-section-hero{align-items:flex-start;flex-direction:column}.cabinet-workspace .expert-hero-count{white-space:normal}}
+
+/* DATENSIS CABINET : affichage garanti des sections, même avec CSS hérité */
+body:has(.cabinet-workspace) .cabinet-workspace { display:grid!important; visibility:visible!important; opacity:1!important; }
+.cabinet-workspace .cabinet-main { display:block!important; visibility:visible!important; opacity:1!important; min-height:65vh!important; }
+.cabinet-workspace .cabinet-main .tab-panel { display:none!important; visibility:visible!important; opacity:1!important; }
+.cabinet-workspace .cabinet-main .tab-panel.active:not([hidden]) { display:block!important; visibility:visible!important; opacity:1!important; }
+.cabinet-workspace .cabinet-main .tab-panel[hidden] { display:none!important; }
+.cabinet-workspace .cabinet-sidebar { visibility:visible!important; opacity:1!important; }
+.cabinet-workspace .cabinet-main .expert-section-hero,.cabinet-workspace .cabinet-main .expert-card,.cabinet-workspace .cabinet-main .expert-journey,.cabinet-workspace .cabinet-main .cabinet-panel { visibility:visible!important; opacity:1!important; }
+@media(max-width:750px){body:has(.cabinet-workspace) .cabinet-workspace{display:block!important}}
+
+/* Version finale : visibilité fiable des onglets et lecture renforcée */
+.cabinet-workspace .cabinet-main > section[data-panel]{display:none!important;opacity:1!important;visibility:visible!important;min-height:240px}
+.cabinet-workspace .cabinet-main > section[data-panel].active:not([hidden]){display:block!important}
+.cabinet-workspace .cabinet-main > section[data-panel][hidden]{display:none!important}
+.cabinet-workspace .cabinet-detail-section{margin:24px 0;padding:18px 0;border-top:1px solid #34445c}
+.cabinet-workspace .cabinet-detail-section>h2{font-size:20px;color:#fff!important;margin:0 0 9px}
+.cabinet-workspace .cabinet-detail-section>p{color:#e5edfa!important;line-height:1.65}
+.cabinet-workspace .cabinet-main .expert-card,.cabinet-workspace .cabinet-main .expert-card p,.cabinet-workspace .cabinet-main .expert-card li{color:#edf4ff!important}
+.cabinet-workspace .cabinet-main .cabinet-checklist li::marker,.cabinet-workspace .cabinet-main .cabinet-steps li::marker{color:#82c4a8!important}
+.cabinet-workspace .cabinet-main .tab-panel a:focus-visible,.cabinet-workspace .cabinet-nav a:focus-visible{outline:2px solid #82c4a8;outline-offset:3px}
+
+/* DATENSIS Expert — pages métier approfondies */
+.cabinet-workspace .expert-scroll-list{max-height:410px;overflow-y:auto;padding-right:8px}
+.cabinet-workspace .expert-scroll-list small{display:block;color:#d5e2f0;font-size:.8rem;margin-top:4px}
+.cabinet-workspace .expert-scroll-list .expert-metric{gap:14px}
+.cabinet-workspace .expert-big{font-size:2.6rem;font-weight:800;color:#fff;margin:12px 0}
+.cabinet-workspace .cabinet-detail-section .expert-quick-grid{margin-top:16px}
+.cabinet-workspace .cabinet-detail-section .expert-card{height:100%}
+.cabinet-workspace .cabinet-detail-section textarea{width:100%;background:#202c40;border:1px solid #60738b;border-radius:8px;color:#fff;padding:12px;resize:vertical;margin:9px 0 12px}
+.cabinet-workspace .cabinet-detail-section .cabinet-steps{padding-left:23px;margin:10px 0}
+.cabinet-workspace .cabinet-detail-section .cabinet-steps li{margin-bottom:8px}
+.cabinet-workspace.is-large-text .cabinet-main{font-size:1.13rem}
+.cabinet-workspace.is-large-text .cabinet-main small{font-size:.9rem}
+.cabinet-workspace.is-roomy .expert-card,.cabinet-workspace.is-roomy .cabinet-panel,.cabinet-workspace.is-roomy .expert-journey{padding:27px}
+.cabinet-workspace.is-focus-visible button:focus-visible,.cabinet-workspace.is-focus-visible a:focus-visible,.cabinet-workspace.is-focus-visible input:focus-visible,.cabinet-workspace.is-focus-visible textarea:focus-visible{outline:3px solid #82c4a8!important;outline-offset:3px}
+@media(max-width:850px){.cabinet-workspace .cabinet-detail-section .expert-quick-grid{grid-template-columns:1fr}}
+
+/* Compléments de finition : accessibilité et affichage */
+.cabinet-skip-link { position: absolute; left: 12px; top: -90px; z-index: 9999; padding: 12px 18px; border-radius: 9px; background: #fff; color: #07566a; font-weight: 700; box-shadow: 0 4px 16px #0003; }
+.cabinet-skip-link:focus { top: 12px; }
+.cabinet-workspace [hidden] { display: none !important; }
+.cabinet-workspace :is(button, a, input, select, textarea, summary):focus-visible { outline: 3px solid #e96148; outline-offset: 3px; }
+.cabinet-workspace :is(input, select, textarea) { max-width: 100%; }
+.cabinet-workspace :is(table, .table-wrap) { max-width: 100%; }
+.cabinet-workspace .cabinet-main { min-width: 0; }
+@media (prefers-reduced-motion: reduce) { .cabinet-workspace *, .cabinet-workspace *::before, .cabinet-workspace *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+@media print { .cabinet-workspace .cabinet-sidebar, .cabinet-workspace .cabinet-topbar, .cabinet-workspace button, .cabinet-workspace form { display: none !important; } .cabinet-workspace { display: block !important; } .cabinet-workspace .cabinet-main { width: 100%; padding: 0; } .cabinet-workspace [data-panel]:not(.active) { display: none !important; } }
