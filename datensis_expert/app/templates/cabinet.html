@@ -17,80 +17,19 @@
     <!-- ========================================= -->
 
     <aside class="sidebar cabinet-sidebar" aria-label="Menu espace cabinet">
-
-        <div class="brand">
-            ✦ DATENSIS <span>EXPERT</span>
-        </div>
-
-        <div class="workspace-tag cabinet-tag">
-            ESPACE CABINET
-        </div>
-
-        <nav class="side-nav cabinet-nav" aria-label="Navigation cabinet">
-
-            <a
-                href="#accueil"
-                data-tab="accueil"
-                class="active"
-                aria-current="page"
-            >
-                ▦ <span>Tableau de bord</span>
-            </a>
-
-            <a href="#dossiers" data-tab="dossiers">
-                ▤ <span>Mes dossiers</span>
-            </a>
-
-            <a href="#taches" data-tab="taches">
-                ☑ <span>Mes tâches</span>
-            </a>
-
-            <a href="#clients" data-tab="clients">
-                ♧ <span>Mes clients</span>
-            </a>
-
-            <a href="#pilotage" data-tab="pilotage">
-                ▥ <span>Pilotage</span>
-            </a>
-
-            <a href="#echeances" data-tab="echeances">
-                ◷ <span>Échéances</span>
-            </a>
-
-            <a href="#messages" data-tab="messages">
-                ◉ <span>Messagerie</span>
-            </a>
-
-            <a href="#equipe" data-tab="equipe">
-                ♙ <span>Équipe</span>
-            </a>
-
-            <a href="#parametres" data-tab="parametres">
-                ⚙ <span>Paramètres</span>
-            </a>
-
-        </nav>
-
-        <!-- DÉCONNEXION -->
-        <div class="sidebar-footer">
-
-            <form
-                method="post"
-                action="{{ url_for('logout') }}"
-            >
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{ csrf_token() }}"
-                >
-
-                <button type="submit" class="logout">
-                    Se déconnecter
-                </button>
-            </form>
-
-        </div>
-
+      <div class="workspace-tag cabinet-tag">ESPACE CABINET</div>
+      <nav class="side-nav cabinet-nav" aria-label="Navigation cabinet">
+        <a href="#accueil" data-tab="accueil" class="active" aria-current="page">Tableau de bord</a>
+        <a href="#taches" data-tab="taches">Mes tâches</a>
+        <a href="#dossiers" data-tab="dossiers">Mes dossiers</a>
+        <a href="#clients" data-tab="clients">Mes clients</a>
+        <a href="#pilotage" data-tab="pilotage">Pilotage</a>
+        <a href="#echeances" data-tab="echeances">Échéances</a>
+        <a href="#messages" data-tab="messages">Messagerie</a>
+        <a href="#equipe" data-tab="equipe">Équipe</a>
+        <a href="#parametres" data-tab="parametres">Paramètres</a>
+      </nav>
+      <div class="sidebar-footer"><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="logout">Déconnexion</button></form></div>
     </aside>
 
     <!-- ========================================= -->
@@ -100,25 +39,7 @@
     <main class="content cabinet-main" id="cabinet-main">
 
         <!-- EN-TÊTE -->
-        <header class="page-header cabinet-topbar">
-
-            <div>
-                <div class="eyebrow">
-                    DATENSIS EXPERT / CABINET
-                </div>
-
-                <h1 id="cabinet-page-title">Tableau de pilotage</h1>
-
-                <p>
-                    Bienvenue dans votre espace de gestion.
-                </p>
-            </div>
-
-            <span class="avatar" aria-label="Profil cabinet">
-                D
-            </span>
-
-        </header>
+        <header class="page-header cabinet-topbar"><a class="dash-brand" href="#accueil" data-tab="accueil">Datensis <span>Expert</span></a><div class="dash-top-actions"><input type="search" id="cabinet-global-search" aria-label="Rechercher une tâche ou un client" placeholder="Rechercher"><a href="{{ url_for('cabinet') }}" class="dash-visit">Voir Datensis</a></div><h2 class="sr-only" id="cabinet-page-title">Tableau de bord</h2></header>
 
         <!-- MESSAGES FLASH -->
         {% with flash_messages = get_flashed_messages(with_categories=true) %}
@@ -135,166 +56,26 @@
             {% endif %}
         {% endwith %}
 
-        <!-- ========================================= -->
-        <!-- ONGLET 01 : ACCUEIL -->
-        <!-- ========================================= -->
-
-        <section
-            class="tab-panel active"
-            id="accueil"
-            data-panel="accueil"
-            aria-labelledby="titre-accueil"
-        >
-
-            <div class="section-title">
-                <h2 id="titre-accueil">Vue d'ensemble</h2>
-                <span class="pill">Pilotage du cabinet</span>
-            </div>
-
-            <!-- STATISTIQUES -->
-            <div class="stats cabinet-stats">
-
-                <article class="stat cabinet-stat">
-                    <span>Clients inscrits</span>
-                    <strong>{{ users|length }}</strong>
-                    <small>Comptes clients</small>
-                </article>
-
-                <article class="stat cabinet-stat">
-                    <span>Tâches en cours</span>
-                    <strong>
-                        {{ tasks
-                           |rejectattr('status', 'equalto', 'Terminée')
-                           |list
-                           |length }}
-                    </strong>
-                    <small>À traiter</small>
-                </article>
-
-                <article class="stat cabinet-stat">
-                    <span>Tâches terminées</span>
-                    <strong>
-                        {{ tasks
-                           |selectattr('status', 'equalto', 'Terminée')
-                           |list
-                           |length }}
-                    </strong>
-                    <small>Suivi des missions</small>
-                </article>
-
-                <article class="stat cabinet-stat">
-                    <span>Documents référencés</span>
-                    <strong>{{ docs|length }}</strong>
-                    <small>20 derniers maximum</small>
-                </article>
-
-            </div>
-
-            <!-- ACTIVITÉ DU CABINET -->
-            <div class="two-col cabinet-grid two">
-
-                <article class="panel cabinet-panel">
-
-                    <h3>Priorités du cabinet</h3>
-
-                    {% for task in tasks[:5] %}
-
-                        <div class="record cabinet-record">
-
-                            <div>
-                                <strong>{{ task.title }}</strong>
-                                <small>{{ task.priority }}</small>
-                            </div>
-
-                            <span class="status">
-                                {{ task.status }}
-                            </span>
-
-                        </div>
-
-                    {% else %}
-
-                        <p>
-                            Ajoutez votre première tâche
-                            dans l'onglet Mes tâches.
-                        </p>
-
-                    {% endfor %}
-
-                </article>
-
-                <article class="panel cabinet-panel">
-
-                    <h3>Activité récente</h3>
-
-                    {% for msg in messages[:5] %}
-
-                        <div class="record cabinet-record">
-                            <div>
-                                <strong>{{ msg.client_name }}</strong>
-                                <small>
-                                    {{ msg.body|truncate(80) }}
-                                </small>
-                            </div>
-                        </div>
-
-                    {% else %}
-
-                        <p>Aucun échange pour le moment.</p>
-
-                    {% endfor %}
-
-                </article>
-
-            </div>
-
-        
-            <!-- ANALYSE DETAILLEE DE L'ACTIVITE -->
-            <div class="cabinet-grid two">
-                <article class="cabinet-panel">
-                    <div class="panel-head">
-                        <h3>Indicateurs de traitement</h3>
-                        <span class="pill">Synthèse des tâches</span>
-                    </div>
-                    <p class="section-help">Les indicateurs sont calculés à partir des tâches actuellement enregistrées dans SQLite.</p>
-                    <div class="metric-row"><span>Tâches totales</span><strong>{{ tasks|length }}</strong></div>
-                    <div class="metric-row"><span>Tâches en cours</span><strong>{{ active_tasks|length }}</strong></div>
-                    <div class="metric-row"><span>Tâches clôturées</span><strong>{{ done_tasks|length }}</strong></div>
-                    <div class="metric-row"><span>Tâches urgentes</span><strong>{{ urgent_tasks|length }}</strong></div>
-                    <div class="progress-line" role="progressbar" aria-valuenow="{{ (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 }}" aria-valuemin="0" aria-valuemax="100">
-                        <div data-progress="{{ (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 }}"></div>
-                    </div>
-                    <small>{{ (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 }} % de tâches terminées</small>
-                </article>
-                <article class="cabinet-panel">
-                    <div class="panel-head">
-                        <h3>Actions rapides</h3>
-                        <span class="pill">Accès direct</span>
-                    </div>
-                    <p>Accédez aux principales opérations sans parcourir l'ensemble de l'interface.</p>
-                    <div class="quick-actions">
-                        <button type="button" data-go-tab="taches" data-focus-target="task-title">Créer une tâche</button>
-                        <button type="button" data-go-tab="messages" data-focus-target="message-recipient">Contacter un client</button>
-                        <button type="button" data-go-tab="dossiers">Consulter les dossiers</button>
-                        <button type="button" data-go-tab="echeances">Voir le calendrier</button>
-                    </div>
-                </article>
-            </div>
-            <article class="cabinet-panel">
-                <div class="panel-head"><h3>Derniers documents référencés</h3><span class="muted-label">20 références au maximum</span></div>
-                <div class="cabinet-list">
-                    {% for doc in docs[:6] %}
-                    <div class="cabinet-record">
-                        <div><strong>{{ doc.title }}</strong><small>{{ doc.client_name }} · {{ doc.created_at }}</small></div>
-                        <span class="status">{{ doc.status }}</span>
-                    </div>
-                    {% else %}
-                    <p class="empty-state">Aucun document référencé pour le moment.</p>
-                    {% endfor %}
-                </div>
-                <p class="section-help">Cette version enregistre des références documentaires, pas des fichiers joints.</p>
-            </article>
-
+        <!-- ACCUEIL : interface de référence, chiffres issus de SQLite -->
+        {% set open_tasks = tasks|rejectattr('status','equalto','Terminée')|list %}
+        {% set high_tasks = open_tasks|selectattr('priority','equalto','Urgente')|list %}
+        {% set completion = (done_tasks|length * 100 / tasks|length)|round|int if tasks|length else 0 %}
+        <section class="tab-panel active cabinet-dashboard" id="accueil" data-panel="accueil" aria-labelledby="titre-accueil">
+          <div class="dash-welcome"><h1 id="titre-accueil">Bonjour {{ session.get('name', 'Cabinet DATENSIS')|e }}</h1><p><span data-live-date></span> · Datensis Expert</p><p>{{ users|length }} dossier{{ 's' if users|length != 1 else '' }} client{{ 's' if users|length != 1 else '' }} · <span class="dash-danger">{{ high_tasks|length }} tâche{{ 's' if high_tasks|length != 1 else '' }} urgente{{ 's' if high_tasks|length != 1 else '' }}</span></p></div>
+          <div class="dash-chips"><span>{{ users|length }} dossier{{ 's' if users|length != 1 else '' }}</span><span>{{ open_tasks|length }} mission{{ 's' if open_tasks|length != 1 else '' }} en cours</span><span>{{ done_tasks|length }} terminée{{ 's' if done_tasks|length != 1 else '' }}</span></div>
+          <div class="dash-kpis">
+            <article class="dash-card dash-kpi"><span>À faire</span><strong>{{ open_tasks|length }}</strong><small>Tâches non terminées</small></article>
+            <article class="dash-card dash-kpi"><span>Urgentes</span><strong class="dash-danger">{{ high_tasks|length }}</strong><small>À traiter en priorité</small></article>
+            <article class="dash-card dash-kpi"><span>Terminées</span><strong>{{ done_tasks|length }}</strong><small>Depuis la création</small></article>
+            <article class="dash-card dash-kpi"><span>Progression</span><strong>{{ completion }} %</strong><small>Sur {{ tasks|length }} tâches</small></article>
+            <article class="dash-card dash-kpi"><span>Temps de mission</span><strong>—</strong><small>Pointage non connecté</small></article>
+          </div>
+          <div class="dash-triple">
+            <article class="dash-card dash-graph"><h2>Répartition des tâches</h2><div class="dash-donut-wrap"><div class="dash-donut" data-completion="{{ completion }}" role="img" aria-label="{{ completion }} pour cent des tâches terminées"><div><strong>{{ tasks|length }}</strong><small>tâche{{ 's' if tasks|length != 1 else '' }}</small></div></div><div class="dash-legend"><div><i class="dash-dot dash-red"></i> En cours <b>{{ open_tasks|length }}</b></div><div><i class="dash-dot dash-green"></i> Terminées <b>{{ done_tasks|length }}</b></div></div></div></article>
+            <article class="dash-card dash-graph"><h2>Activité de la semaine</h2><div class="dash-week-chart" aria-label="Activité hebdomadaire : suivi du temps non connecté"><div class="dash-week-empty">Le pointage des heures sera affiché ici.</div><div class="dash-week-axis"><span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span></div></div></article>
+            <article class="dash-card dash-graph"><h2>Missions ouvertes</h2><div class="dash-missions">{% for task in open_tasks[:4] %}<div class="dash-mission"><div><span>{{ task.title }}</span><b>{{ task.priority }}</b></div><div class="dash-mission-track"><div class="dash-mission-fill"></div></div></div>{% else %}<p class="dash-muted">Aucune tâche ouverte.</p>{% endfor %}</div><button type="button" class="dash-link" data-go-tab="taches">Voir toutes les tâches</button></article>
+          </div>
+          <article class="dash-card dash-wide"><div class="dash-wide-heading"><h2>Temps de missions sur 6 semaines</h2><span>En attente de données de pointage</span></div><div class="dash-line-chart"><div class="dash-chart-placeholder">Le suivi du temps par mission nécessite un module de pointage.</div><div class="dash-line-axis"><span>S-5</span><span>S-4</span><span>S-3</span><span>S-2</span><span>S-1</span><span>Cette semaine</span></div></div></article>
         </section>
 
         <!-- ========================================= -->

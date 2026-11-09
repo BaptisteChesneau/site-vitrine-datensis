@@ -237,3 +237,14 @@ if (document.readyState === 'loading') {
 } else {
   datensisInitializeCabinet();
 }
+
+/* DATENSIS EXPERT : widgets du tableau de bord (données Flask uniquement) */
+(function(){
+  function initDashboard(){
+    const root=document.querySelector('.cabinet-workspace[data-cabinet-app]');if(!root)return;
+    const date=root.querySelector('[data-live-date]');if(date)date.textContent=new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date());
+    const donut=root.querySelector('.dash-donut[data-completion]');if(donut){const n=Number(donut.dataset.completion);donut.style.setProperty('--pct',String(Number.isFinite(n)?Math.max(0,Math.min(100,n)):0));}
+    const search=root.querySelector('#cabinet-global-search');if(search)search.addEventListener('keydown',event=>{if(event.key!=='Enter')return;event.preventDefault();const query=search.value.trim();if(!query)return;const tab=root.querySelector('[data-tab="taches"]');tab?.click();const taskSearch=root.querySelector('#task-search');if(taskSearch){taskSearch.value=query;taskSearch.dispatchEvent(new Event('input',{bubbles:true}));taskSearch.focus();}});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initDashboard,{once:true});else initDashboard();
+})();
