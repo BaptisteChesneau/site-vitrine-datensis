@@ -4,7 +4,7 @@
 {% block title %}Espace cabinet | DATENSIS Expert{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='cabinet-20261109-final3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='cabinet-20261109-final3') }}">
 {% set active_tasks = tasks|rejectattr('status', 'equalto', 'Terminée')|list %}
 {% set done_tasks = tasks|selectattr('status', 'equalto', 'Terminée')|list %}
 {% set urgent_tasks = tasks|selectattr('priority', 'equalto', 'Urgente')|list %}
@@ -172,7 +172,7 @@
 
             </div>
 
-        
+
             <div class="cabinet-grid two">
                 <article class="cabinet-panel">
                     <h3>Suivi de l'avancement</h3>
@@ -273,7 +273,7 @@
 
             </article>
 
-        
+
             <div class="cabinet-grid two">
                 <article class="cabinet-panel">
                     <div class="panel-head"><h3>Calendrier mensuel</h3><span class="pill">Vue de calendrier</span></div>
@@ -358,7 +358,7 @@
 
             </article>
 
-        
+
             <div class="cabinet-grid two">
                 <article class="cabinet-panel">
                     <div class="panel-head"><h3>Répartition du portefeuille</h3><span class="pill">Vue actuelle</span></div>
@@ -449,7 +449,7 @@
 
             </article>
 
-        
+
             <div class="cabinet-grid two">
                 <article class="cabinet-panel">
                     <h3>Fiche contact rapide</h3>
@@ -598,7 +598,7 @@
 
             </div>
 
-        
+
             <div class="cabinet-grid two">
                 <article class="cabinet-panel">
                     <h3>Recherche dans l'historique affiché</h3>
@@ -664,7 +664,7 @@
 
             </article>
 
-        
+
             <div class="cabinet-grid two">
                 <article class="cabinet-panel">
                     <h3>Session actuellement ouverte</h3>
@@ -722,7 +722,7 @@
 
             </article>
 
-        
+
             <div class="cabinet-grid two">
                 <article class="cabinet-panel">
                     <div class="panel-head"><h3>Performance opérationnelle</h3><span class="pill">Données disponibles</span></div>
@@ -800,7 +800,7 @@
 
             </article>
 
-        
+
             <div class="cabinet-grid two">
                 <article class="cabinet-panel">
                     <h3>Préférences d'affichage</h3>

@@ -1,4 +1,3 @@
-
 import os
 
 from flask import (
@@ -26,10 +25,7 @@ APPS = [
         "slug": "expert",
         "name": "Datensis Expert",
         "category": "Comptabilité et gestion",
-        "description": (
-            "La plateforme centrale des cabinets "
-            "et de leurs clients."
-        ),
+        "description": ("La plateforme centrale des cabinets et de leurs clients."),
         "features": [
             "Dossiers et missions",
             "Suivi des tâches et temps de mission",
@@ -43,8 +39,7 @@ APPS = [
         "name": "Datensis Safe",
         "category": "Sécurité et identifiants",
         "description": (
-            "Un coffre-fort numérique pour organiser "
-            "les accès et leur partage."
+            "Un coffre-fort numérique pour organiser les accès et leur partage."
         ),
         "features": [
             "Coffre-fort et dossiers",
@@ -59,8 +54,7 @@ APPS = [
         "name": "Datensis Juris",
         "category": "Juridique",
         "description": (
-            "Une application de suivi des dossiers "
-            "juridiques, en développement."
+            "Une application de suivi des dossiers juridiques, en développement."
         ),
         "features": [
             "Portefeuille des sociétés",
@@ -75,8 +69,7 @@ APPS = [
         "name": "Datensis Configuration",
         "category": "Personnalisation",
         "description": (
-            "Un outil lié à Expert pour gérer les articles "
-            "et la charte graphique."
+            "Un outil lié à Expert pour gérer les articles et la charte graphique."
         ),
         "features": [
             "Catalogue des articles",
@@ -91,8 +84,7 @@ APPS = [
         "name": "Fitensis",
         "category": "Fitness et bien-être",
         "description": (
-            "Une application indépendante pour "
-            "les entraînements et la nutrition."
+            "Une application indépendante pour les entraînements et la nutrition."
         ),
         "features": [
             "Séances et exercices",
@@ -116,6 +108,7 @@ APPS = [
 #
 # En production, les URL sont définies dans .env.
 
+
 def _url_application(nom_variable, valeur_defaut=None):
     valeur = os.getenv(nom_variable, valeur_defaut)
 
@@ -132,9 +125,7 @@ SOUS_SITES = {
     ),
     "safe": _url_application("DATENSIS_SAFE_URL"),
     "juris": _url_application("DATENSIS_JURIS_URL"),
-    "configuration": _url_application(
-        "DATENSIS_CONFIGURATION_URL"
-    ),
+    "configuration": _url_application("DATENSIS_CONFIGURATION_URL"),
     "fitensis": _url_application("FITENSIS_URL"),
 }
 
@@ -142,6 +133,7 @@ SOUS_SITES = {
 # ============================================================
 # FONCTIONS UTILITAIRES
 # ============================================================
+
 
 def _get_app(slug):
     application = next(
@@ -178,6 +170,7 @@ def _destination_application(slug):
 # ACCUEIL DU SITE VITRINE
 # ============================================================
 
+
 @main.get("/")
 def accueil():
     return render_template(
@@ -190,6 +183,7 @@ def accueil():
 # CATALOGUE DES APPLICATIONS
 # ============================================================
 
+
 @main.get("/applications")
 def applications():
     return render_template(
@@ -201,6 +195,7 @@ def applications():
 # ============================================================
 # FICHE DE PRESENTATION D'UNE APPLICATION
 # ============================================================
+
 
 @main.get("/applications/<slug>")
 def application_detail(slug):
@@ -216,13 +211,12 @@ def application_detail(slug):
 # ACCES AUX APPLICATIONS SECONDAIRES
 # ============================================================
 
+
 @main.get("/acces/<slug>/")
 def sous_site(slug):
     application = _get_app(slug)
 
-    destination = _destination_application(
-        application["slug"]
-    )
+    destination = _destination_application(application["slug"])
 
     if destination:
         return redirect(destination, code=302)
@@ -238,6 +232,7 @@ def sous_site(slug):
 # ============================================================
 # DATENSIS EXPERT - PORTAIL PUBLIC
 # ============================================================
+
 
 @main.get("/expert")
 @main.get("/expert/")
@@ -262,6 +257,7 @@ def expert_portail():
 # DATENSIS EXPERT - ACCES CLIENT
 # ============================================================
 
+
 @main.get("/expert/client")
 def expert_client():
     """
@@ -283,6 +279,7 @@ def expert_client():
 # FORMULAIRE DE CONTACT
 # ============================================================
 
+
 @main.post("/contact")
 def contact():
     champs = (
@@ -295,10 +292,7 @@ def contact():
         "message",
     )
 
-    data = {
-        key: (request.form.get(key) or "").strip()
-        for key in champs
-    }
+    data = {key: (request.form.get(key) or "").strip() for key in champs}
 
     champs_obligatoires = (
         "nom",
@@ -313,21 +307,13 @@ def contact():
         or request.form.get("consentement") != "on"
     ):
         return jsonify(
-            message=(
-                "Complétez les champs obligatoires "
-                "et le consentement."
-            )
+            message=("Complétez les champs obligatoires et le consentement.")
         ), 400
 
     email = data["email"]
 
-    if (
-        "@" not in email
-        or "." not in email.split("@")[-1]
-    ):
-        return jsonify(
-            message="Adresse e-mail invalide."
-        ), 400
+    if "@" not in email or "." not in email.split("@")[-1]:
+        return jsonify(message="Adresse e-mail invalide."), 400
 
     limites = {
         "nom": 150,
@@ -339,15 +325,8 @@ def contact():
         "message": 4000,
     }
 
-    if any(
-        len(data[key]) > limite
-        for key, limite in limites.items()
-    ):
-        return jsonify(
-            message=(
-                "Un champ dépasse la longueur autorisée."
-            )
-        ), 400
+    if any(len(data[key]) > limite for key, limite in limites.items()):
+        return jsonify(message=("Un champ dépasse la longueur autorisée.")), 400
 
     try:
         demande = DemandeContact(**data)
@@ -359,23 +338,16 @@ def contact():
         db.session.rollback()
 
         return jsonify(
-            message=(
-                "Impossible d'enregistrer votre demande "
-                "pour le moment."
-            )
+            message=("Impossible d'enregistrer votre demande pour le moment.")
         ), 500
 
-    return jsonify(
-        message=(
-            "Demande enregistrée. "
-            "Nous reviendrons vers vous."
-        )
-    ), 201
+    return jsonify(message=("Demande enregistrée. Nous reviendrons vers vous.")), 201
 
 
 # ============================================================
 # MENTIONS LEGALES
 # ============================================================
+
 
 @main.get("/mentions-legales")
 def mentions_legales():
@@ -389,6 +361,7 @@ def mentions_legales():
 # CONFIDENTIALITE
 # ============================================================
 
+
 @main.get("/confidentialite")
 def confidentialite():
     return render_template(
@@ -400,6 +373,7 @@ def confidentialite():
 # ============================================================
 # COOKIES
 # ============================================================
+
 
 @main.get("/cookies")
 def cookies():

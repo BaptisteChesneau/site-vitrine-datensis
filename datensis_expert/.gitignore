@@ -1,5 +1,82 @@
+
+# ==========================================
+# DATENSIS EXPERT - GITIGNORE
+# ==========================================
+
+# Variables d'environnement et secrets
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets.json
+
+# Environnements virtuels Python
 .venv/
+venv/
+env/
+ENV/
+
+# Cache Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.bandit/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+
+# Bases de donnees locales
 instance/
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Sauvegardes et exports sensibles
+backups/
+backup/
+*.bak
+*.backup
+*.sql
+*.dump
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.log
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Fichiers generes
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# IDE et editeurs
+.vscode/
+.idea/
+
+# Fichiers locaux de configuration
+.python-version
+.pyre/
+
+# Fichiers de couverture
+coverage.xml
+junit.xml
+
+# Fichiers de stockage locaux
+uploads/
+private_uploads/

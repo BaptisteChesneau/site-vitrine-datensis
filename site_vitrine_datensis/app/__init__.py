@@ -17,7 +17,11 @@ def create_app(test_config=None):
     )
     if test_config:
         app.config.update(test_config)
-    if not app.debug and not app.testing and app.config["SECRET_KEY"] == "development-only-change-this-key":
+    if (
+        not app.debug
+        and not app.testing
+        and app.config["SECRET_KEY"] == "development-only-change-this-key"
+    ):
         raise RuntimeError("Configurez SECRET_KEY avant la production.")
 
     db.init_app(app)
