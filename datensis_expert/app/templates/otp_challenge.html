@@ -1,1 +1,100 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vérification à deux facteurs - DATENSIS Expert</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head><body><main style="max-width:540px;margin:5rem auto;padding:2rem"><h1>Vérification à deux facteurs</h1>{% with messages = get_flashed_messages() %}{% for message in messages %}<p role="alert">{{ message }}</p>{% endfor %}{% endwith %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Code à 6 chiffres ou code de récupération <input name="code" autocomplete="one-time-code" required maxlength="20"></label><p><button type="submit">Valider</button></p></form></main></body></html>
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Vérification de sécurité | DATENSIS Expert</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+
+<body class="twofa-page">
+  <main class="twofa-shell">
+    <section class="twofa-card" aria-labelledby="twofa-title">
+
+      <header class="twofa-brand">
+        <div class="twofa-brand-icon" aria-hidden="true">D</div>
+        <div>
+          <div class="twofa-brand-title">
+            DATENSIS <span>Expert</span>
+          </div>
+          <div class="twofa-brand-subtitle">
+            Protection de votre espace
+          </div>
+        </div>
+      </header>
+
+      <span class="twofa-pill">
+        Authentification sécurisée
+      </span>
+
+      <h1 class="twofa-title" id="twofa-title">
+        Vérifiez votre identité
+      </h1>
+
+      <p class="twofa-description">
+        Saisissez le code généré par votre application
+        d'authentification ou un code de récupération.
+      </p>
+
+      {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+          <div class="twofa-alert" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      <form method="post" data-twofa-form>
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token() }}"
+        >
+
+        <div class="twofa-field">
+          <label class="twofa-label" for="twofa-code">
+            Code de vérification
+          </label>
+
+          <input
+            class="twofa-input"
+            id="twofa-code"
+            name="code"
+            type="text"
+            inputmode="text"
+            autocomplete="one-time-code"
+            autocapitalize="off"
+            spellcheck="false"
+            maxlength="20"
+            placeholder="6 chiffres ou code de secours"
+            aria-describedby="twofa-help"
+            data-twofa-code
+            required
+          >
+
+          <p class="twofa-feedback" id="twofa-help">
+            Vous pouvez aussi utiliser un code de récupération.
+          </p>
+        </div>
+
+        <button class="twofa-button" type="submit">
+          Vérifier et continuer
+        </button>
+      </form>
+
+      <div class="twofa-info">
+        Les codes à six chiffres expirent régulièrement.
+        Si nécessaire, attendez le prochain code dans votre application.
+      </div>
+
+      <footer class="twofa-footer">
+        DATENSIS Expert — Vérification de sécurité
+      </footer>
+
+    </section>
+  </main>
+</body>
+</html>

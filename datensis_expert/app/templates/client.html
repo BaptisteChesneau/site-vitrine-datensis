@@ -12,7 +12,7 @@
 
     rel="stylesheet"
 
-    href="{{ url_for('static', filename='css/style.css') }}"
+    href="{{ url_for('static', filename='style.css') }}"
 
 >
 
@@ -1168,7 +1168,7 @@
 
 </div>
 
-<script id="datensis-echeances-data" type="application/json">
+<script id="datensis-echeances-data" type="application/json" nonce="{{ csp_nonce() }}">
 
 {{ echeances | default([], true) | tojson }}
 

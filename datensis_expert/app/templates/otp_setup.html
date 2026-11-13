@@ -1,1 +1,137 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Activer la double authentification - DATENSIS Expert</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head><body><main style="max-width:540px;margin:5rem auto;padding:2rem"><h1>Activer la double authentification</h1>{% with messages = get_flashed_messages() %}{% for message in messages %}<p role="alert">{{ message }}</p>{% endfor %}{% endwith %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><p>Scannez ce QR code avec votre application Authenticator.</p><img src="{{ qr_data }}" alt="QR code TOTP"><p>Clé manuelle : <code>{{ secret }}</code></p><label>Code à 6 chiffres <input name="code" autocomplete="one-time-code" required pattern="[0-9]{6}" maxlength="6"></label><p><button type="submit">Valider</button></p></form></main></body></html>
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Activer la double authentification | DATENSIS Expert</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+
+<body class="twofa-page">
+  <main class="twofa-shell">
+    <section class="twofa-card" aria-labelledby="twofa-title">
+
+      <header class="twofa-brand">
+        <div class="twofa-brand-icon" aria-hidden="true">D</div>
+        <div>
+          <div class="twofa-brand-title">
+            DATENSIS <span>Expert</span>
+          </div>
+          <div class="twofa-brand-subtitle">
+            Configuration de sécurité
+          </div>
+        </div>
+      </header>
+
+      <span class="twofa-pill">Configuration 2FA</span>
+
+      <h1 class="twofa-title" id="twofa-title">
+        Sécurisez votre compte
+      </h1>
+
+      <p class="twofa-description">
+        Scannez le QR code avec une application compatible TOTP,
+        comme Google Authenticator ou Microsoft Authenticator.
+      </p>
+
+      {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+          <div class="twofa-alert" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      <div class="twofa-qr-box">
+        <img
+          class="twofa-qr"
+          src="{{ qr_data }}"
+          alt="QR code de configuration de la double authentification"
+          width="220"
+          height="220"
+        >
+      </div>
+
+      <div class="twofa-secret">
+        <p class="twofa-secret-heading">
+          Impossible de scanner le QR code ?
+        </p>
+
+        <p class="twofa-description">
+          Saisissez cette clé manuellement dans votre application
+          d'authentification. Ne la partagez jamais.
+        </p>
+
+        <code class="twofa-secret-code" data-twofa-secret>{{ secret }}</code>
+
+        <button
+          class="twofa-secondary"
+          type="button"
+          data-twofa-copy
+        >
+          Copier la clé
+        </button>
+
+        <p
+          class="twofa-feedback"
+          data-twofa-feedback
+          role="status"
+          aria-live="polite"
+        ></p>
+      </div>
+
+      <form method="post" data-twofa-form>
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token() }}"
+        >
+
+        <div class="twofa-field">
+          <label class="twofa-label" for="twofa-code">
+            Code de confirmation
+          </label>
+
+          <input
+            class="twofa-input"
+            id="twofa-code"
+            name="code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9]{6}"
+            minlength="6"
+            maxlength="6"
+            placeholder="000000"
+            data-twofa-code
+            data-mode="totp"
+            aria-describedby="twofa-code-help"
+            required
+          >
+
+          <p class="twofa-feedback" id="twofa-code-help">
+            Saisissez les 6 chiffres affichés dans votre application.
+          </p>
+        </div>
+
+        <button class="twofa-button" type="submit">
+          Activer la double authentification
+        </button>
+      </form>
+
+      <div class="twofa-info">
+        Après validation, vous recevrez des codes de récupération
+        à conserver dans un endroit sécurisé.
+      </div>
+
+      <footer class="twofa-footer">
+        DATENSIS Expert — Protection du compte
+      </footer>
+
+    </section>
+  </main>
+</body>
+</html>

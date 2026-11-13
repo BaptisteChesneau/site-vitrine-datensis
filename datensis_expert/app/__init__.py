@@ -164,11 +164,12 @@ def otp_qr_data(uri):
 def otp_finish_login(db, role, account_id):
     if role == "cabinet":
         account = db.execute(
-            "SELECT id, name FROM cabinet_admins WHERE id = ?", (account_id,)
+            "SELECT id, name, session_version FROM cabinet_admins WHERE id = ?",
+            (account_id,),
         ).fetchone()
     elif role == "client":
         account = db.execute(
-            "SELECT id, name FROM users WHERE id = ?", (account_id,)
+            "SELECT id, name, session_version FROM users WHERE id = ?", (account_id,)
         ).fetchone()
     else:
         session.clear()
@@ -176,9 +177,18 @@ def otp_finish_login(db, role, account_id):
     if account is None:
         session.clear()
         abort(403)
+    # Validate the pending 2FA session BEFORE clearing it.
+    pending_version = session.get("pending_session_version")
+    if pending_version != account["session_version"]:
+        session.clear()
+        return redirect(url_for("cabinet_login" if role == "cabinet" else "portal"))
     session.clear()
     session.permanent = True
-    session.update(role=role, name=reveal(account["name"]))
+    session.update(
+        role=role,
+        name=reveal(account["name"]),
+        session_version=account["session_version"],
+    )
     if role == "cabinet":
         session["admin_id"] = account_id
     else:
@@ -338,6 +348,148 @@ def database():
     return g.db
 
 
+# Persistent per-account login throttling (client and cabinet separated).
+LOGIN_MAX_FAILURES = 5
+LOGIN_WINDOW_SECONDS = 15 * 60
+LOGIN_LOCK_SECONDS = 15 * 60
+
+
+def login_attempt_key(role, email):
+    if role not in {"client", "cabinet"}:
+        raise ValueError("Role de connexion invalide")
+    normalized = email.strip().casefold()
+    return hmac.new(
+        INDEX_KEY,
+        f"login:{role}:{normalized}".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def login_is_locked(db, role, email):
+    key = login_attempt_key(role, email)
+    now = int(time.time())
+    row = db.execute(
+        "SELECT locked_until FROM login_attempts WHERE account_key = ?",
+        (key,),
+    ).fetchone()
+    return bool(row and row["locked_until"] > now)
+
+
+def login_record_failure(db, role, email):
+    key = login_attempt_key(role, email)
+    now = int(time.time())
+    db.execute("BEGIN IMMEDIATE")
+    try:
+        row = db.execute(
+            "SELECT failures, first_failure, locked_until "
+            "FROM login_attempts WHERE account_key = ?",
+            (key,),
+        ).fetchone()
+        if row and row["locked_until"] > now:
+            db.commit()
+            return
+        if row and now - row["first_failure"] < LOGIN_WINDOW_SECONDS:
+            failures = row["failures"] + 1
+            first_failure = row["first_failure"]
+        else:
+            failures = 1
+            first_failure = now
+        locked_until = now + LOGIN_LOCK_SECONDS if failures >= LOGIN_MAX_FAILURES else 0
+        db.execute(
+            """
+            INSERT INTO login_attempts (
+                account_key, failures, first_failure, locked_until
+            ) VALUES (?, ?, ?, ?)
+            ON CONFLICT(account_key) DO UPDATE SET
+                failures = excluded.failures,
+                first_failure = excluded.first_failure,
+                locked_until = excluded.locked_until
+            """,
+            (key, failures, first_failure, locked_until),
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+
+
+def login_clear_failures(db, role, email):
+    db.execute(
+        "DELETE FROM login_attempts WHERE account_key = ?",
+        (login_attempt_key(role, email),),
+    )
+    db.commit()
+
+
+# Limitation persistante des codes 2FA, independante du cookie de session.
+OTP_MAX_FAILURES = 5
+OTP_WINDOW_SECONDS = 15 * 60
+OTP_LOCK_SECONDS = 15 * 60
+
+
+def otp_attempt_key(role, account_id, phase):
+    if role not in ("client", "cabinet") or phase not in ("challenge", "setup"):
+        raise ValueError("Contexte 2FA invalide")
+    return hmac.new(
+        INDEX_KEY,
+        f"otp:{phase}:{role}:{int(account_id)}".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def otp_is_locked(db, role, account_id, phase):
+    row = db.execute(
+        "SELECT locked_until FROM otp_attempt_limits WHERE attempt_key = ?",
+        (otp_attempt_key(role, account_id, phase),),
+    ).fetchone()
+    return bool(row and row["locked_until"] > int(time.time()))
+
+
+def otp_record_failure(db, role, account_id, phase):
+    key = otp_attempt_key(role, account_id, phase)
+    now = int(time.time())
+    db.execute("BEGIN IMMEDIATE")
+    try:
+        row = db.execute(
+            "SELECT failures, first_failure, locked_until "
+            "FROM otp_attempt_limits WHERE attempt_key = ?",
+            (key,),
+        ).fetchone()
+        if row and row["locked_until"] > now:
+            db.commit()
+            return True
+        if row and now - row["first_failure"] < OTP_WINDOW_SECONDS:
+            failures = row["failures"] + 1
+            first_failure = row["first_failure"]
+        else:
+            failures = 1
+            first_failure = now
+        locked_until = now + OTP_LOCK_SECONDS if failures >= OTP_MAX_FAILURES else 0
+        db.execute(
+            "INSERT INTO otp_attempt_limits "
+            "(attempt_key, failures, first_failure, locked_until) "
+            "VALUES (?, ?, ?, ?) "
+            "ON CONFLICT(attempt_key) DO UPDATE SET "
+            "failures=excluded.failures, "
+            "first_failure=excluded.first_failure, "
+            "locked_until=excluded.locked_until",
+            (key, failures, first_failure, locked_until),
+        )
+        db.commit()
+        return bool(locked_until)
+    except Exception:
+        db.rollback()
+        raise
+
+
+def otp_clear_failures(db, role, account_id, phase):
+    db.execute(
+        "DELETE FROM otp_attempt_limits WHERE attempt_key = ?",
+        (otp_attempt_key(role, account_id, phase),),
+    )
+    db.commit()
+
+
 def csrf_token():
     if "csrf" not in session:
         session["csrf"] = secrets.token_urlsafe(32)
@@ -365,9 +517,29 @@ def role_required(role):
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
+            endpoint = "cabinet_login" if role == "cabinet" else "portal"
             if session.get("role") != role:
-                endpoint = "cabinet_login" if role == "cabinet" else "portal"
+                return redirect(url_for(endpoint))
 
+            account_id = session.get("admin_id" if role == "cabinet" else "user_id")
+            version = session.get("session_version")
+            if not isinstance(account_id, int) or isinstance(account_id, bool):
+                session.clear()
+                return redirect(url_for(endpoint))
+            row = (
+                database()
+                .execute(
+                    (
+                        "SELECT session_version FROM cabinet_admins WHERE id = ?"
+                        if role == "cabinet"
+                        else "SELECT session_version FROM users WHERE id = ?"
+                    ),
+                    (account_id,),
+                )
+                .fetchone()
+            )
+            if row is None or version != row["session_version"]:
+                session.clear()
                 return redirect(url_for(endpoint))
 
             return fn(*args, **kwargs)
@@ -392,7 +564,7 @@ def email_valid(value):
         and len(value) <= 254
         and bool(
             re.fullmatch(
-                r"[^@\s]+@[^@\s]+\.[^@\s]+",
+                r"[^@\s]+@[^@\s]+**\\.**[^@\s]+",
                 value,
             )
         )
@@ -568,6 +740,19 @@ def init_database():
         )
 
         db.executescript("""
+            CREATE TABLE IF NOT EXISTS otp_attempt_limits (
+                attempt_key TEXT PRIMARY KEY,
+                failures INTEGER NOT NULL DEFAULT 0,
+                first_failure INTEGER NOT NULL,
+                locked_until INTEGER NOT NULL DEFAULT 0
+            );
+
+            CREATE TABLE IF NOT EXISTS login_attempts (
+                account_key TEXT PRIMARY KEY,
+                failures INTEGER NOT NULL DEFAULT 0,
+                first_failure INTEGER NOT NULL,
+                locked_until INTEGER NOT NULL DEFAULT 0
+            );
             CREATE TABLE IF NOT EXISTS totp_accounts (
                 account_role TEXT NOT NULL CHECK(account_role IN ('client', 'cabinet')),
                 account_id INTEGER NOT NULL,
@@ -602,6 +787,12 @@ def init_database():
 
             if "email_index" not in existing:
                 db.execute(f"ALTER TABLE {table} ADD COLUMN email_index TEXT")
+
+            if "session_version" not in existing:
+                db.execute(
+                    f"ALTER TABLE {table} "
+                    "ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0"
+                )
 
             db.execute(
                 f"CREATE UNIQUE INDEX IF NOT EXISTS idx_{table}_email_index ON {table}(email_index)"
@@ -702,6 +893,7 @@ def create_app():
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
         SESSION_COOKIE_SECURE=production,
+        SESSION_COOKIE_NAME="datensis_expert_session",
         PERMANENT_SESSION_LIFETIME=timedelta(hours=2),
         MAX_CONTENT_LENGTH=5 * 1024 * 1024,
     )
@@ -726,6 +918,13 @@ def create_app():
 
     app.jinja_env.globals["csrf_token"] = csrf_token
 
+    def csp_nonce():
+        if not hasattr(g, "csp_nonce"):
+            g.csp_nonce = secrets.token_urlsafe(24)
+        return g.csp_nonce
+
+    app.jinja_env.globals["csp_nonce"] = csp_nonce
+
     @app.teardown_appcontext
     def close_database(exc):
         db = g.pop("db", None)
@@ -742,7 +941,34 @@ def create_app():
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
         response.headers["Cache-Control"] = "no-store"
-
+        # Only local application JavaScript is executable. The inline JSON
+        # data block in client.html has a per-response nonce.
+        nonce = getattr(g, "csp_nonce", None)
+        if nonce is None:
+            nonce = secrets.token_urlsafe(24)
+            g.csp_nonce = nonce
+        response.headers["Content-Security-Policy"] = "; ".join(
+            (
+                "default-src 'self'",
+                f"script-src 'self' 'nonce-{nonce}'",
+                # Existing inline style attributes are used for legend colors.
+                "style-src 'self' 'unsafe-inline'",
+                "img-src 'self' data:",
+                "font-src 'self' data:",
+                "connect-src 'self'",
+                "object-src 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+                "frame-ancestors 'none'",
+                "upgrade-insecure-requests"
+                if production
+                else "block-all-mixed-content",
+            )
+        )
+        if production:
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains"
+            )
         return response
 
     # =====================================================
@@ -773,9 +999,17 @@ def create_app():
             password = request.form.get("password", "")
 
             db = database()
+            if login_is_locked(db, "client", email):
+                flash(
+                    "Trop de tentatives de connexion. Réessayez dans 15 minutes.",
+                    "error",
+                )
+                return render_template("portal.html"), 429
+
             user = account_by_email(db, "users", email)
 
             if user and verify_password(user["password_hash"], password):
+                login_clear_failures(db, "client", email)
                 upgrade_password(db, "users", user, password)
 
                 otp = otp_record(db, "client", user["id"])
@@ -786,6 +1020,7 @@ def create_app():
                 session.update(
                     pending_role="client",
                     pending_id=user["id"],
+                    pending_session_version=user["session_version"],
                     pending_at=int(time.time()),
                     otp_attempts=0,
                 )
@@ -797,6 +1032,7 @@ def create_app():
                 # Première connexion : afficher le QR code.
                 return redirect(url_for("otp_setup"))
 
+            login_record_failure(db, "client", email)
             flash("Identifiants incorrects.", "error")
 
         return render_template("portal.html")
@@ -967,17 +1203,18 @@ def create_app():
             session.permanent = True
 
             session.update(
-                role="client",
-                user_id=user_id,
-                name=name,
+                pending_role="client",
+                pending_id=user_id,
+                pending_session_version=0,
+                pending_at=int(time.time()),
             )
 
             flash(
-                "Votre compte a été créé. Bienvenue dans votre espace.",
+                "Votre compte a été créé. Configurez la double authentification pour accéder à votre espace.",
                 "success",
             )
 
-            return redirect(url_for("client"))
+            return redirect(url_for("otp_setup"))
 
         return render_template("register.html")
 
@@ -1171,7 +1408,7 @@ def create_app():
 
                     UPDATE users
 
-                    SET password_hash = ?
+                    SET password_hash = ?, session_version = session_version + 1
 
                     WHERE id = ?
 
@@ -1233,18 +1470,27 @@ def create_app():
 
             password = request.form.get("password", "")
 
-            admin = None
+            db = database()
+            if login_is_locked(db, "cabinet", email):
+                flash(
+                    "Trop de tentatives de connexion. Réessayez dans 15 minutes.",
+                    "error",
+                )
+                return render_template("cabinet_login.html"), 429
 
+            admin = None
             if email_valid(email) and password:
-                admin = account_by_email(database(), "cabinet_admins", email)
+                admin = account_by_email(db, "cabinet_admins", email)
 
             if admin and verify_password(admin["password_hash"], password):
-                upgrade_password(database(), "cabinet_admins", admin, password)
+                login_clear_failures(db, "cabinet", email)
+                upgrade_password(db, "cabinet_admins", admin, password)
 
                 session.clear()
                 session.update(
                     pending_role="cabinet",
                     pending_id=admin["id"],
+                    pending_session_version=admin["session_version"],
                     pending_at=int(time.time()),
                     otp_attempts=0,
                 )
@@ -1253,6 +1499,7 @@ def create_app():
                     url_for("otp_challenge" if otp and otp["enabled"] else "otp_setup")
                 )
 
+            login_record_failure(db, "cabinet", email)
             flash("Adresse e-mail ou mot de passe incorrect.", "error")
 
             return render_template("cabinet_login.html"), 401
@@ -1271,11 +1518,31 @@ def create_app():
         role = session.get("pending_role")
         account_id = session.get("pending_id")
         since = session.get("pending_at", 0)
+        pending_version = session.get("pending_session_version")
         if (
             role not in ("client", "cabinet")
             or not isinstance(account_id, int)
+            or isinstance(account_id, bool)
+            or not isinstance(since, int)
+            or not isinstance(pending_version, int)
+            or since > int(time.time())
             or int(time.time()) - since > 300
         ):
+            session.clear()
+            return None
+        account = (
+            database()
+            .execute(
+                (
+                    "SELECT session_version FROM cabinet_admins WHERE id = ?"
+                    if role == "cabinet"
+                    else "SELECT session_version FROM users WHERE id = ?"
+                ),
+                (account_id,),
+            )
+            .fetchone()
+        )
+        if account is None or account["session_version"] != pending_version:
             session.clear()
             return None
         return role, account_id
@@ -1296,11 +1563,8 @@ def create_app():
             )
         if request.method == "POST":
             require_csrf()
-            attempts = session.get("otp_attempts", 0) + 1
-            session["otp_attempts"] = attempts
-            if attempts > 5:
-                session.clear()
-                abort(429, "Trop de tentatives. Reconnectez-vous.")
+            if otp_is_locked(db, role, account_id, "challenge"):
+                abort(429, "Trop de tentatives 2FA. Réessayez dans 15 minutes.")
             code = request.form.get("code", "").strip().replace("-", "").upper()
             counter = otp_counter(reveal(record["secret_enc"]), code)
             if counter is not None:
@@ -1310,6 +1574,7 @@ def create_app():
                 )
                 db.commit()
                 if claimed.rowcount == 1:
+                    otp_clear_failures(db, role, account_id, "challenge")
                     return otp_finish_login(db, role, account_id)
             else:
                 matched = db.execute(
@@ -1318,7 +1583,10 @@ def create_app():
                 )
                 db.commit()
                 if matched.rowcount == 1:
+                    otp_clear_failures(db, role, account_id, "challenge")
                     return otp_finish_login(db, role, account_id)
+            if otp_record_failure(db, role, account_id, "challenge"):
+                abort(429, "Trop de tentatives 2FA. Réessayez dans 15 minutes.")
             flash("Code invalide ou déjà utilisé.", "error")
         return render_template("otp_challenge.html")
 
@@ -1350,11 +1618,8 @@ def create_app():
             secret = reveal(record["secret_enc"])
         if request.method == "POST":
             require_csrf()
-            attempts = session.get("otp_setup_attempts", 0) + 1
-            session["otp_setup_attempts"] = attempts
-            if attempts > 5:
-                session.clear()
-                abort(429)
+            if otp_is_locked(db, role, account_id, "setup"):
+                abort(429, "Trop de tentatives 2FA. Réessayez dans 15 minutes.")
             code = request.form.get("code", "").strip()
             if otp_valid(secret, code):
                 counter = otp_counter(secret, code)
@@ -1364,7 +1629,7 @@ def create_app():
                 )
                 codes = otp_backup_codes(db, role, account_id)
                 db.commit()
-                session.pop("otp_setup_attempts", None)
+                otp_clear_failures(db, role, account_id, "setup")
                 display_token = secrets.token_urlsafe(32)
                 db.execute(
                     "INSERT INTO totp_recovery_display(token_hash, codes_enc, expires_at, account_role, account_id) VALUES (?, ?, ?, ?, ?)",
@@ -1379,6 +1644,8 @@ def create_app():
                 db.commit()
                 session["otp_display_token"] = display_token
                 return redirect(url_for("otp_recovery_display"))
+            if otp_record_failure(db, role, account_id, "setup"):
+                abort(429, "Trop de tentatives 2FA. Réessayez dans 15 minutes.")
             flash("Code incorrect.", "error")
         if role == "cabinet":
             account = db.execute(
@@ -1699,7 +1966,7 @@ def create_app():
 
                 UPDATE users
 
-                SET password_hash = ?
+                SET password_hash = ?, session_version = session_version + 1
 
                 WHERE id = ?
 
@@ -1712,7 +1979,12 @@ def create_app():
 
             db.commit()
 
-            flash("Mot de passe modifié.", "success")
+            session.clear()
+            flash(
+                "Mot de passe modifié. Reconnectez-vous avec la double authentification.",
+                "success",
+            )
+            return redirect(url_for("portal"))
 
         return redirect(url_for("client") + "#parametres")
 

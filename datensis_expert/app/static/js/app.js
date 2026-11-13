@@ -334,3 +334,74 @@ if (document.readyState === 'loading') {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
   else init();
 })();
+
+/* DATENSIS Expert 2FA : ajouter a la fin de static/js/app.js */
+(() => {
+  "use strict";
+  function initTwoFactor() {
+    const root = document.querySelector(".twofa-page");
+    if (!root) return;
+
+    const codeInput = root.querySelector("[data-twofa-code]");
+    if (codeInput) {
+      codeInput.addEventListener("input", () => {
+        if (codeInput.dataset.mode === "totp") {
+          codeInput.value = codeInput.value.replace(/\D/g, "").slice(0, 6);
+        }
+      });
+      codeInput.focus();
+    }
+
+    root.querySelectorAll("[data-twofa-form]").forEach((form) => {
+      form.addEventListener("submit", (event) => {
+        if (!form.checkValidity()) return;
+        if (form.dataset.submitted === "true") {
+          event.preventDefault();
+          return;
+        }
+        form.dataset.submitted = "true";
+        const button = form.querySelector('button[type="submit"]');
+        if (button) {
+          button.disabled = true;
+          button.textContent = "Traitement en cours...";
+        }
+      });
+    });
+
+    const copyButton = root.querySelector("[data-twofa-copy]");
+    const secret = root.querySelector("[data-twofa-secret]");
+    const copyFeedback = root.querySelector("[data-twofa-feedback]");
+    if (copyButton && secret) {
+      copyButton.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(secret.textContent.trim());
+          if (copyFeedback) copyFeedback.textContent = "Clé copiée.";
+        } catch {
+          if (copyFeedback) copyFeedback.textContent = "Copie indisponible : sélectionnez la clé manuellement.";
+        }
+      });
+    }
+
+    const download = root.querySelector("[data-twofa-download]");
+    if (download) {
+      download.addEventListener("click", () => {
+        const codes = Array.from(root.querySelectorAll("[data-twofa-recovery-code]"), (el) => el.textContent.trim());
+        if (!codes.length) return;
+        const content = ["DATENSIS Expert - Codes de récupération", "Chaque code est à usage unique.", "Conservez ce fichier en lieu sûr : il n'est pas chiffré.", "", ...codes].join("\n");
+        const url = URL.createObjectURL(new Blob([content], { type: "text/plain;charset=utf-8" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "datensis-codes-recuperation.txt";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+    }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTwoFactor, { once: true });
+  } else {
+    initTwoFactor();
+  }
+})();

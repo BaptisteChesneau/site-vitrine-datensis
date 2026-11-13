@@ -1,1 +1,93 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Codes de récupération - DATENSIS Expert</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head><body><main style="max-width:540px;margin:5rem auto;padding:2rem"><h1>Codes de récupération</h1>{% with messages = get_flashed_messages() %}{% for message in messages %}<p role="alert">{{ message }}</p>{% endfor %}{% endwith %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><p>Enregistrez ces codes dans un endroit sûr. Ils ne seront plus affichés.</p><ul>{% for code in codes %}<li><code>{{ code }}</code></li>{% endfor %}</ul><p><button type="submit">Continuer</button></p></form></main></body></html>
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Codes de récupération | DATENSIS Expert</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+
+<body class="twofa-page">
+  <main class="twofa-shell">
+    <section class="twofa-card" aria-labelledby="twofa-title">
+
+      <header class="twofa-brand">
+        <div class="twofa-brand-icon" aria-hidden="true">D</div>
+        <div>
+          <div class="twofa-brand-title">
+            DATENSIS <span>Expert</span>
+          </div>
+          <div class="twofa-brand-subtitle">
+            Sauvegarde de sécurité
+          </div>
+        </div>
+      </header>
+
+      <span class="twofa-pill">Dernière étape</span>
+
+      <h1 class="twofa-title" id="twofa-title">
+        Codes de récupération
+      </h1>
+
+      <p class="twofa-description">
+        Ces codes permettent de retrouver l'accès à votre compte
+        si vous perdez votre application d'authentification.
+      </p>
+
+      {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+          <div class="twofa-alert" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      <div class="twofa-info">
+        Chaque code est à usage unique. Ces codes ne seront plus
+        affichés après cette étape. Enregistrez-les maintenant.
+      </div>
+
+      <ul
+        class="twofa-recovery-list"
+        aria-label="Codes de récupération"
+      >
+        {% for code in codes %}
+          <li>
+            <code data-twofa-recovery-code>{{ code }}</code>
+          </li>
+        {% endfor %}
+      </ul>
+
+      <div class="twofa-actions">
+        <button
+          class="twofa-secondary"
+          type="button"
+          data-twofa-download
+        >
+          Télécharger les codes (.txt)
+        </button>
+      </div>
+
+      <form method="post" data-twofa-form>
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token() }}"
+        >
+
+        <button class="twofa-button" type="submit">
+          J'ai enregistré mes codes — Continuer
+        </button>
+      </form>
+
+      <footer class="twofa-footer">
+        DATENSIS Expert — Conservez vos codes en lieu sûr
+      </footer>
+
+    </section>
+  </main>
+</body>
+</html>
