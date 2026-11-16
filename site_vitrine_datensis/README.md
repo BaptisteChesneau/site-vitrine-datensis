@@ -16,6 +16,7 @@ Dans le shell Flask, exécuter :
 
 ```python
 from app.extensions import db
+
 db.create_all()
 exit()
 ```

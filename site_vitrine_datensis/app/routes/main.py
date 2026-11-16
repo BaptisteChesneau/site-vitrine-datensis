@@ -1,8 +1,10 @@
 import os
+from urllib.parse import urlsplit, urlunsplit
 
 from flask import (
     Blueprint,
     abort,
+    current_app,
     jsonify,
     redirect,
     render_template,
@@ -101,33 +103,108 @@ APPS = [
 # CONFIGURATION DES APPLICATIONS SECONDAIRES
 # ============================================================
 
-# Chaque application peut disposer de son propre serveur.
+# Ports de développement :
 #
 # Site vitrine : http://127.0.0.1:5000
 # Expert       : http://127.0.0.1:5001
 #
-# En production, les URL sont définies dans .env.
+# Les autres applications seront raccordées
+# lorsqu'elles disposeront de leur propre URL.
+#
+# En production, utiliser des URL HTTPS.
+
+
+SOUS_SITES = {
+    "expert": (
+        "DATENSIS_EXPERT_URL",
+        "http://127.0.0.1:5001",
+    ),
+    "safe": (
+        "DATENSIS_SAFE_URL",
+        None,
+    ),
+    "juris": (
+        "DATENSIS_JURIS_URL",
+        None,
+    ),
+    "configuration": (
+        "DATENSIS_CONFIGURATION_URL",
+        None,
+    ),
+    "fitensis": (
+        "FITENSIS_URL",
+        None,
+    ),
+}
+
+
+# ============================================================
+# VALIDATION DES URL DES APPLICATIONS
+# ============================================================
 
 
 def _url_application(nom_variable, valeur_defaut=None):
-    valeur = os.getenv(nom_variable, valeur_defaut)
+    """
+    Récupère et valide l'URL d'une application secondaire.
+
+    Les URL doivent utiliser HTTP ou HTTPS.
+    Les identifiants intégrés aux URL sont refusés.
+    """
+
+    valeur = current_app.config.get(nom_variable)
+
+    if valeur is None:
+        valeur = os.getenv(
+            nom_variable,
+            valeur_defaut,
+        )
+
+    if not isinstance(valeur, str):
+        return None
+
+    valeur = valeur.strip().rstrip("/")
 
     if not valeur:
         return None
 
-    return valeur.strip().rstrip("/")
+    try:
+        parsed = urlsplit(valeur)
 
+        if parsed.scheme not in ("http", "https"):
+            return None
 
-SOUS_SITES = {
-    "expert": _url_application(
-        "DATENSIS_EXPERT_URL",
-        "http://127.0.0.1:5001",
-    ),
-    "safe": _url_application("DATENSIS_SAFE_URL"),
-    "juris": _url_application("DATENSIS_JURIS_URL"),
-    "configuration": _url_application("DATENSIS_CONFIGURATION_URL"),
-    "fitensis": _url_application("FITENSIS_URL"),
-}
+        if not parsed.hostname:
+            return None
+
+        if parsed.username or parsed.password:
+            return None
+
+        if parsed.query or parsed.fragment:
+            return None
+
+        # Vérifie que le port éventuel est valide.
+        _ = parsed.port
+
+        # Évite les URL avec des caractères de contrôle.
+        if any(ord(char) < 32 for char in valeur):
+            return None
+
+        return urlunsplit(
+            (
+                parsed.scheme,
+                parsed.netloc,
+                parsed.path.rstrip("/"),
+                "",
+                "",
+            )
+        )
+
+    except ValueError:
+        current_app.logger.warning(
+            "URL invalide pour %s",
+            nom_variable,
+        )
+        return None
 
 
 # ============================================================
@@ -136,6 +213,10 @@ SOUS_SITES = {
 
 
 def _get_app(slug):
+    """
+    Recherche une application dans le catalogue.
+    """
+
     application = next(
         (item for item in APPS if item["slug"] == slug),
         None,
@@ -149,18 +230,34 @@ def _get_app(slug):
 
 def _destination_application(slug):
     """
-    Retourne l'URL d'accès à une application secondaire.
+    Retourne l'URL de destination d'une application.
 
-    Pour DATENSIS Expert, le visiteur arrive
-    systématiquement sur le portail public.
+    DATENSIS Expert :
+    redirection vers le portail public client.
+
+    Les autres applications :
+    redirection vers leur URL configurée.
     """
 
-    base_url = SOUS_SITES.get(slug)
+    configuration = SOUS_SITES.get(slug)
+
+    if configuration is None:
+        return None
+
+    nom_variable, valeur_defaut = configuration
+
+    base_url = _url_application(
+        nom_variable,
+        valeur_defaut,
+    )
 
     if not base_url:
         return None
 
     if slug == "expert":
+        if base_url.endswith("/portail"):
+            return base_url
+
         return f"{base_url}/portail"
 
     return base_url
@@ -173,6 +270,10 @@ def _destination_application(slug):
 
 @main.get("/")
 def accueil():
+    """
+    Page d'accueil principale de DATENSIS.
+    """
+
     return render_template(
         "public/accueil.html",
         apps=APPS,
@@ -186,6 +287,10 @@ def accueil():
 
 @main.get("/applications")
 def applications():
+    """
+    Présentation de toutes les applications DATENSIS.
+    """
+
     return render_template(
         "public/applications.html",
         apps=APPS,
@@ -193,12 +298,16 @@ def applications():
 
 
 # ============================================================
-# FICHE DE PRESENTATION D'UNE APPLICATION
+# FICHE DE PRÉSENTATION D'UNE APPLICATION
 # ============================================================
 
 
 @main.get("/applications/<slug>")
 def application_detail(slug):
+    """
+    Présentation détaillée d'une application.
+    """
+
     application = _get_app(slug)
 
     return render_template(
@@ -208,21 +317,33 @@ def application_detail(slug):
 
 
 # ============================================================
-# ACCES AUX APPLICATIONS SECONDAIRES
+# ACCÈS AUX APPLICATIONS SECONDAIRES
 # ============================================================
 
 
 @main.get("/acces/<slug>/")
 def sous_site(slug):
+    """
+    Point d'entrée des applications depuis
+    le site vitrine DATENSIS.
+
+    Si l'application est configurée :
+    redirection vers son serveur.
+
+    Sinon :
+    affichage de sa fiche de présentation.
+    """
+
     application = _get_app(slug)
 
     destination = _destination_application(application["slug"])
 
     if destination:
-        return redirect(destination, code=302)
+        return redirect(
+            destination,
+            code=302,
+        )
 
-    # Si l'application n'est pas encore raccordée,
-    # afficher sa fiche de présentation.
     return render_template(
         "public/application_detail.html",
         app=application,
@@ -230,19 +351,24 @@ def sous_site(slug):
 
 
 # ============================================================
-# DATENSIS EXPERT - PORTAIL PUBLIC
+# DATENSIS EXPERT - PORTAIL CLIENT PUBLIC
 # ============================================================
 
 
 @main.get("/expert")
 @main.get("/expert/")
 @main.get("/expert/portail")
+@main.get("/expert/client")
 def expert_portail():
     """
-    Redirection vers le portail public DATENSIS Expert.
+    Redirection vers le portail client
+    de DATENSIS Expert.
 
-    Le visiteur peut accéder à la connexion client,
-    mais pas directement à l'espace Cabinet.
+    La connexion et les autorisations
+    sont gérées par DATENSIS Expert.
+
+    Aucune session d'authentification
+    n'est partagée avec le site vitrine.
     """
 
     destination = _destination_application("expert")
@@ -250,29 +376,10 @@ def expert_portail():
     if not destination:
         abort(503)
 
-    return redirect(destination, code=302)
-
-
-# ============================================================
-# DATENSIS EXPERT - ACCES CLIENT
-# ============================================================
-
-
-@main.get("/expert/client")
-def expert_client():
-    """
-    Redirection vers le portail de DATENSIS Expert.
-
-    L'authentification est gérée dans l'application
-    secondaire, et non dans le site vitrine.
-    """
-
-    destination = _destination_application("expert")
-
-    if not destination:
-        abort(503)
-
-    return redirect(destination, code=302)
+    return redirect(
+        destination,
+        code=302,
+    )
 
 
 # ============================================================
@@ -282,6 +389,11 @@ def expert_client():
 
 @main.post("/contact")
 def contact():
+    """
+    Enregistre une demande de contact
+    dans la base de données du site vitrine.
+    """
+
     champs = (
         "nom",
         "structure",
@@ -302,6 +414,10 @@ def contact():
         "objet",
     )
 
+    # --------------------------------------------------------
+    # Vérification des champs obligatoires
+    # --------------------------------------------------------
+
     if (
         not all(data[key] for key in champs_obligatoires)
         or request.form.get("consentement") != "on"
@@ -310,10 +426,18 @@ def contact():
             message=("Complétez les champs obligatoires et le consentement.")
         ), 400
 
+    # --------------------------------------------------------
+    # Validation de l'adresse e-mail
+    # --------------------------------------------------------
+
     email = data["email"]
 
     if "@" not in email or "." not in email.split("@")[-1]:
         return jsonify(message="Adresse e-mail invalide."), 400
+
+    # --------------------------------------------------------
+    # Limites des champs
+    # --------------------------------------------------------
 
     limites = {
         "nom": 150,
@@ -328,6 +452,10 @@ def contact():
     if any(len(data[key]) > limite for key, limite in limites.items()):
         return jsonify(message=("Un champ dépasse la longueur autorisée.")), 400
 
+    # --------------------------------------------------------
+    # Enregistrement en base de données
+    # --------------------------------------------------------
+
     try:
         demande = DemandeContact(**data)
 
@@ -337,6 +465,10 @@ def contact():
     except SQLAlchemyError:
         db.session.rollback()
 
+        current_app.logger.exception(
+            "Erreur lors de l'enregistrement d'une demande de contact."
+        )
+
         return jsonify(
             message=("Impossible d'enregistrer votre demande pour le moment.")
         ), 500
@@ -345,7 +477,7 @@ def contact():
 
 
 # ============================================================
-# MENTIONS LEGALES
+# MENTIONS LÉGALES
 # ============================================================
 
 
@@ -358,7 +490,7 @@ def mentions_legales():
 
 
 # ============================================================
-# CONFIDENTIALITE
+# CONFIDENTIALITÉ
 # ============================================================
 
 
