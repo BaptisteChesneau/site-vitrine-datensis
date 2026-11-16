@@ -12,8 +12,8 @@ from flask import (
 )
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.extensions import db
-from app.models import DemandeContact
+from ..extensions import db
+from ..models import DemandeContact
 
 main = Blueprint("main", __name__)
 
@@ -106,7 +106,7 @@ APPS = [
 # Ports de développement :
 #
 # Site vitrine : http://127.0.0.1:5000
-# Expert       : http://127.0.0.1:5001
+# Expert       : http://127.0.0.1:5000/expert/portail
 #
 # Les autres applications seront raccordées
 # lorsqu'elles disposeront de leur propre URL.
@@ -117,7 +117,7 @@ APPS = [
 SOUS_SITES = {
     "expert": (
         "DATENSIS_EXPERT_URL",
-        "http://127.0.0.1:5001",
+        "http://127.0.0.1:5000/expert",
     ),
     "safe": (
         "DATENSIS_SAFE_URL",
@@ -230,14 +230,16 @@ def _get_app(slug):
 
 def _destination_application(slug):
     """
-    Retourne l'URL de destination d'une application.
+    Retourne la destination d'une application DATENSIS.
 
-    DATENSIS Expert :
-    redirection vers le portail public client.
+    DATENSIS Expert fonctionne sur le même serveur
+    que le site vitrine, sous le préfixe /expert.
 
-    Les autres applications :
-    redirection vers leur URL configurée.
+    Les autres applications utilisent leur URL configurée.
     """
+
+    if slug == "expert":
+        return "/expert/portail"
 
     configuration = SOUS_SITES.get(slug)
 
@@ -246,21 +248,10 @@ def _destination_application(slug):
 
     nom_variable, valeur_defaut = configuration
 
-    base_url = _url_application(
+    return _url_application(
         nom_variable,
         valeur_defaut,
     )
-
-    if not base_url:
-        return None
-
-    if slug == "expert":
-        if base_url.endswith("/portail"):
-            return base_url
-
-        return f"{base_url}/portail"
-
-    return base_url
 
 
 # ============================================================

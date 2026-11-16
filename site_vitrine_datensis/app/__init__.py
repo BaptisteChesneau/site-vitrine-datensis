@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 
-from app.extensions import csrf, db
+from .extensions import csrf, db
 
 
 def create_app(test_config=None):
@@ -27,7 +27,7 @@ def create_app(test_config=None):
     db.init_app(app)
     csrf.init_app(app)
 
-    from app.routes.main import main
+    from .routes.main import main
 
     app.register_blueprint(main)
     return app

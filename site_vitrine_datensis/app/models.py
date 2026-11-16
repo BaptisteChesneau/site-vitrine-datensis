@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from app.extensions import db
+from .extensions import db
 
 
 class DemandeContact(db.Model):
