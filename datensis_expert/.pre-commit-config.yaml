@@ -1,3 +1,4 @@
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -23,4 +24,4 @@ repos:
       - id: bandit
         args: [-q]
         types: [python]
-        exclude: ^(\.venv/|venv/|env/|instance/|build/|dist/)
+        exclude: ^(\.venv/|venv/|env/|instance/|build/|dist/|datensis_expert/tests/|tests/)

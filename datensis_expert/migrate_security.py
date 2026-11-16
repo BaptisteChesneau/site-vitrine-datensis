@@ -1,7 +1,7 @@
 """One-time encryption migration. Stop Flask, back up DB, then run this script."""
 
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app import DB, PERSONAL_FIELDS, email_index, init_database, protect, reveal
 
@@ -12,9 +12,7 @@ def migrate():
     if not DB.exists():
         raise SystemExit("Base SQLite introuvable")
 
-    backup = DB.with_name(
-        f"expert.backup-{datetime.now(timezone.utc):%Y%m%d-%H%M%S}.sqlite3"
-    )
+    backup = DB.with_name(f"expert.backup-{datetime.now(UTC):%Y%m%d-%H%M%S}.sqlite3")
 
     with sqlite3.connect(DB) as source, sqlite3.connect(backup) as destination:
         source.backup(destination)

@@ -564,7 +564,7 @@ def email_valid(value):
         and len(value) <= 254
         and bool(
             re.fullmatch(
-                r"[^@\s]+@[^@\s]+**\\.**[^@\s]+",
+                r"[^@\s]+@[^@\s]+\.[^@\s]+",
                 value,
             )
         )
