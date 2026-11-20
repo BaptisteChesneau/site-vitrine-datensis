@@ -5504,370 +5504,322 @@ body:has(.cabinet-workspace) .cabinet-workspace { display:grid!important; visibi
 @media print { .cabinet-workspace .cabinet-sidebar, .cabinet-workspace .cabinet-topbar, .cabinet-workspace button, .cabinet-workspace form { display: none !important; } .cabinet-workspace { display: block !important; } .cabinet-workspace .cabinet-main { width: 100%; padding: 0; } .cabinet-workspace [data-panel]:not(.active) { display: none !important; } }
 
 
+
 /* ==========================================
-   DATENSIS EXPERT — CORRECTION INTERFACE 2FA
+   DATENSIS EXPERT — INTERFACES 2FA
    ========================================== */
 
-body.auth-2fa-page {
+body.twofa-page {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-
   min-height: 100vh;
   min-height: 100dvh;
   margin: 0;
   padding: 32px 16px;
-
-  background:
-    radial-gradient(circle at 12% 18%, rgba(130, 196, 168, .28), transparent 34%),
-    radial-gradient(circle at 88% 82%, rgba(233, 97, 72, .12), transparent 34%),
-    #F4FAF9;
-
-  color: #173A43;
+  background: #f4faf9;
+  color: #173a43;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
-body.auth-2fa-page .auth-shell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.twofa-page *,
+.twofa-page *::before,
+.twofa-page *::after {
+  box-sizing: border-box;
+}
 
+.twofa-page .twofa-shell {
+  display: flex;
+  justify-content: center;
   width: 100%;
   max-width: none;
-  min-height: auto;
   margin: 0;
   padding: 0;
 }
 
-body.auth-2fa-page .auth-card {
-  box-sizing: border-box;
-  display: block;
-
+.twofa-page .twofa-card {
   width: 100%;
-  max-width: 490px;
+  max-width: 510px;
   margin: 0;
   padding: 36px;
-
-  border: 1px solid #D5E5E7;
+  border: 1px solid #d5e5e7;
   border-radius: 22px;
-
-  background: #FFFFFF;
-  color: #173A43;
+  background: #ffffff;
+  color: #173a43;
   box-shadow: 0 20px 65px rgba(0, 61, 74, .12);
 }
 
-body.auth-2fa-page .auth-brand {
+.twofa-page .twofa-brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
-body.auth-2fa-page .auth-brand-icon {
+.twofa-page .twofa-brand-icon {
   display: grid;
   place-items: center;
-
+  flex-shrink: 0;
   width: 46px;
   height: 46px;
-  flex-shrink: 0;
-
   border-radius: 14px;
-  background: #00778B;
-  color: #FFFFFF;
+  background: #00778b;
+  color: #ffffff;
   font-size: 22px;
   font-weight: 800;
 }
 
-body.auth-2fa-page .auth-brand-name {
-  color: #173A43;
+.twofa-page .twofa-brand-title {
+  color: #173a43;
   font-size: 18px;
   font-weight: 800;
 }
 
-body.auth-2fa-page .auth-brand-name span {
-  color: #00778B;
+.twofa-page .twofa-brand-title span {
+  color: #00778b;
 }
 
-body.auth-2fa-page .auth-brand-caption {
-  color: #526D75;
+.twofa-page .twofa-brand-subtitle {
+  color: #526d75;
   font-size: 12px;
 }
 
-body.auth-2fa-page .auth-step {
+.twofa-page .twofa-pill {
   display: inline-flex;
   margin-bottom: 16px;
   padding: 7px 12px;
-
   border-radius: 999px;
-  background: #E5F4EF;
-  color: #17664F;
-
+  background: #e5f4ef;
+  color: #17664f;
   font-size: 12px;
   font-weight: 700;
 }
 
-body.auth-2fa-page .auth-title {
+.twofa-page .twofa-title {
   margin: 0 0 14px;
-  color: #173A43;
+  color: #173a43;
   font-size: clamp(24px, 4vw, 30px);
   line-height: 1.2;
 }
 
-body.auth-2fa-page .auth-description {
-  margin: 0 0 24px;
-  color: #526D75;
+.twofa-page .twofa-description {
+  margin: 0 0 22px;
+  color: #526d75;
   font-size: 14px;
   line-height: 1.7;
 }
 
-body.auth-2fa-page .auth-field {
+.twofa-page .twofa-field {
   margin-bottom: 22px;
 }
 
-body.auth-2fa-page .auth-label {
+.twofa-page .twofa-label {
   display: block;
   margin-bottom: 9px;
-  color: #173A43;
+  color: #173a43;
   font-size: 14px;
   font-weight: 700;
 }
 
-body.auth-2fa-page .auth-input {
-  box-sizing: border-box;
+.twofa-page .twofa-input {
   display: block;
-
   width: 100%;
   min-width: 0;
   min-height: 54px;
   padding: 12px 16px;
-
-  border: 1px solid #D5E5E7;
+  border: 1px solid #d5e5e7;
   border-radius: 12px;
-
-  background: #FBFDFD;
-  color: #173A43;
-
+  background: #fbfdfd;
+  color: #173a43;
   font: inherit;
   font-size: 17px;
   text-align: center;
   letter-spacing: 2px;
 }
 
-body.auth-2fa-page .auth-input:focus {
-  outline: none;
-  border-color: #00778B;
-  box-shadow: 0 0 0 4px rgba(0, 119, 139, .12);
-}
-
-body.auth-2fa-page .auth-input::placeholder {
-  color: #718B92;
+.twofa-page .twofa-input::placeholder {
+  color: #718b92;
   letter-spacing: 0;
 }
 
-body.auth-2fa-page .auth-button {
+.twofa-page .twofa-input:focus {
+  outline: none;
+  border-color: #00778b;
+  box-shadow: 0 0 0 4px rgba(0, 119, 139, .12);
+}
+
+.twofa-page .twofa-button {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 100%;
   min-height: 52px;
   padding: 12px 18px;
-
-  border: none;
+  border: 0;
   border-radius: 12px;
-
-  background: #E96148;
-  color: #FFFFFF;
-
+  background: #e96148;
+  color: #ffffff;
   font: inherit;
   font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+.twofa-page .twofa-button:hover {
+  background: #cf4b35;
+}
+
+.twofa-page .twofa-button:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
+.twofa-page .twofa-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid #00778b;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #00778b;
+  font: inherit;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
 }
 
-body.auth-2fa-page .auth-button:hover {
-  background: #CF4B35;
+.twofa-page .twofa-secondary:hover {
+  background: #e5f4ef;
 }
 
-body.auth-2fa-page .auth-button:focus-visible {
-  outline: 3px solid #00778B;
-  outline-offset: 3px;
-}
-
-body.auth-2fa-page .auth-info {
+.twofa-page .twofa-info {
   margin: 22px 0;
   padding: 15px;
-
   border-radius: 12px;
-  background: #EDF7F5;
-  color: #24594D;
-
+  background: #edf7f5;
+  color: #24594d;
   font-size: 13px;
   line-height: 1.6;
 }
 
-body.auth-2fa-page .auth-alert {
+.twofa-page .twofa-alert {
   margin-bottom: 20px;
   padding: 13px 15px;
-
-  border-left: 4px solid #E96148;
+  border-left: 4px solid #e96148;
   border-radius: 9px;
-
-  background: #FFF3EF;
-  color: #873C2E;
+  background: #fff3ef;
+  color: #873c2e;
+  font-size: 14px;
 }
 
-body.auth-2fa-page .auth-footer {
+.twofa-page .twofa-feedback {
+  margin: 8px 0 0;
+  color: #526d75;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.twofa-page .twofa-qr-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid #d5e5e7;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.twofa-page .twofa-qr {
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  height: auto;
+}
+
+.twofa-page .twofa-secret {
+  margin-bottom: 24px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #f2f8f9;
+}
+
+.twofa-page .twofa-secret-heading {
+  margin: 0 0 10px;
+  color: #173a43;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.twofa-page .twofa-secret-code {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-bottom: 14px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #00778b;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.twofa-page .twofa-recovery-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.twofa-page .twofa-recovery-list li {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #d5e5e7;
+  border-radius: 10px;
+  background: #f8fbfb;
+  text-align: center;
+}
+
+.twofa-page .twofa-recovery-list code {
+  overflow-wrap: anywhere;
+  color: #173a43;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.twofa-page .twofa-actions {
+  margin-bottom: 22px;
+}
+
+.twofa-page .twofa-footer {
   margin-top: 24px;
   padding-top: 18px;
-
-  border-top: 1px solid #D5E5E7;
-
-  color: #526D75;
+  border-top: 1px solid #d5e5e7;
+  color: #526d75;
   font-size: 12px;
   text-align: center;
 }
 
-@media (max-width: 480px) {
-  body.auth-2fa-page .auth-card {
-    padding: 24px 20px;
-  }
-}
-
-/* ==========================================================
-   DATENSIS EXPERT - CORRECTIFS FINAUX 2FA
-   Styles isoles pour ne pas modifier les espaces client/cabinet.
-   ========================================================== */
-
-html:has(body.auth-2fa-page) {
-  color-scheme: light;
-  min-height: 100%;
-  background: #f4faf9;
-}
-
-body.auth-2fa-page {
-  box-sizing: border-box;
-  width: 100%;
-  min-height: 100vh;
-  min-height: 100dvh;
-  overflow-x: hidden;
-  color-scheme: light;
-}
-
-body.auth-2fa-page,
-body.auth-2fa-page *,
-body.auth-2fa-page *::before,
-body.auth-2fa-page *::after {
-  box-sizing: border-box;
-}
-
-body.auth-2fa-page .auth-shell {
-  flex: 1 1 auto;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  height: auto;
-  min-height: 0;
-  margin: 0 auto;
-  padding: 0;
-  background: transparent;
-}
-
-body.auth-2fa-page .auth-card {
-  position: relative;
-  flex: 0 1 490px;
-  width: min(100%, 490px);
-  max-width: 490px;
-  min-width: 0;
-  height: auto;
-  min-height: 0;
-  margin: 0 auto;
-  overflow-wrap: anywhere;
-  background: #fff;
-  color: #173a43;
-  text-align: left;
-}
-
-body.auth-2fa-page .auth-card :is(h1, h2, h3, p, label, strong, small, span) {
-  max-width: 100%;
-}
-
-body.auth-2fa-page .auth-card :is(input, textarea, select) {
-  max-width: 100%;
-  color-scheme: light;
-}
-
-body.auth-2fa-page .auth-input {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  max-width: 100%;
-  background: #fbfdfd;
-  color: #173a43;
-  opacity: 1;
-}
-
-body.auth-2fa-page .auth-input:focus-visible {
-  outline: 2px solid #00778b;
-  outline-offset: 2px;
-  border-color: #00778b;
-}
-
-body.auth-2fa-page .auth-button {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  max-width: 100%;
-  background: #e96148;
-  color: #fff;
-  text-decoration: none;
-  opacity: 1;
-}
-
-body.auth-2fa-page .auth-button:disabled {
-  cursor: not-allowed;
-  opacity: .65;
-}
-
-body.auth-2fa-page .auth-card :is(.auth-title, .auth-label, .auth-brand-name) {
-  color: #173a43;
-}
-
-body.auth-2fa-page .auth-card :is(.auth-description, .auth-brand-caption, .auth-footer) {
-  color: #526d75;
+.twofa-page :is(button, input):focus-visible {
+  outline: 3px solid #00778b;
+  outline-offset: 3px;
 }
 
 @media (max-width: 480px) {
-  body.auth-2fa-page {
-    padding: 20px 12px;
-  }
-
-  body.auth-2fa-page .auth-card {
-    width: 100%;
+  .twofa-page .twofa-card {
     padding: 24px 20px;
-    border-radius: 18px;
+  }
+
+  .twofa-page .twofa-recovery-list {
+    grid-template-columns: 1fr;
   }
 }
 
-/* ==============================================================
-   DATENSIS EXPERT | ESPACE CLIENT - THEME CLAIR RENFORCE
-   Portee limitee au client : aucun changement au theme sombre
-   ============================================================== */
-.client-workspace[data-theme="light"] {
-    color-scheme: light;
-    --text: #18343d;
-    --muted: #496572;
-    --line: #cfdee3;
-    --surface: #ffffff;
-    --surface-light: #f1f7f8;
-    --surface-hover: #e5f2f3;
-    --mint: #00778b;
-    --success: #17684f;
-    --danger: #a6382a;
-    --shadow: 0 8px 26px rgba(16, 65, 78, .07);
-    color: var(--text);
-    background: #f1f7f8;
-}
 .client-workspace[data-theme="light"] .content {
     background: radial-gradient(circle at 100% 0, #e0f2f2 0, transparent 34%), #f1f7f8;
     color: var(--text);
