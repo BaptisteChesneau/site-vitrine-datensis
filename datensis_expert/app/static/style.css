@@ -5504,318 +5504,555 @@ body:has(.cabinet-workspace) .cabinet-workspace { display:grid!important; visibi
 @media print { .cabinet-workspace .cabinet-sidebar, .cabinet-workspace .cabinet-topbar, .cabinet-workspace button, .cabinet-workspace form { display: none !important; } .cabinet-workspace { display: block !important; } .cabinet-workspace .cabinet-main { width: 100%; padding: 0; } .cabinet-workspace [data-panel]:not(.active) { display: none !important; } }
 
 
-
 /* ==========================================
-   DATENSIS EXPERT — INTERFACES 2FA
+   DATENSIS EXPERT — CORRECTION INTERFACE 2FA
    ========================================== */
 
-body.twofa-page {
-  box-sizing: border-box;
+body.auth-2fa-page {
   display: flex;
   align-items: center;
   justify-content: center;
+
   min-height: 100vh;
   min-height: 100dvh;
   margin: 0;
   padding: 32px 16px;
-  background: #f4faf9;
-  color: #173a43;
+
+  background:
+    radial-gradient(circle at 12% 18%, rgba(130, 196, 168, .28), transparent 34%),
+    radial-gradient(circle at 88% 82%, rgba(233, 97, 72, .12), transparent 34%),
+    #F4FAF9;
+
+  color: #173A43;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
-.twofa-page *,
-.twofa-page *::before,
-.twofa-page *::after {
-  box-sizing: border-box;
-}
-
-.twofa-page .twofa-shell {
+body.auth-2fa-page .auth-shell {
   display: flex;
+  align-items: center;
   justify-content: center;
+
   width: 100%;
   max-width: none;
+  min-height: auto;
   margin: 0;
   padding: 0;
 }
 
-.twofa-page .twofa-card {
+body.auth-2fa-page .auth-card {
+  box-sizing: border-box;
+  display: block;
+
   width: 100%;
-  max-width: 510px;
+  max-width: 490px;
   margin: 0;
   padding: 36px;
-  border: 1px solid #d5e5e7;
+
+  border: 1px solid #D5E5E7;
   border-radius: 22px;
-  background: #ffffff;
-  color: #173a43;
+
+  background: #FFFFFF;
+  color: #173A43;
   box-shadow: 0 20px 65px rgba(0, 61, 74, .12);
 }
 
-.twofa-page .twofa-brand {
+body.auth-2fa-page .auth-brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 28px;
+  margin-bottom: 30px;
 }
 
-.twofa-page .twofa-brand-icon {
+body.auth-2fa-page .auth-brand-icon {
   display: grid;
   place-items: center;
-  flex-shrink: 0;
+
   width: 46px;
   height: 46px;
+  flex-shrink: 0;
+
   border-radius: 14px;
-  background: #00778b;
-  color: #ffffff;
+  background: #00778B;
+  color: #FFFFFF;
   font-size: 22px;
   font-weight: 800;
 }
 
-.twofa-page .twofa-brand-title {
-  color: #173a43;
+body.auth-2fa-page .auth-brand-name {
+  color: #173A43;
   font-size: 18px;
   font-weight: 800;
 }
 
-.twofa-page .twofa-brand-title span {
-  color: #00778b;
+body.auth-2fa-page .auth-brand-name span {
+  color: #00778B;
 }
 
-.twofa-page .twofa-brand-subtitle {
-  color: #526d75;
+body.auth-2fa-page .auth-brand-caption {
+  color: #526D75;
   font-size: 12px;
 }
 
-.twofa-page .twofa-pill {
+body.auth-2fa-page .auth-step {
   display: inline-flex;
   margin-bottom: 16px;
   padding: 7px 12px;
+
   border-radius: 999px;
-  background: #e5f4ef;
-  color: #17664f;
+  background: #E5F4EF;
+  color: #17664F;
+
   font-size: 12px;
   font-weight: 700;
 }
 
-.twofa-page .twofa-title {
+body.auth-2fa-page .auth-title {
   margin: 0 0 14px;
-  color: #173a43;
+  color: #173A43;
   font-size: clamp(24px, 4vw, 30px);
   line-height: 1.2;
 }
 
-.twofa-page .twofa-description {
-  margin: 0 0 22px;
-  color: #526d75;
+body.auth-2fa-page .auth-description {
+  margin: 0 0 24px;
+  color: #526D75;
   font-size: 14px;
   line-height: 1.7;
 }
 
-.twofa-page .twofa-field {
+body.auth-2fa-page .auth-field {
   margin-bottom: 22px;
 }
 
-.twofa-page .twofa-label {
+body.auth-2fa-page .auth-label {
   display: block;
   margin-bottom: 9px;
-  color: #173a43;
+  color: #173A43;
   font-size: 14px;
   font-weight: 700;
 }
 
-.twofa-page .twofa-input {
+body.auth-2fa-page .auth-input {
+  box-sizing: border-box;
   display: block;
+
   width: 100%;
   min-width: 0;
   min-height: 54px;
   padding: 12px 16px;
-  border: 1px solid #d5e5e7;
+
+  border: 1px solid #D5E5E7;
   border-radius: 12px;
-  background: #fbfdfd;
-  color: #173a43;
+
+  background: #FBFDFD;
+  color: #173A43;
+
   font: inherit;
   font-size: 17px;
   text-align: center;
   letter-spacing: 2px;
 }
 
-.twofa-page .twofa-input::placeholder {
-  color: #718b92;
-  letter-spacing: 0;
-}
-
-.twofa-page .twofa-input:focus {
+body.auth-2fa-page .auth-input:focus {
   outline: none;
-  border-color: #00778b;
+  border-color: #00778B;
   box-shadow: 0 0 0 4px rgba(0, 119, 139, .12);
 }
 
-.twofa-page .twofa-button {
+body.auth-2fa-page .auth-input::placeholder {
+  color: #718B92;
+  letter-spacing: 0;
+}
+
+body.auth-2fa-page .auth-button {
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 100%;
   min-height: 52px;
   padding: 12px 18px;
-  border: 0;
+
+  border: none;
   border-radius: 12px;
-  background: #e96148;
-  color: #ffffff;
+
+  background: #E96148;
+  color: #FFFFFF;
+
   font: inherit;
   font-size: 15px;
   font-weight: 700;
-  text-align: center;
   cursor: pointer;
 }
 
-.twofa-page .twofa-button:hover {
-  background: #cf4b35;
+body.auth-2fa-page .auth-button:hover {
+  background: #CF4B35;
 }
 
-.twofa-page .twofa-button:disabled {
-  opacity: .65;
-  cursor: wait;
+body.auth-2fa-page .auth-button:focus-visible {
+  outline: 3px solid #00778B;
+  outline-offset: 3px;
 }
 
-.twofa-page .twofa-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 10px 16px;
-  border: 1px solid #00778b;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #00778b;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.twofa-page .twofa-secondary:hover {
-  background: #e5f4ef;
-}
-
-.twofa-page .twofa-info {
+body.auth-2fa-page .auth-info {
   margin: 22px 0;
   padding: 15px;
+
   border-radius: 12px;
-  background: #edf7f5;
-  color: #24594d;
+  background: #EDF7F5;
+  color: #24594D;
+
   font-size: 13px;
   line-height: 1.6;
 }
 
-.twofa-page .twofa-alert {
+body.auth-2fa-page .auth-alert {
   margin-bottom: 20px;
   padding: 13px 15px;
-  border-left: 4px solid #e96148;
+
+  border-left: 4px solid #E96148;
   border-radius: 9px;
-  background: #fff3ef;
-  color: #873c2e;
-  font-size: 14px;
+
+  background: #FFF3EF;
+  color: #873C2E;
 }
 
-.twofa-page .twofa-feedback {
-  margin: 8px 0 0;
-  color: #526d75;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.twofa-page .twofa-qr-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 22px;
-  padding: 20px;
-  border: 1px solid #d5e5e7;
-  border-radius: 14px;
-  background: #ffffff;
-}
-
-.twofa-page .twofa-qr {
-  display: block;
-  width: 220px;
-  max-width: 100%;
-  height: auto;
-}
-
-.twofa-page .twofa-secret {
-  margin-bottom: 24px;
-  padding: 18px;
-  border-radius: 14px;
-  background: #f2f8f9;
-}
-
-.twofa-page .twofa-secret-heading {
-  margin: 0 0 10px;
-  color: #173a43;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.twofa-page .twofa-secret-code {
-  display: block;
-  overflow-wrap: anywhere;
-  margin-bottom: 14px;
-  padding: 12px;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #00778b;
-  font-size: 13px;
-  letter-spacing: 1px;
-}
-
-.twofa-page .twofa-recovery-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 20px 0;
-  padding: 0;
-  list-style: none;
-}
-
-.twofa-page .twofa-recovery-list li {
-  min-width: 0;
-  padding: 12px;
-  border: 1px solid #d5e5e7;
-  border-radius: 10px;
-  background: #f8fbfb;
-  text-align: center;
-}
-
-.twofa-page .twofa-recovery-list code {
-  overflow-wrap: anywhere;
-  color: #173a43;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.twofa-page .twofa-actions {
-  margin-bottom: 22px;
-}
-
-.twofa-page .twofa-footer {
+body.auth-2fa-page .auth-footer {
   margin-top: 24px;
   padding-top: 18px;
-  border-top: 1px solid #d5e5e7;
-  color: #526d75;
+
+  border-top: 1px solid #D5E5E7;
+
+  color: #526D75;
   font-size: 12px;
   text-align: center;
-}
-
-.twofa-page :is(button, input):focus-visible {
-  outline: 3px solid #00778b;
-  outline-offset: 3px;
 }
 
 @media (max-width: 480px) {
-  .twofa-page .twofa-card {
+  body.auth-2fa-page .auth-card {
     padding: 24px 20px;
   }
+}
 
-  .twofa-page .twofa-recovery-list {
-    grid-template-columns: 1fr;
+/* ==========================================================
+   DATENSIS EXPERT - CORRECTIFS FINAUX 2FA
+   Styles isoles pour ne pas modifier les espaces client/cabinet.
+   ========================================================== */
+
+html:has(body.auth-2fa-page) {
+  color-scheme: light;
+  min-height: 100%;
+  background: #f4faf9;
+}
+
+body.auth-2fa-page {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  color-scheme: light;
+}
+
+body.auth-2fa-page,
+body.auth-2fa-page *,
+body.auth-2fa-page *::before,
+body.auth-2fa-page *::after {
+  box-sizing: border-box;
+}
+
+body.auth-2fa-page .auth-shell {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+}
+
+body.auth-2fa-page .auth-card {
+  position: relative;
+  flex: 0 1 490px;
+  width: min(100%, 490px);
+  max-width: 490px;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0 auto;
+  overflow-wrap: anywhere;
+  background: #fff;
+  color: #173a43;
+  text-align: left;
+}
+
+body.auth-2fa-page .auth-card :is(h1, h2, h3, p, label, strong, small, span) {
+  max-width: 100%;
+}
+
+body.auth-2fa-page .auth-card :is(input, textarea, select) {
+  max-width: 100%;
+  color-scheme: light;
+}
+
+body.auth-2fa-page .auth-input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  max-width: 100%;
+  background: #fbfdfd;
+  color: #173a43;
+  opacity: 1;
+}
+
+body.auth-2fa-page .auth-input:focus-visible {
+  outline: 2px solid #00778b;
+  outline-offset: 2px;
+  border-color: #00778b;
+}
+
+body.auth-2fa-page .auth-button {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  max-width: 100%;
+  background: #e96148;
+  color: #fff;
+  text-decoration: none;
+  opacity: 1;
+}
+
+body.auth-2fa-page .auth-button:disabled {
+  cursor: not-allowed;
+  opacity: .65;
+}
+
+body.auth-2fa-page .auth-card :is(.auth-title, .auth-label, .auth-brand-name) {
+  color: #173a43;
+}
+
+body.auth-2fa-page .auth-card :is(.auth-description, .auth-brand-caption, .auth-footer) {
+  color: #526d75;
+}
+
+@media (max-width: 480px) {
+  body.auth-2fa-page {
+    padding: 20px 12px;
+  }
+
+  body.auth-2fa-page .auth-card {
+    width: 100%;
+    padding: 24px 20px;
+    border-radius: 18px;
   }
 }
+
+/* ==============================================================
+   DATENSIS EXPERT | ESPACE CLIENT - THEME CLAIR RENFORCE
+   Portee limitee au client : aucun changement au theme sombre
+   ============================================================== */
+.client-workspace[data-theme="light"] {
+    color-scheme: light;
+    --text: #18343d;
+    --muted: #496572;
+    --line: #cfdee3;
+    --surface: #ffffff;
+    --surface-light: #f1f7f8;
+    --surface-hover: #e5f2f3;
+    --mint: #00778b;
+    --success: #17684f;
+    --danger: #a6382a;
+    --shadow: 0 8px 26px rgba(16, 65, 78, .07);
+    color: var(--text);
+    background: #f1f7f8;
+}
+.client-workspace[data-theme="light"] .content {
+    background: radial-gradient(circle at 100% 0, #e0f2f2 0, transparent 34%), #f1f7f8;
+    color: var(--text);
+}
+.client-workspace[data-theme="light"] .page-header h1,
+.client-workspace[data-theme="light"] .section-title h2,
+.client-workspace[data-theme="light"] .panel h2,
+.client-workspace[data-theme="light"] .panel h3,
+.client-workspace[data-theme="light"] .stat strong,
+.client-workspace[data-theme="light"] .record strong,
+.client-workspace[data-theme="light"] .calendar-heading h3,
+.client-workspace[data-theme="light"] .calendar-toolbar h3,
+.client-workspace[data-theme="light"] .deadline-header-content h3,
+.client-workspace[data-theme="light"] .deadline-event-title {
+    color: #143c48;
+}
+.client-workspace[data-theme="light"] .page-header p,
+.client-workspace[data-theme="light"] .panel p,
+.client-workspace[data-theme="light"] .stat span,
+.client-workspace[data-theme="light"] .stat small,
+.client-workspace[data-theme="light"] .record small,
+.client-workspace[data-theme="light"] .record p,
+.client-workspace[data-theme="light"] .preference-option small,
+.client-workspace[data-theme="light"] .calendar-heading p,
+.client-workspace[data-theme="light"] .deadline-summary,
+.client-workspace[data-theme="light"] .deadline-event-description,
+.client-workspace[data-theme="light"] .deadline-footer {
+    color: #496572;
+}
+.client-workspace[data-theme="light"] .stat,
+.client-workspace[data-theme="light"] .panel,
+.client-workspace[data-theme="light"] .calendar-board,
+.client-workspace[data-theme="light"] .calendar-detail {
+    background: #ffffff;
+    border: 1px solid #cfdee3;
+    box-shadow: 0 8px 26px rgba(16, 65, 78, .07);
+    color: #18343d;
+}
+.client-workspace[data-theme="light"] .stat:hover { border-color: #7db5bc; }
+.client-workspace[data-theme="light"] .eyebrow,
+.client-workspace[data-theme="light"] .calendar-kicker,
+.client-workspace[data-theme="light"] .deadline-eyebrow { color: #00677a; }
+.client-workspace[data-theme="light"] .pill,
+.client-workspace[data-theme="light"] .workspace-tag,
+.client-workspace[data-theme="light"] .calendar-total {
+    background: #dff2ed;
+    border: 1px solid #b5dcd2;
+    color: #155b50;
+}
+.client-workspace[data-theme="light"] .panel a:not(.primary):not(.small-btn),
+.client-workspace[data-theme="light"] .content a:not(.primary):not(.small-btn):not(.quick a) {
+    color: #00677a;
+}
+.client-workspace[data-theme="light"] .quick a {
+    background: #e7f3f5;
+    border: 1px solid #c4e0e5;
+    color: #075c6c;
+}
+.client-workspace[data-theme="light"] .quick a:hover {
+    background: #d4ebef;
+    border-color: #8fc3cd;
+    color: #074757;
+}
+.client-workspace[data-theme="light"] .primary {
+    background: #d84f37;
+    color: #ffffff;
+    border: 1px solid #c94832;
+}
+.client-workspace[data-theme="light"] .primary:hover {
+    background: #bc3f2d;
+    color: #ffffff;
+    filter: none;
+}
+.client-workspace[data-theme="light"] .small-btn {
+    background: #006c80;
+    color: #ffffff;
+}
+.client-workspace[data-theme="light"] .small-btn:hover { background: #005468; }
+.client-workspace[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.client-workspace[data-theme="light"] select,
+.client-workspace[data-theme="light"] textarea {
+    background: #ffffff;
+    border: 1px solid #a9c4ce;
+    color: #18343d;
+}
+.client-workspace[data-theme="light"] input::placeholder,
+.client-workspace[data-theme="light"] textarea::placeholder { color: #5f7580; opacity: 1; }
+.client-workspace[data-theme="light"] select option { background: #ffffff; color: #18343d; }
+.client-workspace[data-theme="light"] input:focus,
+.client-workspace[data-theme="light"] select:focus,
+.client-workspace[data-theme="light"] textarea:focus {
+    border-color: #00778b;
+    box-shadow: 0 0 0 3px rgba(0, 119, 139, .17);
+}
+.client-workspace[data-theme="light"] .stack-form label { color: #254a57; }
+.client-workspace[data-theme="light"] input[type="checkbox"] { accent-color: #00778b; }
+.client-workspace[data-theme="light"] .preference-option {
+    background: #f2f8f9;
+    border-color: #d2e3e7;
+    color: #18343d;
+}
+.client-workspace[data-theme="light"] .record { border-color: #dbe7ea; }
+.client-workspace[data-theme="light"] .status,
+.client-workspace[data-theme="light"] .record .status {
+    background: #e1f4eb;
+    border: 1px solid #add9c4;
+    color: #17684f;
+}
+.client-workspace[data-theme="light"] .chat-bubble {
+    background: #eaf2f5;
+    border-color: #c8dce2;
+    color: #18343d;
+}
+.client-workspace[data-theme="light"] .chat-bubble p { color: inherit; }
+.client-workspace[data-theme="light"] .chat-bubble small { color: #4b6672; }
+.client-workspace[data-theme="light"] .chat-bubble.mine {
+    background: #006d80;
+    border-color: #005d70;
+    color: #ffffff;
+}
+.client-workspace[data-theme="light"] .chat-bubble.mine p { color: #ffffff; }
+.client-workspace[data-theme="light"] .chat-bubble.mine small { color: #e1f5f7; }
+.client-workspace[data-theme="light"] .chat-history { scrollbar-color: #a4c4ce transparent; }
+.client-workspace[data-theme="light"] .calendar-controls button {
+    background: #f2f8f9;
+    border-color: #c2d9df;
+    color: #075d6d;
+}
+.client-workspace[data-theme="light"] .calendar-controls button:hover { background: #dceef1; }
+.client-workspace[data-theme="light"] .calendar-filter-label,
+.client-workspace[data-theme="light"] .calendar-weekdays span,
+.client-workspace[data-theme="light"] .calendar-legend span { color: #496572; }
+.client-workspace[data-theme="light"] .calendar-day {
+    background: #f4f9fa;
+    border-color: #d2e2e6;
+    color: #1b414d;
+    box-shadow: none;
+}
+.client-workspace[data-theme="light"] button.calendar-day:hover { border-color: #00778b; background: #e3f2f4; }
+.client-workspace[data-theme="light"] .calendar-day.selected {
+    background: #d5edf0;
+    border-color: #00778b;
+    box-shadow: inset 0 0 0 1px rgba(0,119,139,.25);
+}
+.client-workspace[data-theme="light"] .calendar-day.other-month { background: transparent; border-color: transparent; color: #758e98; }
+.client-workspace[data-theme="light"] .calendar-legend,
+.client-workspace[data-theme="light"] .deadline-footer { border-color: #d8e5e9; }
+.client-workspace[data-theme="light"] .deadline-date-box {
+    background: #006d80;
+    border-color: #005b6d;
+}
+.client-workspace[data-theme="light"] .deadline-date-box strong { color: #ffffff; }
+.client-workspace[data-theme="light"] .deadline-date-box span { color: #e4f7f6; }
+.client-workspace[data-theme="light"] .deadline-event {
+    background: #f5fafb;
+    border-color: #d2e2e6;
+    border-left-color: var(--event-color);
+}
+.client-workspace[data-theme="light"] .deadline-event-icon {
+    background: #e7f2f4;
+    border-color: #c6dce2;
+    color: #075d6d;
+}
+.client-workspace[data-theme="light"] .deadline-category {
+    background: #e3f0f3;
+    color: #075d6d;
+}
+.client-workspace[data-theme="light"] .deadline-event-badge {
+    background: #e8f2f4;
+    border-color: #c6dce2;
+    color: #164858;
+}
+.client-workspace[data-theme="light"] .deadline-event-badge svg { color: #006d80; }
+.client-workspace[data-theme="light"] .deadline-empty {
+    border-color: #b8d0d8;
+    color: #496572;
+}
+.client-workspace[data-theme="light"] .deadline-empty strong { color: #18343d; }
+.client-workspace[data-theme="light"] .deadline-empty svg { color: #00778b; }
+.client-workspace[data-theme="light"] .flash-message.success,
+.client-workspace[data-theme="light"] .toast.success { background: #e1f4eb; border-color: #a9d7c2; color: #155c47; }
+.client-workspace[data-theme="light"] .flash-message.error,
+.client-workspace[data-theme="light"] .toast.error { background: #fff0ed; border-color: #efb7aa; color: #9c3528; }
+.client-workspace[data-theme="light"] .flash-message.warning,
+.client-workspace[data-theme="light"] .toast.warning { background: #fff4df; border-color: #e5c88c; color: #78531c; }
+.client-workspace[data-theme="light"] .flash-message.info,
+.client-workspace[data-theme="light"] .toast.info { background: #e6f3f8; border-color: #b8d6e3; color: #16536b; }
+.client-workspace[data-theme="light"] :focus-visible { outline-color: #00778b; }
