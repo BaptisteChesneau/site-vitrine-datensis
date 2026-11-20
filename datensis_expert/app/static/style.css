@@ -6008,3 +6008,73 @@ body.twofa-page {
 .client-workspace[data-theme="light"] .flash-message.info,
 .client-workspace[data-theme="light"] .toast.info { background: #e6f3f8; border-color: #b8d6e3; color: #16536b; }
 .client-workspace[data-theme="light"] :focus-visible { outline-color: #00778b; }
+
+/* ==========================================================
+   DATENSIS EXPERT — ESPACE CLIENT
+   HARMONISATION DU MENU LATERAL EN THEME CLAIR
+   ========================================================== */
+
+/* Barre latérale */
+body.client-page .sidebar,
+body.client-page .client-sidebar {
+    background: #F4F9FA;
+    color: #173E4A;
+    border-right: 1px solid #D5E5EA;
+}
+
+/* Logo et titres */
+body.client-page .sidebar-brand,
+body.client-page .sidebar-title,
+body.client-page .client-sidebar .sidebar-brand {
+    color: #173E4A;
+}
+
+/* Liens de navigation */
+body.client-page .sidebar a,
+body.client-page .client-sidebar a {
+    color: #173E4A;
+}
+
+/* Survol des liens */
+body.client-page .sidebar nav a:hover,
+body.client-page .client-sidebar nav a:hover {
+    background: #DDF1F3;
+    color: #00778B;
+    border-radius: 10px;
+}
+
+/* Onglet sélectionné */
+body.client-page .sidebar nav a.active,
+body.client-page .sidebar nav a[aria-current="page"],
+body.client-page .client-sidebar nav a.active,
+body.client-page .client-sidebar nav a[aria-current="page"] {
+    background: #00778B;
+    color: #FFFFFF;
+    border-radius: 10px;
+}
+
+/* Séparateurs */
+body.client-page .sidebar hr,
+body.client-page .client-sidebar hr {
+    border-color: #D5E5EA;
+}
+
+/* Informations du compte */
+body.client-page .sidebar-footer,
+body.client-page .client-sidebar .sidebar-footer {
+    color: #173E4A;
+    border-top-color: #D5E5EA;
+}
+
+/* Bouton de déconnexion */
+body.client-page .sidebar .logout-btn,
+body.client-page .client-sidebar .logout-btn {
+    background: #FFFFFF;
+    color: #00778B;
+    border: 1px solid #BBD8DF;
+}
+
+body.client-page .sidebar .logout-btn:hover,
+body.client-page .client-sidebar .logout-btn:hover {
+    background: #DDF1F3;
+}
