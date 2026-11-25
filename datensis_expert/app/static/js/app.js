@@ -3,12 +3,13 @@
 (() => {
   function initialize() {
     const root = document.querySelector(".client-workspace");
-    if (!root) return;
+    if (!root || root.dataset.clientInitialized === "true") return;
+    root.dataset.clientInitialized = "true";
 
-    const tabs = [...root.querySelectorAll(".side-nav [data-tab]")];
+    // Navigation client : les panneaux restent strictement limites a cet espace.
     const panels = [...root.querySelectorAll(".tab-panel[id]")];
-    const valid = new Set(panels.map(panel => panel.id));
-    if (!panels.length) return;
+    const valid = new Set(panels.map((panel) => panel.id));
+    const tabs = [...root.querySelectorAll(".side-nav [data-tab]")];
 
     function currentTab() {
       let id = "";
@@ -17,167 +18,241 @@
       } catch (error) {
         console.warn("DATENSIS : fragment d'URL invalide", error);
       }
-      return valid.has(id) ? id : (valid.has("accueil") ? "accueil" : panels[0].id);
+      return valid.has(id) ? id : (valid.has("accueil") ? "accueil" : panels[0]?.id);
     }
 
     function activatePanel(id, updateUrl = false) {
       if (!valid.has(id)) return;
-      panels.forEach(panel => {
+
+      panels.forEach((panel) => {
         const active = panel.id === id;
         panel.hidden = !active;
         panel.classList.toggle("active", active);
+        panel.setAttribute("aria-hidden", String(!active));
+        // Priorite aux onglets : evite les conflits avec display dans le CSS.
+        if (active) {
+          panel.style.setProperty("display", "block", "important");
+        } else {
+          panel.style.setProperty("display", "none", "important");
+        }
       });
-      tabs.forEach(link => {
+
+      tabs.forEach((link) => {
         const active = link.dataset.tab === id;
         link.classList.toggle("active", active);
         if (active) link.setAttribute("aria-current", "page");
         else link.removeAttribute("aria-current");
+        link.removeAttribute("aria-selected");
+        if (valid.has(link.dataset.tab)) link.setAttribute("aria-controls", link.dataset.tab);
       });
-      if (updateUrl && window.location.hash !== `#${id}`) {
+
+      if (updateUrl && window.location.hash !== `#${encodeURIComponent(id)}`) {
         window.history.pushState(null, "", `#${encodeURIComponent(id)}`);
       }
     }
 
-    root.addEventListener("click", event => {
-      if (!(event.target instanceof Element)) return;
-      const link = event.target.closest("[data-tab], [data-go]");
-      if (!link || !root.contains(link)) return;
-      const id = link.dataset.tab || link.dataset.go;
-      if (!valid.has(id)) return;
-      event.preventDefault();
-      activatePanel(id, true);
+
+    if (panels.length) {
+      root.addEventListener("click", (event) => {
+        if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        if (!(event.target instanceof Element)) return;
+        const link = event.target.closest("[data-tab], [data-go]");
+        if (!link || !root.contains(link)) return;
+        const id = link.dataset.tab || link.dataset.go;
+        if (!valid.has(id)) return;
+        event.preventDefault();
+        activatePanel(id, true);
+        const message = root.querySelector("#message-body");
+        if (link.dataset.requestTopic && message) {
+          if (!message.value.trim()) {
+            message.value = `Sujet : ${link.dataset.requestTopic}\n\n`;
+            message.dispatchEvent(new Event("input", { bubbles: true }));
+          }
+          message.focus();
+        } else {
+          const panel = panels.find(item => item.id === id);
+          const heading = panel?.querySelector("h2");
+          if (heading) {
+            heading.setAttribute("tabindex", "-1");
+            heading.focus({ preventScroll: true });
+          }
+          root.querySelector("#client-main")?.scrollIntoView({ block: "start", behavior: "auto" });
+        }
+      });
+
+      window.addEventListener("hashchange", () => activatePanel(currentTab()));
+      window.addEventListener("popstate", () => activatePanel(currentTab()));
+      activatePanel(currentTab());
+    } else {
+      console.warn("DATENSIS : aucun panneau .tab-panel[id] dans l'espace client");
+    }
+
+    // Recherche locale : aucune donnée n'est envoyée ni stockée.
+    const normalize = value => String(value ?? "").normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr-FR").trim();
+    root.querySelectorAll("[data-filter-target], #document-search").forEach(input => {
+      const target = document.getElementById(input.dataset.filterTarget || "client-document-list");
+      if (!target || !root.contains(target)) return;
+      const items = [...target.querySelectorAll(".searchable, [data-document-record]")];
+      const wrapper = input.closest('[data-enhancement="document-filter"]');
+      if (wrapper) wrapper.hidden = false;
+      const status = input.id === "document-search" ? root.querySelector("#document-search-status") : null;
+      const update = () => {
+        const query = normalize(input.value);
+        let count = 0;
+        items.forEach(item => {
+          const match = normalize(item.textContent).includes(query);
+          item.hidden = !match;
+          if (match) count++;
+        });
+        if (status) status.textContent = query ? `${count} résultat(s) sur ${items.length}` : "";
+      };
+      input.addEventListener("input", update);
+      input.addEventListener("keydown", event => {
+        if (event.key === "Escape" && input.value) {
+          event.preventDefault();
+          input.value = "";
+          update();
+        }
+      });
+      update();
     });
 
-    window.addEventListener("hashchange", () => activatePanel(currentTab()));
-    window.addEventListener("popstate", () => activatePanel(currentTab()));
-    activatePanel(currentTab());
+    const message = root.querySelector("#message-body");
+    const counter = root.querySelector("#message-counter");
+    if (message && counter) {
+      const update = () => {
+        counter.textContent = `${message.value.length} / ${message.maxLength > 0 ? message.maxLength : 2000} caractères`;
+      };
+      counter.hidden = false;
+      message.addEventListener("input", update);
+      update();
+    }
 
-    root.querySelectorAll("[data-filter-target]").forEach(input => {
-      const target = document.getElementById(input.dataset.filterTarget);
-      if (!target) return;
-      input.addEventListener("input", () => {
-        const search = input.value.trim().toLocaleLowerCase("fr-FR");
-        target.querySelectorAll(".searchable").forEach(item => {
-          item.hidden = !item.textContent.toLocaleLowerCase("fr-FR").includes(search);
-        });
+    // Les formulaires restent soumis normalement à Flask (CSRF conservé).
+    root.querySelectorAll('form[method="post" i]').forEach(form => {
+      form.addEventListener("submit", event => {
+        if (event.defaultPrevented || !form.checkValidity()) return;
+        if (form.dataset.clientSubmitting === "true") {
+          event.preventDefault();
+          return;
+        }
+        form.dataset.clientSubmitting = "true";
+        form.setAttribute("aria-busy", "true");
+      });
+    });
+    window.addEventListener("pageshow", () => {
+      root.querySelectorAll("form[data-client-submitting]").forEach(form => {
+        delete form.dataset.clientSubmitting;
+        form.removeAttribute("aria-busy");
       });
     });
 
     // Calendrier : les échéances réelles sont fournies par Flask en JSON.
-  const app = document.getElementById("calendar-app");
-  if (!app) return;
-  const required = ["calendar-days", "calendar-month-title", "calendar-event-list", "calendar-category-filter", "calendar-selected-day", "calendar-date-short", "calendar-selected-full-date", "calendar-selected-count", "calendar-month-count", "calendar-prev", "calendar-next", "calendar-today"];
-  if (required.some(id => !document.getElementById(id))) {
-    console.warn("DATENSIS : éléments du calendrier manquants");
-    return;
-  }
-  const el = id => document.getElementById(id);
-  const days = el("calendar-days"), monthTitle = el("calendar-month-title"), list = el("calendar-event-list");
-  const filter = el("calendar-category-filter");
-  const TYPES = {
-    comptabilite:{label:"Comptabilité",color:"#38bdf8",icon:"document"},
-    fiscalite:{label:"Fiscalité",color:"#f5b75b",icon:"document"},
-    social:{label:"Social",color:"#ad9cf4",icon:"users"},
-    juridique:{label:"Juridique",color:"#ee92bc",icon:"document"},
-    rendez_vous:{label:"Rendez-vous",color:"#65d9c7",icon:"users"},
-    urgent:{label:"Prioritaire",color:"#f07d7d",icon:"clock"}
-  };
-  // Démonstration uniquement si l'URL comporte ?demo_calendar=1.
-  const DEMO = [
-    {date:"2026-11-05",type:"fiscalite",title:"Préparation déclaration TVA",description:"Vérification des justificatifs"},
-    {date:"2026-11-09",type:"social",title:"Éléments de paie",description:"Transmission des variables mensuelles"},
-    {date:"2026-11-12",type:"comptabilite",title:"Dépôt des pièces comptables",description:"Transmission des factures et justificatifs du dossier",status:"À réaliser"},
-    {date:"2026-11-12",type:"rendez_vous",title:"Point de suivi avec le cabinet",description:"Échange sur la situation comptable et les prochaines étapes",time:"14:30"},
-    {date:"2026-11-18",type:"juridique",title:"Formalité juridique",description:"Préparation des documents"},
-    {date:"2026-11-24",type:"urgent",title:"Document prioritaire",description:"Pièce manquante signalée par le cabinet"},
-    {date:"2026-11-27",type:"comptabilite",title:"Rapprochement bancaire",description:"Vérification des écritures"}
-  ];
-  const demo = new URLSearchParams(location.search).get("demo_calendar") === "1";
-  function chargerEcheances() {
-    const source = document.getElementById("datensis-echeances-data");
-    if (!source) return [];
-    try {
-      const data = JSON.parse(source.textContent);
-      return Array.isArray(data) ? data : [];
-    } catch (error) {
-      console.error("DATENSIS Expert : JSON des échéances invalide", error);
-      return [];
+    const app = document.getElementById("calendar-app");
+    if (!app || !root.contains(app)) return;
+    const required = ["calendar-days", "calendar-month-title", "calendar-event-list", "calendar-category-filter", "calendar-selected-day", "calendar-date-short", "calendar-selected-full-date", "calendar-selected-count", "calendar-month-count", "calendar-prev", "calendar-next", "calendar-today"];
+    if (required.some(id => !document.getElementById(id))) {
+      console.warn("DATENSIS : éléments du calendrier manquants");
+      return;
     }
-  }
-  const raw = demo ? DEMO : chargerEcheances();
-  const validDate = value => {
-    if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-    const [y, m, d] = value.split("-").map(Number);
-    const date = new Date(y, m - 1, d, 12);
-    return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
-  };
-  const events = raw.filter(e => e && validDate(e.date) && typeof e.title === "string" && Object.prototype.hasOwnProperty.call(TYPES,e.type));
-  const today = new Date(); today.setHours(12,0,0,0);
-  let selected = demo ? new Date(2026,10,12,12) : new Date(today);
-  let year = selected.getFullYear(), month = selected.getMonth();
-  const monthFmt = new Intl.DateTimeFormat("fr-FR",{month:"long",year:"numeric"});
-  const fullFmt = new Intl.DateTimeFormat("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
-  const shortFmt = new Intl.DateTimeFormat("fr-FR",{month:"short",year:"numeric"});
-  const key = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-  const visible = () => events.filter(e => filter.value === "all" || e.type === filter.value);
-  const iconPaths = {
-    document:['M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z','M8 3v5h13','M7 13h10M7 17h7'],
-    users:['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2','M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8','M22 21v-2a4 4 0 0 0-3-3.87','M16 3.13a4 4 0 0 1 0 7.75'],
-    clock:['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18','M12 7v5l3 2'],
-    calendar:['M3 5h18v16H3z','M7 3v4M17 3v4M3 10h18']
-  };
-  function icon(name) {
-    const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-    svg.setAttribute("viewBox","0 0 24 24"); svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
-    (iconPaths[name]||iconPaths.calendar).forEach(path => {const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",path);svg.appendChild(p);});
-    return svg;
-  }
-  function element(tag, cls, text) {const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
-  function details() {
-    const chosen=visible().filter(e=>e.date===key(selected));
-    el("calendar-selected-day").textContent=selected.getDate();
-    el("calendar-date-short").textContent=shortFmt.format(selected).toUpperCase();
-    el("calendar-selected-full-date").textContent=fullFmt.format(selected);
-    el("calendar-selected-count").textContent=chosen.length ? `${chosen.length} échéance${chosen.length>1?"s":""} prévue${chosen.length>1?"s":""} pour votre dossier` : "Aucune échéance pour cette date";
-    list.replaceChildren();
-    if(!chosen.length){const empty=element("div","deadline-empty");empty.append(icon("calendar"),element("strong","","Aucune échéance"),element("p","","Aucune obligation ou rendez-vous n'est renseigné pour cette date."));list.append(empty);return;}
-    chosen.forEach(event=>{
-      const type=TYPES[event.type],card=element("article","deadline-event");card.style.setProperty("--event-color",type.color);
-      const iconBox=element("div","deadline-event-icon");iconBox.append(icon(type.icon));
-      const content=element("div","deadline-event-content");
-      content.append(element("span","deadline-category",type.label),element("h4","deadline-event-title",event.title));
-      if(event.description)content.append(element("p","deadline-event-description",String(event.description)));
-      card.append(iconBox,content);
-      const time=typeof event.time==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(event.time)?event.time.replace(":","h"):"";
-      const status=typeof event.status==="string"?event.status.trim().slice(0,40):"";
-      if(time||status){const meta=element("div","deadline-event-meta"),badge=element("span","deadline-event-badge");badge.append(icon("clock"),element("span","",time||status));meta.append(badge);card.append(meta);}
-      list.append(card);
-    });
-  }
-  function render() {
-    const first=new Date(year,month,1,12),numDays=new Date(year,month+1,0).getDate(),offset=(first.getDay()+6)%7;
-    monthTitle.textContent=monthFmt.format(first);
-    const prefix=`${year}-${String(month+1).padStart(2,"0")}`;
-    const monthly=visible().filter(e=>e.date.startsWith(prefix));
-    el("calendar-month-count").textContent=`${monthly.length} échéance${monthly.length>1?"s":""} ce mois`;
-    days.replaceChildren();
-    for(let i=0;i<offset;i++){const blank=element("div","calendar-day other-month");blank.setAttribute("aria-hidden","true");days.append(blank);}
-    for(let d=1;d<=numDays;d++){
-      const date=new Date(year,month,d,12),items=monthly.filter(e=>e.date===key(date)),button=element("button","calendar-day");button.type="button";
-      button.append(element("span","calendar-day-number",String(d)));
-      if(items.length){const dots=element("span","calendar-event-dots");items.slice(0,4).forEach(e=>{const dot=element("span","calendar-event-dot");dot.style.setProperty("--event-color",TYPES[e.type].color);dots.append(dot);});button.append(dots);}
-      if(key(date)===key(today))button.classList.add("today");
-      const active=key(date)===key(selected);button.classList.toggle("selected",active);button.setAttribute("aria-pressed",String(active));button.setAttribute("aria-label",`${fullFmt.format(date)}, ${items.length} échéance(s)`);
-      button.addEventListener("click",()=>{selected=date;render();});days.append(button);
+    const el = id => document.getElementById(id);
+    const days = el("calendar-days"), monthTitle = el("calendar-month-title"), list = el("calendar-event-list");
+    const filter = el("calendar-category-filter");
+    const TYPES = {
+      comptabilite:{label:"Comptabilité",color:"#38bdf8",icon:"document"},
+      fiscalite:{label:"Fiscalité",color:"#f5b75b",icon:"document"},
+      social:{label:"Social",color:"#ad9cf4",icon:"users"},
+      juridique:{label:"Juridique",color:"#ee92bc",icon:"document"},
+      rendez_vous:{label:"Rendez-vous",color:"#65d9c7",icon:"users"},
+      urgent:{label:"Prioritaire",color:"#f07d7d",icon:"clock"}
+    };
+    function chargerEcheances() {
+      const source = document.getElementById("datensis-echeances-data");
+      if (!source) return [];
+      try {
+        const data = JSON.parse(source.textContent);
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("DATENSIS Expert : JSON des échéances invalide", error);
+        return [];
+      }
     }
-    details();
-  }
-  function move(delta){const next=new Date(year,month+delta,1,12);year=next.getFullYear();month=next.getMonth();selected=next;render();}
-  el("calendar-prev").addEventListener("click",()=>move(-1));
-  el("calendar-next").addEventListener("click",()=>move(1));
-  el("calendar-today").addEventListener("click",()=>{selected=new Date(today);year=selected.getFullYear();month=selected.getMonth();render();});
-  filter.addEventListener("change",render);
-  render();
+    const raw = chargerEcheances();
+    const validDate = value => {
+      if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+      const [y, m, d] = value.split("-").map(Number);
+      const date = new Date(y, m - 1, d, 12);
+      return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+    };
+    const events = raw.filter(e => e && validDate(e.date) && typeof e.title === "string" && Object.prototype.hasOwnProperty.call(TYPES,e.type));
+    const today = new Date(); today.setHours(12,0,0,0);
+    let selected = new Date(today);
+    let year = selected.getFullYear(), month = selected.getMonth();
+    const monthFmt = new Intl.DateTimeFormat("fr-FR",{month:"long",year:"numeric"});
+    const fullFmt = new Intl.DateTimeFormat("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+    const shortFmt = new Intl.DateTimeFormat("fr-FR",{month:"short",year:"numeric"});
+    const key = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    const visible = () => events.filter(e => filter.value === "all" || e.type === filter.value);
+    const iconPaths = {
+      document:['M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8z','M8 3v5h13','M7 13h10M7 17h7'],
+      users:['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2','M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8','M22 21v-2a4 4 0 0 0-3-3.87','M16 3.13a4 4 0 0 1 0 7.75'],
+      clock:['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18','M12 7v5l3 2'],
+      calendar:['M3 5h18v16H3z','M7 3v4M17 3v4M3 10h18']
+    };
+    function icon(name) {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      svg.setAttribute("viewBox","0 0 24 24"); svg.setAttribute("fill","none");svg.setAttribute("stroke","currentColor");svg.setAttribute("stroke-width","1.8");svg.setAttribute("stroke-linecap","round");svg.setAttribute("stroke-linejoin","round");svg.setAttribute("aria-hidden","true");
+      (iconPaths[name]||iconPaths.calendar).forEach(path => {const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",path);svg.appendChild(p);});
+      return svg;
+    }
+    function element(tag, cls, text) {const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
+    function details() {
+      const chosen=visible().filter(e=>e.date===key(selected));
+      el("calendar-selected-day").textContent=selected.getDate();
+      el("calendar-date-short").textContent=shortFmt.format(selected).toUpperCase();
+      el("calendar-selected-full-date").textContent=fullFmt.format(selected);
+      el("calendar-selected-count").textContent=chosen.length ? `${chosen.length} échéance${chosen.length>1?"s":""} prévue${chosen.length>1?"s":""} pour votre dossier` : "Aucune échéance pour cette date";
+      list.replaceChildren();
+      if(!chosen.length){const empty=element("div","deadline-empty");empty.append(icon("calendar"),element("strong","","Aucune échéance"),element("p","","Aucune obligation ou rendez-vous n'est renseigné pour cette date."));list.append(empty);return;}
+      chosen.forEach(event=>{
+        const type=TYPES[event.type],card=element("article","deadline-event");card.style.setProperty("--event-color",type.color);
+        const iconBox=element("div","deadline-event-icon");iconBox.append(icon(type.icon));
+        const content=element("div","deadline-event-content");
+        content.append(element("span","deadline-category",type.label),element("h4","deadline-event-title",event.title));
+        if(event.description)content.append(element("p","deadline-event-description",String(event.description)));
+        card.append(iconBox,content);
+        const time=typeof event.time==="string"&&/^([01]\d|2[0-3]):[0-5]\d$/.test(event.time)?event.time.replace(":","h"):"";
+        const status=typeof event.status==="string"?event.status.trim().slice(0,40):"";
+        if(time||status){const meta=element("div","deadline-event-meta"),badge=element("span","deadline-event-badge");badge.append(icon("clock"),element("span","",[time, status].filter(Boolean).join(" · ")));meta.append(badge);card.append(meta);}
+        list.append(card);
+      });
+    }
+    function render() {
+      const first=new Date(year,month,1,12),numDays=new Date(year,month+1,0).getDate(),offset=(first.getDay()+6)%7;
+      monthTitle.textContent=monthFmt.format(first);
+      const prefix=`${year}-${String(month+1).padStart(2,"0")}`;
+      const monthly=visible().filter(e=>e.date.startsWith(prefix));
+      el("calendar-month-count").textContent=`${monthly.length} échéance${monthly.length>1?"s":""} ce mois`;
+      days.replaceChildren();
+      for(let i=0;i<offset;i++){const blank=element("div","calendar-day other-month");blank.setAttribute("aria-hidden","true");days.append(blank);}
+      for(let d=1;d<=numDays;d++){
+        const date=new Date(year,month,d,12),items=monthly.filter(e=>e.date===key(date)),button=element("button","calendar-day");button.type="button";
+        button.append(element("span","calendar-day-number",String(d)));
+        if(items.length){const dots=element("span","calendar-event-dots");items.slice(0,4).forEach(e=>{const dot=element("span","calendar-event-dot");dot.style.setProperty("--event-color",TYPES[e.type].color);dots.append(dot);});button.append(dots);}
+        if(key(date)===key(today))button.classList.add("today");
+        const active=key(date)===key(selected);button.classList.toggle("selected",active);button.setAttribute("aria-pressed",String(active));button.setAttribute("aria-label",`${fullFmt.format(date)}, ${items.length} échéance(s)`);
+        button.dataset.date = key(date);
+        button.addEventListener("click",()=>{selected=date;render();days.querySelector(`[data-date="${key(date)}"]`)?.focus();});days.append(button);
+      }
+      details();
+    }
+    function move(delta){const next=new Date(year,month+delta,1,12);year=next.getFullYear();month=next.getMonth();selected=next;render();}
+    el("calendar-prev").addEventListener("click",()=>move(-1));
+    el("calendar-next").addEventListener("click",()=>move(1));
+    el("calendar-today").addEventListener("click",()=>{selected=new Date(today);year=selected.getFullYear();month=selected.getMonth();render();});
+    filter.addEventListener("change",render);
+    render();
   }
 
   if (document.readyState === "loading") {

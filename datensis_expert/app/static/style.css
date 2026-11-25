@@ -5820,6 +5820,8 @@ body.twofa-page {
   }
 }
 
+/* DATENSIS EXPERT - BLOC CLIENT : THEME CLAIR ET NAVIGATION */
+
 .client-workspace[data-theme="light"] .content {
     background: radial-gradient(circle at 100% 0, #e0f2f2 0, transparent 34%), #f1f7f8;
     color: var(--text);
@@ -5884,13 +5886,13 @@ body.twofa-page {
     color: #074757;
 }
 .client-workspace[data-theme="light"] .primary {
-    background: #d84f37;
-    color: #ffffff;
+    background: #e96148;
+    color: #28150f;
     border: 1px solid #c94832;
 }
 .client-workspace[data-theme="light"] .primary:hover {
-    background: #bc3f2d;
-    color: #ffffff;
+    background: #d9533c;
+    color: #21110d;
     filter: none;
 }
 .client-workspace[data-theme="light"] .small-btn {
@@ -5976,7 +5978,7 @@ body.twofa-page {
 .client-workspace[data-theme="light"] .deadline-event {
     background: #f5fafb;
     border-color: #d2e2e6;
-    border-left-color: var(--event-color);
+    border-left-color: var(--event-color, #00778b);
 }
 .client-workspace[data-theme="light"] .deadline-event-icon {
     background: #e7f2f4;
@@ -6009,72 +6011,139 @@ body.twofa-page {
 .client-workspace[data-theme="light"] .toast.info { background: #e6f3f8; border-color: #b8d6e3; color: #16536b; }
 .client-workspace[data-theme="light"] :focus-visible { outline-color: #00778b; }
 
-/* ==========================================================
-   DATENSIS EXPERT — ESPACE CLIENT
-   HARMONISATION DU MENU LATERAL EN THEME CLAIR
-   ========================================================== */
-
-/* Barre latérale */
-body.client-page .sidebar,
-body.client-page .client-sidebar {
-    background: #F4F9FA;
-    color: #173E4A;
-    border-right: 1px solid #D5E5EA;
+/* DATENSIS Expert : navigation et themes client uniquement */
+.client-workspace {
+    min-width: 0;
 }
-
-/* Logo et titres */
-body.client-page .sidebar-brand,
-body.client-page .sidebar-title,
-body.client-page .client-sidebar .sidebar-brand {
-    color: #173E4A;
+.client-workspace[data-theme="light"] {
+    color-scheme: light;
+    --text: #163947;
+    --muted: #486775;
+    --surface: #ffffff;
+    --surface-light: #edf7f6;
+    --line: #c8dedc;
+    color: var(--text);
 }
-
-/* Liens de navigation */
-body.client-page .sidebar a,
-body.client-page .client-sidebar a {
-    color: #173E4A;
+.client-workspace[data-theme="dark"] {
+    color-scheme: dark;
 }
-
-/* Survol des liens */
-body.client-page .sidebar nav a:hover,
-body.client-page .client-sidebar nav a:hover {
-    background: #DDF1F3;
-    color: #00778B;
+.client-workspace .sidebar {
+    z-index: 10;
+    pointer-events: auto;
+}
+.client-workspace .side-nav {
+    position: relative;
+    z-index: 11;
+}
+.client-workspace .side-nav a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: auto;
+    cursor: pointer;
+    min-height: 44px;
     border-radius: 10px;
 }
-
-/* Onglet sélectionné */
-body.client-page .sidebar nav a.active,
-body.client-page .sidebar nav a[aria-current="page"],
-body.client-page .client-sidebar nav a.active,
-body.client-page .client-sidebar nav a[aria-current="page"] {
-    background: #00778B;
-    color: #FFFFFF;
-    border-radius: 10px;
+.client-workspace .side-nav a .nav-icon {
+    flex: 0 0 24px;
+    text-align: center;
+    color: inherit;
 }
-
-/* Séparateurs */
-body.client-page .sidebar hr,
-body.client-page .client-sidebar hr {
-    border-color: #D5E5EA;
+.client-workspace .side-nav a.active,
+.client-workspace .side-nav a[aria-current="page"] {
+    background: #00778b;
+    color: #ffffff;
+    box-shadow: inset 3px 0 #e96148;
 }
-
-/* Informations du compte */
-body.client-page .sidebar-footer,
-body.client-page .client-sidebar .sidebar-footer {
-    color: #173E4A;
-    border-top-color: #D5E5EA;
+.client-workspace .tab-panel[hidden],
+.client-workspace [hidden] {
+    display: none !important;
 }
-
-/* Bouton de déconnexion */
-body.client-page .sidebar .logout-btn,
-body.client-page .client-sidebar .logout-btn {
-    background: #FFFFFF;
-    color: #00778B;
-    border: 1px solid #BBD8DF;
+.client-workspace .tab-panel.active:not([hidden]) {
+    display: block;
 }
-
-body.client-page .sidebar .logout-btn:hover,
-body.client-page .client-sidebar .logout-btn:hover {
-    background: #DDF1F3;
+.client-workspace .panel {
+    height: auto;
+    min-width: 0;
+}
+.client-workspace .content,
+.client-workspace .record > div,
+.client-workspace .chat-bubble {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.client-workspace[data-theme="light"] .sidebar,
+.client-workspace[data-theme="light"] .client-sidebar {
+    background: #f4f9fa;
+    color: #173e4a;
+    border-right: 1px solid #d5e5ea;
+}
+.client-workspace[data-theme="light"] .sidebar :is(.brand, .sidebar-brand, .sidebar-title, .sidebar-kicker, .sidebar-footer, .sidebar-footer strong, .sidebar-footer small) {
+    color: #173e4a;
+}
+.client-workspace[data-theme="light"] .sidebar hr,
+.client-workspace[data-theme="light"] .sidebar-footer {
+    border-color: #d5e5ea;
+}
+.client-workspace[data-theme="light"] .side-nav a {
+    color: #173e4a;
+}
+.client-workspace[data-theme="light"] .side-nav a:hover:not(.active):not([aria-current="page"]) {
+    background: #ddf1f3;
+    color: #005c6d;
+}
+.client-workspace[data-theme="light"] .side-nav a.active,
+.client-workspace[data-theme="light"] .side-nav a[aria-current="page"] {
+    background: #00778b;
+    color: #ffffff;
+}
+.client-workspace[data-theme="light"] .side-nav a span {
+    color: inherit;
+}
+.client-workspace[data-theme="light"] .sidebar :is(.logout, .logout-btn) {
+    background: #ffffff;
+    color: #00677a;
+    border: 1px solid #bbd8df;
+}
+.client-workspace[data-theme="light"] .sidebar :is(.logout, .logout-btn):hover {
+    background: #ddf1f3;
+    color: #005468;
+}
+.client-workspace[data-theme="dark"] .side-nav a:hover:not(.active):not([aria-current="page"]) {
+    background: rgba(130, 196, 168, .18);
+    color: #ffffff;
+}
+.client-workspace :focus-visible {
+    outline: 3px solid #e96148;
+    outline-offset: 3px;
+}
+.client-workspace[data-theme="light"] :focus-visible {
+    outline-color: #00778b;
+}
+@media (max-width: 760px) {
+    .client-workspace .sidebar {
+        height: auto;
+        max-height: none;
+        position: relative;
+        top: auto;
+    }
+    .client-workspace .side-nav {
+        overflow-x: auto;
+    }
+    .client-workspace .side-nav a {
+        flex-shrink: 0;
+    }
+    .client-workspace .calendar-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .client-workspace *,
+    .client-workspace *::before,
+    .client-workspace *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
 }

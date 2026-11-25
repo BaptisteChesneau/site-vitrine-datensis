@@ -1,1179 +1,1184 @@
 {% extends "base.html" %}
-
 {% block content %}
-
-{% set client_name = session.get("name", "Client") %}
-
-{% set document_count = docs|length %}
-
-{% set message_count = messages|length %}
-
-<link
-
-    rel="stylesheet"
-
-    href="{{ url_for('static', filename='style.css') }}"
-
->
-
-<div class="workspace client-workspace" data-theme="{{ user.theme }}">
-
-    <!-- ============================================= -->
-
-    <!-- NAVIGATION LATERALE -->
-
-    <!-- ============================================= -->
-
-    <aside class="sidebar" aria-label="Menu espace client">
-
-        <div class="brand">
-
-            ✦ DATENSIS <span>EXPERT</span>
-
-        </div>
-
-        <div class="workspace-tag">ESPACE CLIENT</div>
-
-        <nav class="side-nav" aria-label="Navigation client">
-
-            <a href="#accueil" data-tab="accueil" class="active"
-
-               aria-current="page">
-
-                ▦ <span>Mon accueil</span>
-
-            </a>
-
-            <a href="#documents" data-tab="documents">
-
-                ▤ <span>Mes documents</span>
-
-            </a>
-
-            <a href="#messages" data-tab="messages">
-
-                ◉ <span>Mes échanges</span>
-
-            </a>
-
-            <a href="#demandes" data-tab="demandes">
-
-                ◇ <span>Mes demandes</span>
-
-            </a>
-
-            <a href="#echeances" data-tab="echeances">
-
-                ◷ <span>Mes échéances</span>
-
-            </a>
-
-            <a href="#entreprise" data-tab="entreprise">
-
-                ▣ <span>Mon entreprise</span>
-
-            </a>
-
-            <a href="#notifications" data-tab="notifications">
-
-                ♧ <span>Notifications</span>
-
-            </a>
-
-            <a href="#parametres" data-tab="parametres">
-
-                ⚙ <span>Paramètres</span>
-
-            </a>
-
-        </nav>
-
-        <div class="sidebar-footer">
-
-            <div class="sidebar-profile">
-
-                <span class="avatar">
-
-                    {{ client_name[:1]|upper }}
-
-                </span>
-
-                <div>
-
-                    <strong>{{ client_name }}</strong>
-
-                    <small>Compte client</small>
-
-                </div>
-
+    {% set client_name = session.get("name") or "Client" %}
+    {% set docs = docs | default([], true) %}
+    {% set messages = messages | default([], true) %}
+    {% set alerts = notification_items | default([], true) %}
+    {% set document_count = docs | length %}
+    {% set message_count = messages|length %}
+    {% set calendar_events = echeances | default([], true) %}
+    {% set client_messages = messages | selectattr('author_role', 'equalto', 'client') | list %}
+    {% set cabinet_messages = messages | rejectattr('author_role', 'equalto', 'client') | list %}
+    {% set company_data = company | default({}, true) %}
+    {% set tickets = client_requests | default([], true) %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <div class="workspace client-workspace" data-theme="{{ user.theme or 'light' }}">
+        <!-- ============================================= -->
+        <!-- NAVIGATION LATERALE -->
+        <!-- ============================================= -->
+        <aside class="sidebar" aria-label="Menu espace client">
+            <div class="brand">
+                ✦ DATENSIS <span>EXPERT</span>
             </div>
-
-            <form method="post" action="{{ url_for('logout') }}">
-
-                <input
-
-                    type="hidden"
-
-                    name="csrf_token"
-
-                    value="{{ csrf_token() }}"
-
+            <div class="workspace-tag">ESPACE CLIENT</div>
+            <nav class="side-nav" aria-label="Navigation client">
+                <a
+                    href="#accueil"
+                    data-tab="accueil"
+                    aria-controls="accueil"
+                    class="active"
+                    aria-current="page"
                 >
-
-                <button type="submit" class="logout">
-
-                    Se déconnecter
-
-                </button>
-
-            </form>
-
-        </div>
-
-    </aside>
-
-    <!-- ============================================= -->
-
-    <!-- CONTENU PRINCIPAL -->
-
-    <!-- ============================================= -->
-
-    <main class="content" id="client-main">
-
-        <header class="page-header">
-
-            <div>
-
-                <div class="eyebrow">
-
-                    DATENSIS EXPERT / ESPACE CLIENT
-
-                </div>
-
-                <h1>Bonjour {{ client_name }}</h1>
-
-                <p>
-
-                    Gérez vos documents, vos échanges et
-
-                    votre suivi avec le cabinet.
-
-                </p>
-
-            </div>
-
-            <span class="avatar" aria-label="Profil client">
-
-                {{ client_name[:1]|upper }}
-
-            </span>
-
-        </header>
-
-        <!-- MESSAGES FLASH -->
-
-        {% with flash_messages = get_flashed_messages(
-
-            with_categories=true
-
-        ) %}
-
-            {% if flash_messages %}
-
-                <div class="flash-container" role="status">
-
-                    {% for category, message in flash_messages %}
-
-                        <div class="flash-message {{ category }}">
-
-                            {{ message }}
-
-                        </div>
-
-                    {% endfor %}
-
-                </div>
-
-            {% endif %}
-
-        {% endwith %}
-
-        <!-- ========================================= -->
-
-        <!-- ONGLET : ACCUEIL -->
-
-        <!-- ========================================= -->
-
-        <section
-
-            class="tab-panel active"
-
-            id="accueil"
-
-            aria-labelledby="titre-accueil"
-
-        >
-
-            <div class="section-title">
-
-                <h2 id="titre-accueil">Vue d'ensemble</h2>
-
-                <span class="pill">Espace personnel</span>
-
-            </div>
-
-            <div class="stats">
-
-                <article class="stat">
-
-                    <span>Documents enregistrés</span>
-
-                    <strong>{{ document_count }}</strong>
-
-                    <small>Références documentaires</small>
-
-                </article>
-
-                <article class="stat">
-
-                    <span>Messages récents</span>
-
-                    <strong>{{ message_count }}</strong>
-
-                    <small>
-
-                        Dans les 30 derniers messages chargés
-
-                    </small>
-
-                </article>
-
-                <article class="stat">
-
-                    <span>Demandes en cours</span>
-
-                    <strong>—</strong>
-
-                    <small>Suivi bientôt disponible</small>
-
-                </article>
-
-                <article class="stat">
-
-                    <span>Prochaine échéance</span>
-
-                    <strong>—</strong>
-
-                    <small>Calendrier à configurer</small>
-
-                </article>
-
-            </div>
-
-            <div class="two-col">
-
-                <article class="panel">
-
-                    <h3>Accès rapide</h3>
-
-                    <p>
-
-                        Retrouvez les principales fonctionnalités
-
-                        de votre espace.
-
-                    </p>
-
-                    <div class="quick">
-
-                        <a href="#documents" data-go="documents">
-
-                            ▤ Gérer mes documents →
-
-                        </a>
-
-                        <a href="#messages" data-go="messages">
-
-                            ◉ Contacter le cabinet →
-
-                        </a>
-
-                        <a href="#demandes" data-go="demandes">
-
-                            ◇ Consulter mes demandes →
-
-                        </a>
-
-                        <a href="#echeances" data-go="echeances">
-
-                            ◷ Voir mes échéances →
-
-                        </a>
-
-                    </div>
-
-                </article>
-
-                <article class="panel">
-
-                    <h3>Votre accompagnement</h3>
-
-                    <p>
-
-                        DATENSIS Expert centralise les échanges
-
-                        entre votre entreprise et votre cabinet.
-
-                    </p>
-
-                    <p>
-
-                        Vous pouvez enregistrer des références
-
-                        documentaires et transmettre vos messages
-
-                        directement depuis cet espace.
-
-                    </p>
-
-                    <span class="status">
-
-                        ● Espace client actif
-
+                    <span class="nav-icon" aria-hidden="true">▦</span> <span>Mon accueil</span>
+                </a>
+                <a href="#documents" data-tab="documents" aria-controls="documents">
+                    <span class="nav-icon" aria-hidden="true">▤</span> <span>Mes documents</span>
+                </a>
+                <a href="#messages" data-tab="messages" aria-controls="messages">
+                    <span class="nav-icon" aria-hidden="true">◉</span> <span>Mes échanges</span>
+                </a>
+                <a href="#demandes" data-tab="demandes" aria-controls="demandes">
+                    <span class="nav-icon" aria-hidden="true">◇</span> <span>Mes demandes</span>
+                </a>
+                <a href="#echeances" data-tab="echeances" aria-controls="echeances">
+                    <span class="nav-icon" aria-hidden="true">◷</span> <span>Mes échéances</span>
+                </a>
+                <a href="#entreprise" data-tab="entreprise" aria-controls="entreprise">
+                    <span class="nav-icon" aria-hidden="true">▣</span> <span>Mon entreprise</span>
+                </a>
+                <a href="#notifications" data-tab="notifications" aria-controls="notifications">
+                    <span class="nav-icon" aria-hidden="true">♧</span> <span>Notifications</span>
+                </a>
+                <a href="#parametres" data-tab="parametres" aria-controls="parametres">
+                    <span class="nav-icon" aria-hidden="true">⚙</span> <span>Paramètres</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-profile">
+                    <span class="avatar">
+                        {{ client_name[:1]|upper }}
                     </span>
-
-                </article>
-
-            </div>
-
-            <div class="two-col">
-
-                <article class="panel">
-
-                    <h3>Derniers documents</h3>
-
-                    {% for doc in docs[:5] %}
-
-                        <div class="record">
-
-                            <div>
-
-                                <strong>▤ {{ doc.title }}</strong>
-
-                                <small>
-
-                                    {{ doc.created_at }}
-
-                                </small>
-
-                            </div>
-
-                            <span class="status">
-
-                                {{ doc.status }}
-
-                            </span>
-
-                        </div>
-
-                    {% else %}
-
-                        <p>
-
-                            Aucun document enregistré.
-
-                        </p>
-
-                    {% endfor %}
-
-                    <div class="quick">
-
-                        <a href="#documents" data-go="documents">
-
-                            Voir mes documents →
-
-                        </a>
-
-                    </div>
-
-                </article>
-
-                <article class="panel">
-
-                    <h3>Derniers échanges</h3>
-
-                    {% for msg in messages[-3:]|reverse %}
-
-                        <div class="record">
-
-                            <div>
-
-                                <strong>
-
-                                    {% if msg.author_role == "client" %}
-
-                                        Vous
-
-                                    {% else %}
-
-                                        Cabinet DATENSIS
-
-                                    {% endif %}
-
-                                </strong>
-
-                                <p>
-
-                                    {{ msg.body|truncate(100) }}
-
-                                </p>
-
-                            </div>
-
-                        </div>
-
-                    {% else %}
-
-                        <p>
-
-                            Aucun échange pour le moment.
-
-                        </p>
-
-                    {% endfor %}
-
-                    <div class="quick">
-
-                        <a href="#messages" data-go="messages">
-
-                            Ouvrir la messagerie →
-
-                        </a>
-
-                    </div>
-
-                </article>
-
-            </div>
-
-        </section>
-
-        <!-- ========================================= -->
-
-        <!-- ONGLET : DOCUMENTS -->
-
-        <!-- ========================================= -->
-
-        <section
-
-            class="tab-panel"
-
-            id="documents"
-
-            aria-labelledby="titre-documents"
-
-            hidden
-
-        >
-
-            <div class="section-title">
-
-                <h2 id="titre-documents">Mes documents</h2>
-
-                <span class="pill">Suivi documentaire</span>
-
-            </div>
-
-            <div class="two-col">
-
-                <article class="panel">
-
-                    <h3>Ajouter une référence documentaire</h3>
-
-                    <p>
-
-                        Enregistrez le nom d'un document pour
-
-                        faciliter son suivi avec votre cabinet.
-
-                    </p>
-
-                    <p>
-
-                        Cette fonctionnalité n'effectue pas encore
-
-                        de transfert de fichier.
-
-                    </p>
-
-                    <form
-
-                        method="post"
-
-                        action="{{ url_for('client_document') }}"
-
-                        class="stack-form"
-
-                    >
-
-                        <input
-
-                            type="hidden"
-
-                            name="csrf_token"
-
-                            value="{{ csrf_token() }}"
-
-                        >
-
-                        <label for="document-title">
-
-                            Nom du document
-
-                            <input
-
-                                id="document-title"
-
-                                type="text"
-
-                                name="title"
-
-                                required
-
-                                minlength="2"
-
-                                maxlength="120"
-
-                                placeholder="Ex. Facture fournisseur octobre"
-
-                            >
-
-                        </label>
-
-                        <button type="submit" class="primary">
-
-                            Enregistrer la référence →
-
-                        </button>
-
-                    </form>
-
-                </article>
-
-                <article class="panel">
-
-                    <h3>Documents enregistrés</h3>
-
-                    <p>
-
-                        {{ document_count }}
-
-                        référence{% if document_count != 1 %}s{% endif %}
-
-                        enregistrée{% if document_count != 1 %}s{% endif %}.
-
-                    </p>
-
-                    {% for doc in docs %}
-
-                        <div class="record">
-
-                            <div>
-
-                                <strong>▤ {{ doc.title }}</strong>
-
-                                <small>
-
-                                    Enregistré le {{ doc.created_at }}
-
-                                </small>
-
-                            </div>
-
-                            <span class="status">
-
-                                {{ doc.status }}
-
-                            </span>
-
-                        </div>
-
-                    {% else %}
-
-                        <p>
-
-                            Vous n'avez enregistré aucun document.
-
-                        </p>
-
-                    {% endfor %}
-
-                </article>
-
-            </div>
-
-        </section>
-
-        <!-- ========================================= -->
-
-        <!-- ONGLET : MESSAGERIE -->
-
-        <!-- ========================================= -->
-
-        <section
-
-            class="tab-panel"
-
-            id="messages"
-
-            aria-labelledby="titre-messages"
-
-            hidden
-
-        >
-
-            <div class="section-title">
-
-                <h2 id="titre-messages">Mes échanges</h2>
-
-                <span class="pill">Messagerie sécurisée</span>
-
-            </div>
-
-            <article class="panel">
-
-                <h3>Conversation avec votre cabinet</h3>
-
-                <p>
-
-                    Échangez directement avec votre interlocuteur
-
-                    DATENSIS.
-
-                </p>
-
-                <div
-
-                    class="chat-history"
-
-                    role="log"
-
-                    aria-label="Historique de conversation"
-
-                >
-
-                    {% for msg in messages %}
-
-                        <div class="chat-bubble {{
-
-                            'mine' if msg.author_role == 'client'
-
-                            else 'theirs'
-
-                        }}">
-
-                            <small>
-
-                                {% if msg.author_role == "client" %}
-
-                                    Vous
-
-                                {% else %}
-
-                                    Cabinet DATENSIS
-
-                                {% endif %}
-
-                                · {{ msg.created_at }}
-
-                            </small>
-
-                            <p>{{ msg.body }}</p>
-
-                        </div>
-
-                    {% else %}
-
-                        <p>
-
-                            Aucun message pour le moment.
-
-                            Commencez une conversation avec votre cabinet.
-
-                        </p>
-
-                    {% endfor %}
-
-                </div>
-
-                <form
-
-                    method="post"
-
-                    action="{{ url_for('client_message') }}"
-
-                    class="stack-form"
-
-                >
-
-                    <input
-
-                        type="hidden"
-
-                        name="csrf_token"
-
-                        value="{{ csrf_token() }}"
-
-                    >
-
-                    <label for="message-body">
-
-                        Votre message
-
-                        <textarea
-
-                            id="message-body"
-
-                            name="body"
-
-                            required
-
-                            minlength="1"
-
-                            maxlength="2000"
-
-                            rows="5"
-
-                            placeholder="Rédigez votre message..."
-
-                        ></textarea>
-
-                    </label>
-
-                    <button type="submit" class="primary">
-
-                        Envoyer au cabinet →
-
-                    </button>
-
-                </form>
-
-            </article>
-
-        </section>
-
-        <!-- ========================================= -->
-
-        <!-- ONGLET : DEMANDES -->
-
-        <!-- ========================================= -->
-
-        <section
-
-            class="tab-panel"
-
-            id="demandes"
-
-            aria-labelledby="titre-demandes"
-
-            hidden
-
-        >
-
-            <div class="section-title">
-
-                <h2 id="titre-demandes">Mes demandes</h2>
-
-                <span class="pill">Suivi des demandes</span>
-
-            </div>
-
-            <article class="panel">
-
-                <h3>Centralisez vos demandes</h3>
-
-                <p>
-
-                    Ce module permettra de créer et suivre
-
-                    vos demandes auprès du cabinet.
-
-                </p>
-
-                <p>
-
-                    Les demandes pourront concerner la
-
-                    comptabilité, la fiscalité, le social,
-
-                    le juridique ou les conseils.
-
-                </p>
-
-                <span class="status">
-
-                    Module en préparation
-
-                </span>
-
-                <div class="quick">
-
-                    <a href="#messages" data-go="messages">
-
-                        Contacter le cabinet pour une demande →
-
-                    </a>
-
-                </div>
-
-            </article>
-
-        </section>
-
-        <!-- ========================================= -->
-
-        <!-- ONGLET : ECHEANCES -->
-
-        <!-- ========================================= -->
-
-        <section class="tab-panel" id="echeances" aria-labelledby="titre-echeances" hidden>
-
-            <div class="section-title">
-
-                <h2 id="titre-echeances">Mes échéances</h2>
-
-                <span class="pill">Agenda du dossier</span>
-
-            </div>
-
-            <div class="calendar-shell" id="calendar-app">
-
-                <header class="calendar-heading">
-
                     <div>
-
-                        <span class="calendar-kicker">SUIVI DES OBLIGATIONS</span>
-
-                        <h3>Calendrier de votre entreprise</h3>
-
-                        <p>Retrouvez les dates renseignées par votre cabinet et les rendez-vous prévus.</p>
-
-                    </div>
-
-                    <span class="calendar-total" id="calendar-month-count">0 échéance ce mois</span>
-
-                </header>
-
-                <div class="calendar-layout">
-
-                    <div class="calendar-board" id="calendar-board">
-
-                        <div class="calendar-toolbar">
-
-                            <h3 id="calendar-month-title">Calendrier</h3>
-
-                            <div class="calendar-controls">
-
-                                <button type="button" id="calendar-prev" aria-label="Mois précédent">&#8249;</button>
-
-                                <button type="button" id="calendar-today">Aujourd'hui</button>
-
-                                <button type="button" id="calendar-next" aria-label="Mois suivant">&#8250;</button>
-
-                            </div>
-
-                        </div>
-
-                        <label class="calendar-filter-label" for="calendar-category-filter">Catégorie</label>
-
-                        <select id="calendar-category-filter">
-
-                            <option value="all">Toutes les catégories</option>
-
-                            <option value="comptabilite">Comptabilité</option>
-
-                            <option value="fiscalite">Fiscalité</option>
-
-                            <option value="social">Social</option>
-
-                            <option value="juridique">Juridique</option>
-
-                            <option value="rendez_vous">Rendez-vous</option>
-
-                            <option value="urgent">Prioritaire</option>
-
-                        </select>
-
-                        <div class="calendar-weekdays" aria-hidden="true">
-
-                            <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
-
-                        </div>
-
-                        <div class="calendar-days" id="calendar-days" role="group" aria-label="Dates du calendrier"></div>
-
-                        <div class="calendar-legend" aria-label="Légende des catégories">
-
-                            <span style="--legend-color:#38bdf8">Comptabilité</span>
-
-                            <span style="--legend-color:#f5b75b">Fiscalité</span>
-
-                            <span style="--legend-color:#ad9cf4">Social</span>
-
-                            <span style="--legend-color:#ee92bc">Juridique</span>
-
-                            <span style="--legend-color:#65d9c7">Rendez-vous</span>
-
-                            <span style="--legend-color:#f07d7d">Prioritaire</span>
-
-                        </div>
-
-                    </div>
-
-                    <aside class="calendar-detail" aria-label="Détails des échéances">
-
-                        <header class="deadline-header">
-
-                            <div class="deadline-date-box"><strong id="calendar-selected-day">--</strong><span id="calendar-date-short">--</span></div>
-
-                            <div class="deadline-header-content">
-
-                                <span class="deadline-eyebrow">VOTRE AGENDA</span>
-
-                                <h3 id="calendar-selected-full-date">Date sélectionnée</h3>
-
-                                <p class="deadline-summary" id="calendar-selected-count">Aucune échéance</p>
-
-                            </div>
-
-                        </header>
-
-                        <div class="deadline-list" id="calendar-event-list" aria-live="polite"></div>
-
-                        <footer class="deadline-footer">Les échéances affichées dépendent des obligations suivies par votre cabinet.</footer>
-
-                    </aside>
-
-                </div>
-
-            </div>
-
-        </section>
-
-        <!-- ========================================= -->
-
-        <!-- ONGLET : ENTREPRISE -->
-
-        <!-- ========================================= -->
-
-        <section
-
-            class="tab-panel"
-
-            id="entreprise"
-
-            aria-labelledby="titre-entreprise"
-
-            hidden
-
-        >
-
-            <div class="section-title">
-
-                <h2 id="titre-entreprise">Mon entreprise</h2>
-
-                <span class="pill">Informations du compte</span>
-
-            </div>
-
-            <div class="two-col">
-
-                <article class="panel">
-
-                    <h3>Mon profil</h3>
-
-                    <div class="record">
-
-                        <span>Nom du compte</span>
-
                         <strong>{{ client_name }}</strong>
-
+                        <small>Compte client</small>
                     </div>
-
-                    <div class="record">
-
-                        <span>Type de compte</span>
-
-                        <strong>Client</strong>
-
-                    </div>
-
-                    <div class="record">
-
-                        <span>Statut</span>
-
-                        <span class="status">Actif</span>
-
-                    </div>
-
-                </article>
-
-                <article class="panel">
-
-                    <h3>Informations administratives</h3>
-
-                    <p>
-
-                        Les coordonnées de votre société,
-
-                        son numéro SIREN, son adresse et ses
-
-                        interlocuteurs seront disponibles
-
-                        après l'intégration du module entreprise.
-
-                    </p>
-
-                    <span class="status">
-
-                        Module en préparation
-
-                    </span>
-
-                </article>
-
+                </div>
+                <form method="post" action="{{ url_for('logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="logout">
+                        Se déconnecter
+                    </button>
+                </form>
             </div>
-
-        </section>
-
-        <!-- ========================================= -->
-
-        <!-- ONGLET : NOTIFICATIONS -->
-
-        <!-- ========================================= -->
-
-        <section class="tab-panel" id="notifications" aria-labelledby="titre-notifications" hidden>
-
-  <div class="section-title"><h2 id="titre-notifications">Mes notifications</h2><span class="pill">Personnalisation</span></div>
-
-  <article class="panel"><h3>Choisir mes alertes</h3><p>Activez les catégories que vous souhaitez suivre dans votre espace.</p>
-
-    <form method="post" action="{{ url_for('client_notifications') }}" class="stack-form preferences-form">
-
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-      {% for key, label, description in notification_categories %}
-
-      <label class="preference-option"><span><strong>{{ label }}</strong><small>{{ description }}</small></span>
-
-        <input type="checkbox" name="{{ key }}" value="1" {% if notification_prefs[key] %}checked{% endif %}>
-
-      </label>
-
-      {% endfor %}
-
-      <label class="preference-option"><span><strong>Alertes par e-mail</strong><small>Autoriser les e-mails de notification (envoi disponible après configuration d'un service de messagerie).</small></span><input type="checkbox" name="email_enabled" value="1" {% if notification_prefs.email_enabled %}checked{% endif %}></label>
-
-      <label for="reminder_days">Rappel des échéances</label>
-
-      <select id="reminder_days" name="reminder_days">{% for n in [1,3,7] %}<option value="{{ n }}" {% if notification_prefs.reminder_days == n %}selected{% endif %}>{{ n }} jour{% if n > 1 %}s{% endif %} avant</option>{% endfor %}</select>
-
-      <button type="submit" class="primary">Enregistrer mes notifications</button>
-
-    </form>
-
-  </article>
-
-  <article class="panel settings-secondary"><h3>Activité récente</h3>
-
-  {% for alert in notification_items %}<div class="record"><div><strong>{{ alert.title }}</strong><small>{{ alert.created_at }}</small><p>{{ alert.body }}</p></div></div>
-
-  {% else %}<p>Aucune notification pour le moment.</p>{% endfor %}
-
-  </article>
-
-</section>
-
-        <!-- ========================================= -->
-
-        <!-- ONGLET : PARAMETRES -->
-
-        <!-- ========================================= -->
-
-        <section class="tab-panel" id="parametres" aria-labelledby="titre-parametres" hidden>
-
-  <div class="section-title"><h2 id="titre-parametres">Mes paramètres</h2><span class="pill">Gestion de mon compte</span></div>
-
-  <div class="two-col">
-
-    <article class="panel"><h3>Informations personnelles</h3>
-
-      <form method="post" action="{{ url_for('client_profile') }}" class="stack-form">
-
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-        <label for="profile-name">Nom affiché<input id="profile-name" name="name" maxlength="100" minlength="2" required value="{{ user.name }}"></label>
-
-        <label for="profile-email">Adresse e-mail<input id="profile-email" type="email" value="{{ user.email }}" disabled></label>
-
-        <small>Pour modifier votre adresse e-mail, contactez votre cabinet.</small>
-
-        <label for="profile-phone">Téléphone<input id="profile-phone" name="phone" type="tel" maxlength="30" value="{{ user.phone or '' }}"></label>
-
-        <button type="submit" class="primary">Enregistrer mon profil</button>
-
-      </form>
-
-    </article>
-
-    <article class="panel"><h3>Sécurité du compte</h3>
-
-      <form method="post" action="{{ url_for('client_password') }}" class="stack-form">
-
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-        <label for="old-password">Mot de passe actuel<input id="old-password" type="password" name="current_password" autocomplete="current-password" required></label>
-
-        <label for="new-password">Nouveau mot de passe<input id="new-password" type="password" name="new_password" minlength="12" maxlength="256" autocomplete="new-password" required></label>
-
-        <label for="confirm-password">Confirmer le nouveau mot de passe<input id="confirm-password" type="password" name="confirm_password" minlength="12" maxlength="256" autocomplete="new-password" required></label>
-
-        <button type="submit" class="primary">Modifier mon mot de passe</button>
-
-      </form>
-
-    </article>
-
-  </div>
-
-  <article class="panel settings-secondary"><h3>Préférences d'affichage</h3>
-
-    <form method="post" action="{{ url_for('client_preferences') }}" class="stack-form">
-
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-      <label for="pref-language">Langue<select id="pref-language" name="language"><option value="fr" {% if user.language == 'fr' %}selected{% endif %}>Français</option><option value="en" {% if user.language == 'en' %}selected{% endif %}>English (préférence enregistrée, traduction à venir)</option></select></label>
-
-      <label for="pref-theme">Thème<select id="pref-theme" name="theme"><option value="dark" {% if user.theme == 'dark' %}selected{% endif %}>Sombre</option><option value="light" {% if user.theme == 'light' %}selected{% endif %}>Clair</option></select></label>
-
-      <button type="submit" class="primary">Enregistrer mes préférences</button>
-
-    </form>
-
-  </article>
-
-</section>
-
-    </main>
-
-</div>
-
-<script id="datensis-echeances-data" type="application/json" nonce="{{ csp_nonce() }}">
-
-{{ echeances | default([], true) | tojson }}
-
-</script>
-
-<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
-
+        </aside>
+        <!-- ============================================= -->
+        <!-- CONTENU PRINCIPAL -->
+        <!-- ============================================= -->
+        <main class="content" id="client-main" tabindex="-1">
+            <header class="page-header">
+                <div>
+                    <div class="eyebrow">
+                        DATENSIS EXPERT / ESPACE CLIENT
+                    </div>
+                    <h1 id="client-page-title">Votre espace client</h1>
+                    <p>
+                        Retrouvez vos documents, vos échanges et vos obligations au même endroit.
+                    </p>
+                </div>
+                <a
+                    class="avatar"
+                    href="#parametres"
+                    data-go="parametres"
+                    aria-label="Ouvrir mes paramètres"
+                >
+                    {{ client_name[:1]|upper }}
+                </a>
+            </header>
+            <!-- MESSAGES FLASH -->
+            {% with flash_messages = get_flashed_messages(with_categories=true) %}
+                {% if flash_messages %}
+                    <div class="flash-container" role="status">
+                        {% for category, message in flash_messages %}
+                            <div class="flash-message {{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <!-- ========================================= -->
+            <!-- ONGLET : ACCUEIL -->
+            <!-- ========================================= -->
+            <section class="tab-panel active" id="accueil" aria-labelledby="titre-accueil">
+                <div class="section-title">
+                    <h2 id="titre-accueil">Bonjour {{ client_name }}</h2>
+                    <span class="pill">Tableau de bord</span>
+                </div>
+                <div class="stats">
+                    <article class="stat">
+                        <span>Documents enregistrés</span>
+                        <strong>{{ document_count }}</strong>
+                        <small>Références documentaires</small>
+                    </article>
+                    <article class="stat">
+                        <span>Messages récents</span>
+                        <strong>{{ message_count }}</strong>
+                        <small>
+                            Dans les 30 derniers messages chargés
+                        </small>
+                    </article>
+                    <article class="stat">
+                        <span>Demandes en cours</span>
+                        <strong>{{ request_count if request_count is defined and request_count is not none else "—" }}</strong>
+                        <small>{{ "Demandes actives" if request_count is defined and request_count is not none else "Suivi non activé" }}</small>
+                    </article>
+                    <article class="stat">
+                        <span>Prochaine échéance</span>
+                        <strong>{{ next_deadline | default("—", true) }}</strong>
+                        <small><a href="#echeances" data-go="echeances">Consulter mon agenda</a></small>
+                    </article>
+                </div>
+                <div class="two-col">
+                    <article class="panel">
+                        <h3>Accès rapide</h3>
+                        <p>
+                            Retrouvez les principales fonctionnalités
+                            de votre espace.
+                        </p>
+                        <div class="quick">
+                            <a href="#documents" data-go="documents">
+                                ▤ Gérer mes documents →
+                            </a>
+                            <a href="#messages" data-go="messages">
+                                ◉ Contacter le cabinet →
+                            </a>
+                            <a href="#demandes" data-go="demandes">
+                                ◇ Consulter mes demandes →
+                            </a>
+                            <a href="#echeances" data-go="echeances">
+                                ◷ Voir mes échéances →
+                            </a>
+                        </div>
+                    </article>
+                    <article class="panel">
+                        <h3>Votre cabinet à vos côtés</h3>
+                        <p>
+                            DATENSIS Expert centralise les échanges
+                            entre votre entreprise et votre cabinet.
+                        </p>
+                        <p>
+                            Vous pouvez enregistrer des références
+                            documentaires et transmettre vos messages
+                            directement depuis cet espace.
+                        </p>
+                        <span class="status">
+                            Espace client actif
+                        </span>
+                    </article>
+                </div>
+                <div class="two-col">
+                    <article class="panel">
+                        <h3>Derniers documents</h3>
+                        {% for doc in docs[:5] %}
+                            <div class="record">
+                                <div>
+                                    <strong>▤ {{ doc.title }}</strong>
+                                    <small>
+                                        {{ doc.created_at }}
+                                    </small>
+                                </div>
+                                <span class="status">
+                                    {{ doc.status }}
+                                </span>
+                            </div>
+                        {% else %}
+                            <p>
+                                Aucun document enregistré.
+                            </p>
+                        {% endfor %}
+                        <div class="quick">
+                            <a href="#documents" data-go="documents">
+                                Voir mes documents →
+                            </a>
+                        </div>
+                    </article>
+                    <article class="panel">
+                        <h3>Derniers échanges</h3>
+                        {% for msg in messages[-3:]|reverse %}
+                            <div class="record">
+                                <div>
+                                    <strong>
+                                        {% if msg.author_role == "client" %}
+                                            Vous
+                                        {% else %}
+                                            Cabinet DATENSIS
+                                        {% endif %}
+                                    </strong>
+                                    <small>{{ msg.created_at }}</small>
+                                    <p>
+                                        {{ msg.body|truncate(100) }}
+                                    </p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p>
+                                Aucun échange pour le moment.
+                            </p>
+                        {% endfor %}
+                        <div class="quick">
+                            <a href="#messages" data-go="messages">
+                                Ouvrir la messagerie →
+                            </a>
+                        </div>
+                    </article>
+                </div>
+                <article class="panel settings-secondary client-activity">
+                    <div class="section-title">
+                        <h3>Dernières notifications</h3>
+                        <a href="#notifications" data-go="notifications">Tout consulter →</a>
+                    </div>
+                    {% for alert in alerts[:3] %}
+                        <div class="record">
+                            <div>
+                                <strong>{{ alert.title }}</strong>
+                                <small>{{ alert.created_at }}</small>
+                                <p>{{ alert.body }}</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="empty-state">Aucune notification à afficher.</p>
+                    {% endfor %}
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Vue synthétique de votre dossier</h3>
+                    <div class="record">
+                        <div>
+                            <strong>Échanges envoyés</strong>
+                            <small>Messages de votre compte dans l’historique chargé</small>
+                        </div>
+                        <span class="status">{{ client_messages | length }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Réponses du cabinet</strong>
+                            <small>Messages reçus dans l’historique chargé</small>
+                        </div>
+                        <span class="status">{{ cabinet_messages | length }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Agenda</strong>
+                            <small>Événements transmis au calendrier</small>
+                        </div>
+                        <span class="status">{{ calendar_events | length }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Notifications</strong>
+                            <small>Alertes disponibles dans votre espace</small>
+                        </div>
+                        <span class="status">{{ alerts | length }}</span>
+                    </div>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Vos prochaines actions</h3>
+                    {% if not docs %}
+                        <div class="record">
+                            <div>
+                                <strong>Préparer vos justificatifs</strong>
+                                <small>Votre liste de références est vide.</small>
+                            </div>
+                            <a href="#documents" data-go="documents">Commencer</a>
+                        </div>
+                    {% endif %}
+                    {% if not user.phone %}
+                        <div class="record">
+                            <div>
+                                <strong>Compléter vos coordonnées</strong>
+                                <small>Ajoutez un numéro de téléphone si vous le souhaitez.</small>
+                            </div>
+                            <a href="#parametres" data-go="parametres">Mon profil</a>
+                        </div>
+                    {% endif %}
+                    <div class="record">
+                        <div>
+                            <strong>Vérifier vos échéances</strong>
+                            <small>Consultez les dates communiquées par votre cabinet.</small>
+                        </div>
+                        <a href="#echeances" data-go="echeances">Mon agenda</a>
+                    </div>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Accès à votre compte</h3>
+                    <div class="record">
+                        <div>
+                            <strong>Mon entreprise</strong>
+                            <small>Consultez les informations de votre dossier professionnel.</small>
+                        </div>
+                        <a href="#entreprise" data-go="entreprise">Consulter</a>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Mes notifications</strong>
+                            <small>Retrouvez les alertes et choisissez vos préférences.</small>
+                        </div>
+                        <a href="#notifications" data-go="notifications">Consulter</a>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Mes paramètres</strong>
+                            <small>Gérez votre profil et vos préférences de sécurité.</small>
+                        </div>
+                        <a href="#parametres" data-go="parametres">Consulter</a>
+                    </div>
+                </article>
+            </section>
+            <!-- ========================================= -->
+            <!-- ONGLET : DOCUMENTS -->
+            <!-- ========================================= -->
+            <section class="tab-panel" id="documents" aria-labelledby="titre-documents" hidden>
+                <div class="section-title">
+                    <h2 id="titre-documents">Mes documents</h2>
+                    <span class="pill">Suivi documentaire</span>
+                </div>
+                <div class="two-col">
+                    <article class="panel">
+                        <h3>Enregistrer une référence documentaire</h3>
+                        <p>
+                            Enregistrez le nom d'un document pour
+                            faciliter son suivi avec votre cabinet.
+                        </p>
+                        <p>
+                            Le dépôt de fichiers sera disponible après activation du module documentaire. Aucun fichier n’est transmis par ce formulaire.
+                        </p>
+                        <form method="post" action="{{ url_for('client_document') }}" class="stack-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <label for="document-title">
+                                Nom du document
+                                <input
+                                    id="document-title"
+                                    type="text"
+                                    name="title" required
+                                    minlength="2"
+                                    maxlength="120"
+                                    aria-describedby="document-help"
+                                    placeholder="Ex. Facture fournisseur octobre"
+                                >
+                            </label>
+                            <small id="document-help">Indiquez un nom explicite, sans données confidentielles inutiles.</small>
+                            <button type="submit" class="primary">
+                                Enregistrer la référence →
+                            </button>
+                        </form>
+                    </article>
+                    <article class="panel">
+                        <h3>Documents enregistrés</h3>
+                        {% if docs %}
+                            <div class="client-filter" hidden data-enhancement="document-filter">
+                                <label for="document-search">Rechercher une référence</label>
+                                <input
+                                    id="document-search"
+                                    data-filter-target="client-document-list"
+                                    type="search"
+                                    placeholder="Nom du document"
+                                    aria-controls="client-document-list"
+                                >
+                                <p id="document-search-status" role="status"></p>
+                            </div>
+                        {% endif %}
+                        <p>
+                            {{ document_count }}
+                            référence{% if document_count != 1 %}s{% endif %}
+                            enregistrée{% if document_count != 1 %}s{% endif %}.
+                        </p>
+                        <div id="client-document-list">
+                        {% for doc in docs %}
+                            <div class="record searchable" data-document-record data-status="{{ doc.status }}">
+                                <div>
+                                    <strong>▤ {{ doc.title }}</strong>
+                                    <small>
+                                        Enregistré le {{ doc.created_at }}
+                                    </small>
+                                </div>
+                                <span class="status">
+                                    {{ doc.status }}
+                                </span>
+                            </div>
+                        {% else %}
+                            <p>
+                                Vous n'avez enregistré aucun document.
+                            </p>
+                        {% endfor %}
+                        </div>
+                    </article>
+                </div>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Répartition par statut</h3>
+                    {% for group in docs | groupby('status') %}
+                        <div class="record">
+                            <div>
+                                <strong>{{ group.grouper }}</strong>
+                                <small>{{ group.list | length }} référence(s)</small>
+                            </div>
+                            <progress value="{{ group.list | length }}" max="{{ document_count }}" aria-label="Part des documents : {{ group.grouper }}"></progress>
+                        </div>
+                    {% else %}
+                        <p class="empty-state">La répartition apparaîtra après votre premier enregistrement.</p>
+                    {% endfor %}
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Préparer mes pièces comptables</h3>
+                    <details class="client-topic">
+                        <summary>Factures de vente</summary>
+                        <div class="client-detail-body">
+                            <p>Identifiez la période, le numéro et la nature de la facture.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Factures d’achat</summary>
+                        <div class="client-detail-body">
+                            <p>Préparez les factures fournisseurs et les justificatifs associés.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Banque</summary>
+                        <div class="client-detail-body">
+                            <p>Regroupez les relevés et les justificatifs des mouvements à expliquer.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Frais professionnels</summary>
+                        <div class="client-detail-body">
+                            <p>Identifiez la date, le motif professionnel et les justificatifs disponibles.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Une référence est-elle un fichier transmis ?</summary>
+                        <div class="client-detail-body">
+                            <p>Non. Le formulaire actuel enregistre uniquement un intitulé. Demandez au cabinet le canal de transmission adapté.</p>
+                        </div>
+                    </details>
+                </article>
+            </section>
+            <!-- ========================================= -->
+            <!-- ONGLET : MESSAGERIE -->
+            <!-- ========================================= -->
+            <section class="tab-panel" id="messages" aria-labelledby="titre-messages" hidden>
+                <div class="section-title">
+                    <h2 id="titre-messages">Mes échanges</h2>
+                    <span class="pill">Messagerie sécurisée</span>
+                </div>
+                <article class="panel">
+                    <h3>Conversation avec votre cabinet</h3>
+                        <p class="chat-summary">{{ message_count }} message(s) chargé(s) dans cet historique.</p>
+                    <p>
+                        Échangez directement avec votre interlocuteur
+                        DATENSIS.
+                    </p>
+                    <div
+                        class="chat-history"
+                        tabindex="0"
+                        role="log"
+                        aria-label="Historique de conversation"
+                    >
+                        {% for msg in messages %}
+                            <div class="chat-bubble {{ 'mine' if msg.author_role == 'client' else 'theirs' }}">
+                                <small>
+                                    {% if msg.author_role == "client" %}
+                                        Vous
+                                    {% else %}
+                                        Cabinet DATENSIS
+                                    {% endif %}
+                                    · {{ msg.created_at }}
+                                </small>
+                                <p>{{ msg.body }}</p>
+                            </div>
+                        {% else %}
+                            <p>
+                                Aucun message pour le moment.
+                                Commencez une conversation avec votre cabinet.
+                            </p>
+                        {% endfor %}
+                    </div>
+                    <form method="post" action="{{ url_for('client_message') }}" class="stack-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <label for="message-body">
+                            Votre message
+                            <textarea
+                                id="message-body"
+                                name="body" required
+                                minlength="1"
+                                maxlength="2000"
+                                rows="4"
+                                aria-describedby="message-help"
+                                placeholder="Rédigez votre message..."
+                            ></textarea>
+                        </label>
+                        <small id="message-help">2 000 caractères maximum. Précisez votre besoin et la période concernée.</small>
+                        <output id="message-counter" for="message-body" hidden aria-live="off"></output>
+                        <button type="submit" class="primary">
+                            Envoyer au cabinet →
+                        </button>
+                    </form>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Synthèse de la conversation</h3>
+                    <div class="record">
+                        <div>
+                            <strong>Messages envoyés</strong>
+                            <small>Dans les messages chargés</small>
+                        </div>
+                        <span class="status">{{ client_messages | length }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Messages reçus</strong>
+                            <small>Dans les messages chargés</small>
+                        </div>
+                        <span class="status">{{ cabinet_messages | length }}</span>
+                    </div>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Bien préparer un échange</h3>
+                    <details class="client-topic">
+                        <summary>Poser une question comptable</summary>
+                        <div class="client-detail-body">
+                            <p>Indiquez la période et la nature de l’opération.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Demander un rendez-vous</summary>
+                        <div class="client-detail-body">
+                            <p>Proposez plusieurs créneaux et précisez le sujet.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Signaler une échéance proche</summary>
+                        <div class="client-detail-body">
+                            <p>Précisez la date concernée et les éléments encore manquants.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Transmettre une information sensible</summary>
+                        <div class="client-detail-body">
+                            <p>Ne communiquez jamais votre mot de passe ni vos codes de connexion.</p>
+                        </div>
+                    </details>
+                </article>
+            </section>
+            <!-- ========================================= -->
+            <!-- ONGLET : DEMANDES -->
+            <!-- ========================================= -->
+            <section class="tab-panel" id="demandes" aria-labelledby="titre-demandes" hidden>
+                <div class="section-title">
+                    <h2 id="titre-demandes">Mes demandes</h2>
+                    <span class="pill">Suivi des demandes</span>
+                </div>
+                <article class="panel">
+                    <h3>Comment pouvons-nous vous aider ?</h3>
+                    <p>
+                        En attendant l’activation du suivi des demandes, adressez vos besoins au cabinet via la messagerie.
+                    </p>
+                    <p>
+                        Comptabilité, fiscalité, social, juridique ou conseil : précisez le sujet de votre demande dans votre message.
+                    </p>
+                    <span class="status">
+                        Module en préparation
+                    </span>
+                    <div class="quick">
+                        <a href="#messages" data-go="messages">
+                            Contacter le cabinet pour une demande →
+                        </a>
+                    </div>
+                </article>
+                            <article class="panel settings-secondary">
+                    <h3>Choisir le sujet de ma demande</h3>
+                    <p>Ces indications vous aident à préparer votre message. Le suivi par ticket n’est pas encore activé.</p>
+                    {% for topic, description in [
+                        ('Comptabilité', 'Factures, justificatifs, rapprochements et bilan.'),
+                        ('Fiscalité', 'TVA, déclarations et obligations fiscales.'),
+                        ('Social', 'Paie, embauche et documents sociaux.'),
+                        ('Juridique', 'Formalités et vie de votre société.'),
+                        ('Conseil', 'Pilotage, gestion et accompagnement.')
+                    ] %}
+                        <details class="client-topic">
+                            <summary>{{ topic }}</summary>
+                            <p>{{ description }}</p>
+                            <div class="quick">
+                                <a href="#messages" data-go="messages" data-request-topic="{{ topic }}">Écrire au cabinet →</a>
+                            </div>
+                        </details>
+                    {% endfor %}
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Historique des demandes</h3>
+                    {% if client_requests is defined %}
+                        {% for ticket in tickets %}
+                            <article class="record">
+                                <div>
+                                    <strong>{{ ticket.title | default('Demande', true) }}</strong>
+                                    <small>{{ ticket.created_at | default('') }}</small>
+                                    <p>{{ ticket.description | default('') }}</p>
+                                </div>
+                                <span class="status">{{ ticket.status | default('Non renseigné') }}</span>
+                            </article>
+                        {% else %}
+                            <p>Aucune demande enregistrée.</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>Le suivi par ticket n’est pas disponible dans les données transmises à cette page.</p>
+                    {% endif %}
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Préparer une demande complète</h3>
+                    <details class="client-topic">
+                        <summary>Décrire le besoin</summary>
+                        <div class="client-detail-body">
+                            <p>Indiquez le résultat attendu et le contexte de votre demande.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Préciser la période</summary>
+                        <div class="client-detail-body">
+                            <p>Mentionnez le mois, l’exercice ou la date concernés.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Indiquer une contrainte de délai</summary>
+                        <div class="client-detail-body">
+                            <p>Précisez la date souhaitée sans présumer du délai de traitement.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Suivre une demande envoyée par message</summary>
+                        <div class="client-detail-body">
+                            <p>Retrouvez votre échange dans la messagerie et répondez dans le même contexte.</p>
+                        </div>
+                    </details>
+                </article>
+            </section>
+            <!-- ========================================= -->
+            <!-- ONGLET : ECHEANCES -->
+            <!-- ========================================= -->
+            <section class="tab-panel" id="echeances" aria-labelledby="titre-echeances" hidden>
+                <div class="section-title">
+                    <h2 id="titre-echeances">Mes échéances</h2>
+                    <span class="pill">Agenda du dossier</span>
+                </div>
+                <noscript><p>Activez JavaScript pour consulter le calendrier interactif.</p></noscript>
+                <div class="calendar-shell" id="calendar-app">
+                    <header class="calendar-heading">
+                        <div>
+                            <span class="calendar-kicker">SUIVI DES OBLIGATIONS</span>
+                            <h3>Calendrier de votre entreprise</h3>
+                            <p>Retrouvez les dates renseignées par votre cabinet et les rendez-vous prévus.</p>
+                        </div>
+                        <span class="calendar-total" id="calendar-month-count" aria-live="polite">Calendrier en cours de chargement</span>
+                    </header>
+                    <div class="calendar-layout">
+                        <div class="calendar-board" id="calendar-board">
+                            <div class="calendar-toolbar">
+                                <h3 id="calendar-month-title" aria-live="polite">Calendrier</h3>
+                                <div class="calendar-controls">
+                                    <button
+                                        type="button"
+                                        id="calendar-prev"
+                                        aria-label="Mois précédent"
+                                    >&#8249;</button>
+                                    <button type="button" id="calendar-today">Aujourd'hui</button>
+                                    <button
+                                        type="button"
+                                        id="calendar-next"
+                                        aria-label="Mois suivant"
+                                    >&#8250;</button>
+                                </div>
+                            </div>
+                            <label class="calendar-filter-label" for="calendar-category-filter">Catégorie</label>
+                            <select id="calendar-category-filter">
+                                <option value="all">Toutes les catégories</option>
+                                <option value="comptabilite">Comptabilité</option>
+                                <option value="fiscalite">Fiscalité</option>
+                                <option value="social">Social</option>
+                                <option value="juridique">Juridique</option>
+                                <option value="rendez_vous">Rendez-vous</option>
+                                <option value="urgent">Prioritaire</option>
+                            </select>
+                            <div class="calendar-weekdays" aria-hidden="true">
+                                <span>Lun</span>
+                                <span>Mar</span>
+                                <span>Mer</span>
+                                <span>Jeu</span>
+                                <span>Ven</span>
+                                <span>Sam</span>
+                                <span>Dim</span>
+                            </div>
+                            <div
+                                class="calendar-days"
+                                id="calendar-days"
+                                role="group"
+                                aria-label="Dates du calendrier"
+                            >
+                            </div>
+                            <div class="calendar-legend" aria-label="Légende des catégories">
+                                <span style="--legend-color:#38bdf8">Comptabilité</span>
+                                <span style="--legend-color:#f5b75b">Fiscalité</span>
+                                <span style="--legend-color:#ad9cf4">Social</span>
+                                <span style="--legend-color:#ee92bc">Juridique</span>
+                                <span style="--legend-color:#65d9c7">Rendez-vous</span>
+                                <span style="--legend-color:#f07d7d">Prioritaire</span>
+                            </div>
+                        </div>
+                        <aside class="calendar-detail" aria-label="Détails des échéances">
+                            <header class="deadline-header">
+                                <div class="deadline-date-box">
+                                    <strong id="calendar-selected-day">--</strong>
+                                    <span id="calendar-date-short">--</span>
+                                </div>
+                                <div class="deadline-header-content">
+                                    <span class="deadline-eyebrow">VOTRE AGENDA</span>
+                                    <h3 id="calendar-selected-full-date">Date sélectionnée</h3>
+                                    <p class="deadline-summary" id="calendar-selected-count">Sélectionnez une date</p>
+                                </div>
+                            </header>
+                            <div class="deadline-list" id="calendar-event-list" aria-live="polite">
+                            </div>
+                            <footer class="deadline-footer">Les échéances affichées dépendent des obligations suivies par votre cabinet.</footer>
+                        </aside>
+                    </div>
+                </div>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Liste des échéances communiquées</h3>
+                    {% for event in calendar_events %}
+                        <article class="record">
+                            <div>
+                                <strong>{{ event.title | default('Échéance', true) }}</strong>
+                                <small>{{ event.date | default('Date non renseignée') }}</small>
+                                {% if event.description | default('') %}
+                                    <p>{{ event.description }}</p>
+                                {% endif %}
+                            </div>
+                            {% if event.status | default('') %}
+                                <span class="status">{{ event.status }}</span>
+                            {% endif %}
+                        </article>
+                    {% else %}
+                        <p>Aucune échéance communiquée dans votre agenda.</p>
+                    {% endfor %}
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Comprendre mon agenda</h3>
+                    <details class="client-topic">
+                        <summary>Comptabilité</summary>
+                        <div class="client-detail-body">
+                            <p>Dates de préparation et de suivi des travaux comptables.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Fiscalité</summary>
+                        <div class="client-detail-body">
+                            <p>Obligations fiscales renseignées pour votre dossier.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Social</summary>
+                        <div class="client-detail-body">
+                            <p>Dates liées aux obligations sociales suivies par le cabinet.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Juridique</summary>
+                        <div class="client-detail-body">
+                            <p>Formalités et événements juridiques communiqués.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Rendez-vous</summary>
+                        <div class="client-detail-body">
+                            <p>Dates des échanges planifiés avec le cabinet.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Prioritaire</summary>
+                        <div class="client-detail-body">
+                            <p>Événements signalés comme prioritaires par le cabinet.</p>
+                        </div>
+                    </details>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Répartition des événements par catégorie</h3>
+                    {% for key, label in [('comptabilite', 'Comptabilité'), ('fiscalite', 'Fiscalité'), ('social', 'Social'), ('juridique', 'Juridique'), ('rendez_vous', 'Rendez-vous'), ('urgent', 'Prioritaire')] %}
+                        {% set category_events = calendar_events | selectattr('type', 'defined') | selectattr('type', 'equalto', key) | list %}
+                        <div class="record">
+                            <div>
+                                <strong>{{ label }}</strong>
+                                <small>Événements communiqués dans cette catégorie</small>
+                            </div>
+                            <span class="status">{{ category_events | length }}</span>
+                        </div>
+                    {% endfor %}
+                </article>
+            </section>
+            <!-- ========================================= -->
+            <!-- ONGLET : ENTREPRISE -->
+            <!-- ========================================= -->
+            <section class="tab-panel" id="entreprise" aria-labelledby="titre-entreprise" hidden>
+                <div class="section-title">
+                    <h2 id="titre-entreprise">Mon entreprise</h2>
+                    <span class="pill">Informations du compte</span>
+                </div>
+                <div class="two-col">
+                    <article class="panel">
+                        <h3>Votre compte professionnel</h3>
+                        <div class="record"><span>E-mail</span><strong>{{ user.email }}</strong></div>
+                        <div class="record"><span>Téléphone</span><strong>{{ user.phone or "Non renseigné" }}</strong></div>
+                        <div class="quick"><a href="#parametres" data-go="parametres">Modifier mes coordonnées →</a></div>
+                        <div class="record">
+                            <span>Nom du compte</span>
+                            <strong>{{ client_name }}</strong>
+                        </div>
+                        <div class="record">
+                            <span>Type de compte</span>
+                            <strong>Client</strong>
+                        </div>
+                        <div class="record">
+                            <span>Statut</span>
+                            <span class="status">Actif</span>
+                        </div>
+                    </article>
+                    <article class="panel">
+                        <h3>Informations administratives</h3>
+                        <div class="record"><span>Raison sociale</span><strong>{{ company_data.name | default('Non renseigné', true) }}</strong></div>
+                        <div class="record"><span>SIREN</span><strong>{{ company_data.siren | default('Non renseigné', true) }}</strong></div>
+                        <div class="record"><span>Adresse</span><strong>{{ company_data.address | default('Non renseigné', true) }}</strong></div>
+                        <p>
+                            Les coordonnées de votre société,
+                            son numéro SIREN, son adresse et ses
+                            interlocuteurs seront disponibles
+                            après l'intégration du module entreprise.
+                        </p>
+                        <span class="status">
+                            Module en préparation
+                        </span>
+                    </article>
+                </div>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Informations complémentaires du dossier</h3>
+                    <div class="record">
+                        <div>
+                            <strong>SIRET</strong>
+                            <small>Information communiquée par le serveur</small>
+                        </div>
+                        <span class="status">{{ company_data.siret | default('Non renseigné', true) }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Forme juridique</strong>
+                            <small>Information communiquée par le serveur</small>
+                        </div>
+                        <span class="status">{{ company_data.legal_form | default('Non renseigné', true) }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Activité principale</strong>
+                            <small>Information communiquée par le serveur</small>
+                        </div>
+                        <span class="status">{{ company_data.activity | default('Non renseigné', true) }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Code APE</strong>
+                            <small>Information communiquée par le serveur</small>
+                        </div>
+                        <span class="status">{{ company_data.ape | default('Non renseigné', true) }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Clôture de l’exercice</strong>
+                            <small>Information communiquée par le serveur</small>
+                        </div>
+                        <span class="status">{{ company_data.fiscal_year_end | default('Non renseigné', true) }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Interlocuteur</strong>
+                            <small>Information communiquée par le serveur</small>
+                        </div>
+                        <span class="status">{{ company_data.contact_name | default('Non renseigné', true) }}</span>
+                    </div>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Mettre à jour mon dossier</h3>
+                    <details class="client-topic">
+                        <summary>Changement d’adresse</summary>
+                        <div class="client-detail-body">
+                            <p>Informez votre cabinet de la nouvelle adresse et de la date effective.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Changement de coordonnées</summary>
+                        <div class="client-detail-body">
+                            <p>Utilisez les paramètres pour modifier votre téléphone.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Modification administrative</summary>
+                        <div class="client-detail-body">
+                            <p>Contactez votre cabinet pour faire vérifier les informations de votre entreprise.</p>
+                        </div>
+                    </details>
+                </article>
+            </section>
+            <!-- ========================================= -->
+            <!-- ONGLET : NOTIFICATIONS -->
+            <!-- ========================================= -->
+            <section class="tab-panel" id="notifications" aria-labelledby="titre-notifications" hidden>
+                <div class="section-title">
+                    <h2 id="titre-notifications">Mes notifications</h2>
+                    <span class="pill">Personnalisation</span>
+                </div>
+                <article class="panel">
+                    <h3>Choisir mes alertes</h3>
+                    <p>Activez les catégories que vous souhaitez suivre dans votre espace.</p>
+                    <form method="post" action="{{ url_for('client_notifications') }}" class="stack-form preferences-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% for key, label, description in notification_categories %}
+                            <label class="preference-option">
+                                <span>
+                                    <strong>{{ label }}</strong>
+                                    <small>{{ description }}</small>
+                                </span>
+                                <input type="checkbox" name="{{ key }}" value="1" {% if notification_prefs[key] %}checked{% endif %}>
+                            </label>
+                        {% endfor %}
+                        <label class="preference-option">
+                            <span>
+                                <strong>Alertes par e-mail</strong>
+                                <small>Autoriser les e-mails de notification (envoi disponible après configuration d'un service de messagerie).</small>
+                            </span>
+                            <input type="checkbox" name="email_enabled" value="1" {% if notification_prefs.email_enabled %}checked{% endif %}>
+                        </label>
+                        <label for="reminder_days">Rappel des échéances</label>
+                        <select id="reminder_days" name="reminder_days">
+                            {% for n in [1,3,7] %}
+                                <option value="{{ n }}" {% if notification_prefs.reminder_days == n %}selected{% endif %}>{{ n }} jour{% if n> 1 %}s{% endif %} avant</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="primary">Enregistrer mes notifications</button>
+                    </form>
+                </article>
+                <article class="panel settings-secondary">
+                    <h3>Historique des notifications</h3>
+                    {% for alert in alerts %}
+                        <div class="record">
+                            <div>
+                                <strong>{{ alert.title }}</strong>
+                                <small>{{ alert.created_at }}</small>
+                                <p>{{ alert.body }}</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p>Aucune notification pour le moment.</p>
+                    {% endfor %}
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Préférences actuellement enregistrées</h3>
+                    <div class="record">
+                        <div>
+                            <strong>Alertes e-mail</strong>
+                            <small>Préférence uniquement ; ne confirme pas un envoi effectif</small>
+                        </div>
+                        <span class="status">{{ 'Autorisées' if notification_prefs.email_enabled else 'Désactivées' }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Anticipation des rappels</strong>
+                            <small>Délai choisi dans les paramètres</small>
+                        </div>
+                        <span class="status">{{ notification_prefs.reminder_days | default('—') }} jour(s)</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Historique</strong>
+                            <small>Nombre d’alertes chargées</small>
+                        </div>
+                        <span class="status">{{ alerts | length }}</span>
+                    </div>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Comprendre mes notifications</h3>
+                    <details class="client-topic">
+                        <summary>Modifier les catégories</summary>
+                        <div class="client-detail-body">
+                            <p>Cochez les catégories souhaitées puis enregistrez vos préférences.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Modifier le délai de rappel</summary>
+                        <div class="client-detail-body">
+                            <p>Choisissez le délai proposé dans le formulaire.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Recevoir des e-mails</summary>
+                        <div class="client-detail-body">
+                            <p>L’envoi effectif dépend de la configuration du service de messagerie.</p>
+                        </div>
+                    </details>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Catégories suivies</h3>
+                    {% for key, label, description in notification_categories %}
+                        <div class="record">
+                            <div>
+                                <strong>{{ label }}</strong>
+                                <small>{{ description }}</small>
+                            </div>
+                            <span class="status">{{ 'Activée' if notification_prefs[key] else 'Désactivée' }}</span>
+                        </div>
+                    {% else %}
+                        <p>Aucune catégorie disponible.</p>
+                    {% endfor %}
+                </article>
+            </section>
+            <!-- ========================================= -->
+            <!-- ONGLET : PARAMETRES -->
+            <!-- ========================================= -->
+            <section class="tab-panel" id="parametres" aria-labelledby="titre-parametres" hidden>
+                <div class="section-title">
+                    <h2 id="titre-parametres">Mes paramètres</h2>
+                    <span class="pill">Gestion de mon compte</span>
+                </div>
+                <div class="two-col">
+                    <article class="panel">
+                        <h3>Informations personnelles</h3>
+                        <form method="post" action="{{ url_for('client_profile') }}" class="stack-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <label for="profile-name">Nom affiché
+                                <input id="profile-name" name="name" autocomplete="name" maxlength="100" minlength="2" required value="{{ user.name }}">
+                            </label>
+                            <label for="profile-email">Adresse e-mail
+                                <input id="profile-email" type="email" autocomplete="email" value="{{ user.email }}" disabled>
+                            </label>
+                            <small>Pour modifier votre adresse e-mail, contactez votre cabinet.</small>
+                            <label for="profile-phone">Téléphone
+                                <input id="profile-phone" name="phone" autocomplete="tel" type="tel" maxlength="30" value="{{ user.phone or '' }}">
+                            </label>
+                            <button type="submit" class="primary">Enregistrer mon profil</button>
+                        </form>
+                    </article>
+                    <article class="panel">
+                        <h3>Sécurité du compte</h3>
+                        <p>Choisissez un nouveau mot de passe d’au moins 12 caractères.</p>
+                        <form method="post" action="{{ url_for('client_password') }}" class="stack-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <label for="old-password">Mot de passe actuel
+                                <input
+                                    id="old-password"
+                                    type="password"
+                                    name="current_password"
+                                    autocomplete="current-password" required
+                                >
+                            </label>
+                            <label for="new-password">Nouveau mot de passe
+                                <input
+                                    id="new-password"
+                                    type="password"
+                                    name="new_password"
+                                    minlength="12"
+                                    maxlength="256"
+                                    autocomplete="new-password" required
+                                >
+                            </label>
+                            <label for="confirm-password">Confirmer le nouveau mot de passe
+                                <input
+                                    id="confirm-password"
+                                    type="password"
+                                    name="confirm_password"
+                                    minlength="12"
+                                    maxlength="256"
+                                    autocomplete="new-password" required
+                                >
+                            </label>
+                            <button type="submit" class="primary">Modifier mon mot de passe</button>
+                        </form>
+                    </article>
+                </div>
+                <article class="panel settings-secondary">
+                    <h3>Préférences d'affichage</h3>
+                    <p>Choisissez votre thème et votre langue préférée. La traduction anglaise reste à intégrer.</p>
+                    <form method="post" action="{{ url_for('client_preferences') }}" class="stack-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <label for="pref-language">Langue
+                                <select id="pref-language" name="language">
+                                <option value="fr" {% if (user.language or 'fr') == 'fr' %}selected{% endif %}>Français</option>
+                                <option value="en" {% if user.language == 'en' %}selected{% endif %}>English (préférence enregistrée, traduction à venir)</option>
+                            </select>
+                        </label>
+                        <label for="pref-theme">Thème
+                                <select id="pref-theme" name="theme">
+                                <option value="dark" {% if user.theme == 'dark' %}selected{% endif %}>Sombre</option>
+                                <option value="light" {% if (user.theme or 'light') == 'light' %}selected{% endif %}>Clair</option>
+                            </select>
+                        </label>
+                        <button type="submit" class="primary">Enregistrer mes préférences</button>
+                    </form>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Résumé de mon compte</h3>
+                    <div class="record">
+                        <div>
+                            <strong>Nom affiché</strong>
+                            <small>Identité du profil</small>
+                        </div>
+                        <span class="status">{{ user.name }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Langue préférée</strong>
+                            <small>Préférence enregistrée</small>
+                        </div>
+                        <span class="status">{{ 'English' if user.language == 'en' else 'Français' }}</span>
+                    </div>
+                    <div class="record">
+                        <div>
+                            <strong>Thème</strong>
+                            <small>Préférence enregistrée</small>
+                        </div>
+                        <span class="status">{{ 'Sombre' if user.theme == 'dark' else 'Clair' }}</span>
+                    </div>
+                </article>
+                <article class="panel settings-secondary client-module-card">
+                    <h3>Protection de votre compte</h3>
+                    <details class="client-topic">
+                        <summary>Choisir un mot de passe</summary>
+                        <div class="client-detail-body">
+                            <p>Utilisez un mot de passe unique et suffisamment long.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Protéger mes codes</summary>
+                        <div class="client-detail-body">
+                            <p>Ne transmettez jamais vos codes de vérification à un tiers.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Utiliser un ordinateur partagé</summary>
+                        <div class="client-detail-body">
+                            <p>Déconnectez-vous après avoir consulté votre dossier.</p>
+                        </div>
+                    </details>
+                    <details class="client-topic">
+                        <summary>Signaler une activité inhabituelle</summary>
+                        <div class="client-detail-body">
+                            <p>Contactez le cabinet si vous constatez une activité que vous ne reconnaissez pas.</p>
+                        </div>
+                    </details>
+                </article>
+            </section>
+        </main>
+    </div>
+    <script id="datensis-echeances-data" type="application/json" nonce="{{ csp_nonce() }}">
+        {{ echeances | default([], true) | tojson }}
+    </script>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 {% endblock %}
