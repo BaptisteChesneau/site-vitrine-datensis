@@ -6147,3 +6147,110 @@ body.twofa-page {
         scroll-behavior: auto !important;
     }
 }
+
+/* Correctifs client : calendrier et notifications flash */
+.client-workspace[data-theme="dark"] .calendar-controls button,
+.client-workspace[data-theme="dark"] :is(#calendar-prev, #calendar-next, #calendar-today) {
+    background: #00778b !important;
+    color: #ffffff !important;
+    border: 1px solid #3894a3;
+    opacity: 1;
+}
+.client-workspace[data-theme="dark"] .calendar-controls button:hover,
+.client-workspace[data-theme="dark"] :is(#calendar-prev, #calendar-next, #calendar-today):hover {
+    background: #00596a !important;
+}
+.client-workspace[data-theme="light"] :is(#calendar-prev, #calendar-next, #calendar-today) {
+    background: #ffffff !important;
+    color: #075d6d !important;
+    border: 1px solid #c2d9df;
+    opacity: 1;
+}
+.client-workspace[data-theme="light"] :is(#calendar-prev, #calendar-next, #calendar-today):hover {
+    background: #dceef1 !important;
+}
+.client-workspace :is(#calendar-prev, #calendar-next, #calendar-today) svg {
+    color: inherit;
+}
+/* Conteneur marque par app.js uniquement sur la page client. */
+.flash-container.client-flash-stack {
+    position: fixed !important;
+    inset: 20px 20px auto auto !important;
+    z-index: 1000;
+    width: min(390px, calc(100% - 40px)) !important;
+    max-width: none;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0;
+    box-shadow: none;
+    display: grid;
+    gap: 10px;
+    pointer-events: none;
+}
+.client-flash-stack .client-flash-notice {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 16px 48px 16px 16px;
+    border: 1px solid #82c4a8;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #173e4a;
+    box-shadow: 0 8px 24px #0003;
+    overflow-wrap: anywhere;
+    pointer-events: auto;
+}
+.client-flash-stack[data-theme="dark"] .client-flash-notice {
+    background: #163747;
+    color: #ffffff;
+}
+.client-flash-stack .client-flash-notice.success { border-left: 5px solid #82c4a8; }
+.client-flash-stack .client-flash-notice:is(.error, .danger) { border-left: 5px solid #e96148; }
+.client-flash-stack .client-flash-notice.warning { border-left: 5px solid #e5b45e; }
+.client-flash-stack .client-flash-notice.info { border-left: 5px solid #00778b; }
+.client-flash-stack .client-flash-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 8px;
+    color: inherit;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+.client-flash-stack .client-flash-close:focus-visible {
+    outline: 2px solid #e96148;
+    outline-offset: 2px;
+}
+
+/* Renforcement du contraste et suppression du fond du bandeau client. */
+.flash-container.client-flash-stack[hidden] { display: none !important; }
+.flash-container.client-flash-stack .client-flash-notice {
+    background: #ffffff !important;
+    color: #173e4a !important;
+}
+.flash-container.client-flash-stack[data-theme="dark"] .client-flash-notice {
+    background: #163747 !important;
+    color: #ffffff !important;
+}
+.flash-container.client-flash-stack .client-flash-close {
+    background: transparent !important;
+    color: inherit !important;
+}
+.client-workspace :is(#calendar-prev, #calendar-next, #calendar-today) :is(span, svg) {
+    color: inherit !important;
+}
+@media (max-width: 480px) {
+    .flash-container.client-flash-stack {
+        inset: 12px 12px auto 12px !important;
+        width: auto !important;
+    }
+}

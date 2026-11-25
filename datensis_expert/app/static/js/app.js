@@ -148,6 +148,54 @@
       });
     });
 
+
+    // Notifications flash : uniquement sur une page client.
+    // Le layout commun peut placer son conteneur hors du workspace.
+    const containers = [...document.querySelectorAll('.flash-container')]
+      .filter(box => root.contains(box) || !box.closest('.cabinet-workspace, .twofa-page'));
+    containers.forEach(box => {
+      const notices = [...box.querySelectorAll('.flash-message, .toast')]
+        .filter(node => !node.parentElement.closest('.flash-message, .toast'));
+      if (!notices.length) return;
+      box.classList.add('client-flash-stack');
+      box.dataset.theme = root.dataset.theme === 'dark' ? 'dark' : 'light';
+      notices.forEach(notice => {
+        notice.classList.add('client-flash-notice');
+        const error = notice.matches('.error, .danger');
+        const duration = error ? 0 : notice.matches('.warning') ? 8000 : notice.matches('.success') ? 4000 : 5000;
+        notice.setAttribute('role', error ? 'alert' : 'status');
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'client-flash-close';
+        close.setAttribute('aria-label', 'Fermer la notification');
+        close.textContent = '×';
+        notice.append(close);
+        let timer;
+        let dismissed = false;
+        let hovered = false;
+        const dismiss = () => {
+          if (dismissed) return;
+          dismissed = true;
+          window.clearTimeout(timer);
+          notice.remove();
+          if (!box.querySelector('.client-flash-notice')) box.remove();
+        };
+        const pause = () => window.clearTimeout(timer);
+        const resume = () => {
+          pause();
+          if (!dismissed && duration && !hovered && !notice.contains(document.activeElement)) {
+            timer = window.setTimeout(dismiss, duration);
+          }
+        };
+        close.addEventListener('click', dismiss);
+        notice.addEventListener('mouseenter', () => { hovered = true; pause(); });
+        notice.addEventListener('mouseleave', () => { hovered = false; resume(); });
+        notice.addEventListener('focusin', pause);
+        notice.addEventListener('focusout', () => window.setTimeout(resume, 0));
+        resume();
+      });
+    });
+
     // Calendrier : les échéances réelles sont fournies par Flask en JSON.
     const app = document.getElementById("calendar-app");
     if (!app || !root.contains(app)) return;
