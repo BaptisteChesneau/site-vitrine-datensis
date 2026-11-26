@@ -2320,4 +2320,18 @@ def create_app():
 
         return redirect(url_for("portal"))
 
+    # =====================================================
+    # MODULE DE MESSAGERIE
+    # =====================================================
+
+    from app.messaging import messaging_bp
+    from app.messaging.migration import migrate_messages
+
+    with app.app_context():
+        db = database()
+        migrate_messages(db)
+        db.commit()
+
+    app.register_blueprint(messaging_bp)
+
     return app

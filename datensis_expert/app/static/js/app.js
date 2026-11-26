@@ -528,3 +528,169 @@ if (document.readyState === 'loading') {
     initTwoFactor();
   }
 })();
+
+/* DATENSIS Expert - messagerie API */
+(() => {
+  'use strict';
+  function init() {
+    const client = document.getElementById('client-chat');
+    const root = client || document.getElementById('cabinet-chat');
+    if (!root || root.dataset.apiInitialized) return;
+    const role = client ? 'client' : 'cabinet';
+    const el = suffix => document.getElementById(`${role}-chat-${suffix}`);
+    const form = el('form'), history = el('history'), older = el('older');
+    const body = form?.querySelector('[name="body"]');
+    const csrf = form?.querySelector('[name="csrf_token"]');
+    const recipient = document.getElementById('message-recipient');
+    if (!form || !history || !body || !csrf || (!client && !recipient)) return;
+    root.dataset.apiInitialized = 'true';
+    let selected = client ? 'self' : '', generation = 0, busy = false, sending = false;
+    let rows = new Map(), more = false, initialized = false, stopped = false;
+    const visible = () => !document.hidden && root.getClientRects().length > 0;
+    const endpoint = (kind, id = selected) => client ? root.dataset[`${kind}Url`] :
+      kind === 'unread' ? '/api/cabinet/messages/unread' :
+      `/api/cabinet/messages/${encodeURIComponent(id)}${kind === 'read' ? '/read' : ''}`;
+    async function api(url, payload) {
+      const options = {credentials:'same-origin', cache:'no-store', headers:{Accept:'application/json'}};
+      if (payload !== undefined) {
+        options.method = 'POST';
+        options.headers['Content-Type'] = 'application/json';
+        options.headers['X-CSRF-Token'] = csrf.value;
+        options.body = JSON.stringify(payload);
+      }
+      const response = await fetch(url, options);
+      if (response.status === 401 || response.status === 403) {
+        stopped = true;
+        throw new Error('Session ou autorisation invalide. Rechargez la page.');
+      }
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || 'Messagerie indisponible.');
+      return result.data;
+    }
+    function status(error = '') {
+      el('connection').textContent = error ? 'Connexion interrompue' : 'Messagerie synchronisée';
+      el('error').textContent = error;
+      el('error').hidden = !error;
+      el('retry').hidden = !error;
+    }
+    function node(tag, cls, text) {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined) n.textContent = text;
+      return n;
+    }
+    function render(prepend = false) {
+      const height = history.scrollHeight, top = history.scrollTop;
+      const bottom = height - top - history.clientHeight < 80;
+      const ordered = [...rows.values()].sort((a,b) => a.id-b.id);
+      const fragment = document.createDocumentFragment();
+      for (const msg of ordered) {
+        const mine = msg.author_role === role;
+        const bubble = node('div', `chat-bubble ${mine ? 'mine' : 'theirs'}`);
+        bubble.dataset.messageId = String(msg.id);
+        bubble.append(node('small', '', `${mine ? 'Vous' : client ? 'Cabinet DATENSIS' : 'Client'} · ${msg.created_at}`), node('p', '', msg.body));
+        if (mine) bubble.append(node('small', `${role}-chat-receipt`, msg.read_at ? 'Lu' : 'Envoyé'));
+        fragment.append(bubble);
+      }
+      if (!ordered.length) fragment.append(node('p','empty-state','Aucun message pour le moment.'));
+      history.replaceChildren(fragment);
+      if (prepend) history.scrollTop = top + history.scrollHeight - height;
+      else if (bottom || !initialized) history.scrollTop = history.scrollHeight;
+      el('summary').textContent = `${ordered.length} message(s) chargé(s)`;
+      if (older) older.hidden = !more;
+      if (el('empty')) el('empty').hidden = true;
+      initialized = true;
+    }
+    function badge(element, count) {
+      if (!element) return;
+      element.textContent = count ? String(count) : '';
+      element.hidden = !count;
+    }
+    async function refresh(loadOlder = false) {
+      if (busy || sending || stopped || document.hidden) return;
+      busy = true;
+      const token = generation, id = selected;
+      try {
+        if (!client) {
+          const data = await api('/api/cabinet/conversations');
+          for (const contact of root.querySelectorAll('[data-chat-client-id]')) {
+            const item = data.conversations.find(c => String(c.user_id) === contact.dataset.chatClientId);
+            badge(contact.querySelector('[data-chat-unread]'), item?.unread_count || 0);
+          }
+        }
+        const unread = await api(endpoint('unread'));
+        badge(el('unread'), unread.unread_count);
+        if (!id || !visible() || token !== generation) return;
+        const before = loadOlder && rows.size ? Math.min(...rows.keys()) : null;
+        const url = new URL(endpoint('messages', id), location.origin);
+        url.searchParams.set('limit','50');
+        if (before) url.searchParams.set('before_id',String(before));
+        const data = await api(url.href);
+        if (token !== generation) return;
+        let changed = !initialized;
+        for (const msg of data.messages) {
+          if (JSON.stringify(rows.get(msg.id)) !== JSON.stringify(msg)) changed = true;
+          rows.set(msg.id,msg);
+        }
+        if (!initialized || loadOlder) more = data.has_more;
+        if (changed) render(loadOlder);
+        if (visible() && history.scrollHeight - history.scrollTop - history.clientHeight < 80 && data.messages.length) {
+          const last = data.messages[data.messages.length-1].id;
+          if (data.messages.some(m => m.author_role !== role && !m.read_at)) {
+            await api(endpoint('read',id), {up_to_id:last});
+          }
+        }
+        if (token === generation) status();
+      } catch (error) { if (token === generation) status(error.message); }
+      finally { busy = false; if (token !== generation) void refresh(); }
+    }
+    function select(id) {
+      if (client || !id || id === selected || sending) return;
+      selected = id; generation++; rows = new Map(); more = false; initialized = false;
+      history.replaceChildren(); older.hidden = true;
+      el('title').textContent = recipient.selectedOptions[0]?.textContent.trim() || 'Conversation client';
+      root.querySelectorAll('[data-chat-client-id]').forEach(button => {
+        const active = button.dataset.chatClientId === id;
+        button.classList.toggle('active',active); button.setAttribute('aria-pressed',String(active));
+      });
+      void refresh();
+    }
+    if (!client) {
+      recipient.addEventListener('change', () => select(recipient.value));
+      document.addEventListener('click', () => { if (recipient.value) select(recipient.value); });
+      if (recipient.value) select(recipient.value);
+    }
+    form.addEventListener('submit', async event => {
+      event.preventDefault(); // Capture : neutralise le verrou de soumission classique.
+      if (sending || stopped || !form.checkValidity()) return;
+      const id = client ? 'self' : recipient.value;
+      const text = body.value.trim();
+      if (!id || !text || text.length > 2000) return;
+      if (!client) select(id);
+      sending = true; generation++;
+      const button = form.querySelector('[type="submit"]');
+      button.disabled = true; body.readOnly = true;
+      if (recipient) recipient.disabled = true;
+      form.setAttribute('aria-busy','true');
+      try {
+        await api(endpoint('send',id), {body:text});
+        body.value = ''; body.dispatchEvent(new Event('input',{bubbles:true}));
+        status();
+      } catch (error) { status(error.message); }
+      finally {
+        sending = false; button.disabled = false; body.readOnly = false;
+        if (recipient) recipient.disabled = false;
+        form.removeAttribute('aria-busy'); delete form.dataset.clientSubmitting;
+        if (!client && recipient.value !== selected) select(recipient.value);
+        void refresh();
+      }
+    }, true);
+    older?.addEventListener('click', () => void refresh(true));
+    el('retry')?.addEventListener('click', () => { if (stopped) location.reload(); else void refresh(); });
+    document.addEventListener('visibilitychange', () => void refresh());
+    window.setInterval(() => void refresh(),3000);
+    void refresh();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();

@@ -488,7 +488,39 @@
             </article>
 
         </div>
-<div class="cabinet-subsection"><div class="cabinet-section-divider"><h2>Messagerie clients</h2><p>Échanger avec les clients inscrits via les routes Flask existantes.</p></div>
+<div class="cabinet-subsection" id="cabinet-messaging"><div class="cabinet-section-divider"><h2>Messagerie clients</h2><p>Retrouvez les conversations par client.</p></div>
+    <article class="panel cabinet-panel cabinet-chat" id="cabinet-chat" data-cabinet-chat>
+        <header class="panel-head"><h3>Conversations</h3><span id="cabinet-chat-unread" class="pill" aria-live="polite" hidden></span></header>
+        <p id="cabinet-chat-connection" role="status">Messagerie classique disponible.</p>
+        <div id="cabinet-chat-error" role="alert" hidden></div>
+        <button type="button" id="cabinet-chat-retry" class="outline-btn" hidden>Réessayer</button>
+        <div class="cabinet-chat-layout cabinet-grid two">
+            <aside class="cabinet-chat-sidebar" aria-label="Conversations clients">
+                <label for="cabinet-chat-search">Rechercher un client</label>
+                <input id="cabinet-chat-search" type="search" class="cabinet-search" data-filter-target="cabinet-chat-clients" placeholder="Nom ou adresse électronique" autocomplete="off">
+                <div id="cabinet-chat-clients" class="cabinet-list">
+                    {% for user in users %}
+                    <div class="cabinet-record searchable">
+                        <button type="button" class="outline-btn cabinet-chat-contact" data-message-client="{{ user.id }}" data-chat-client-id="{{ user.id }}">
+                            <span class="client-avatar" aria-hidden="true">{{ user.name[:1]|upper }}</span>
+                            <span><strong>{{ user.name }}</strong><small>{{ user.email }}</small></span>
+                            <span data-chat-unread hidden></span>
+                        </button>
+                    </div>
+                    {% else %}<p class="empty-state">Aucun client inscrit.</p>{% endfor %}
+                </div>
+                <p class="filter-empty" data-empty-for="cabinet-chat-clients" hidden>Aucun client correspondant.</p>
+            </aside>
+            <section class="cabinet-chat-conversation" aria-labelledby="cabinet-chat-title">
+                <h4 id="cabinet-chat-title">Sélectionnez un client</h4>
+                <p id="cabinet-chat-summary">Choisissez une conversation pour consulter ses échanges.</p>
+                <button type="button" id="cabinet-chat-older" class="outline-btn" hidden>Charger les messages précédents</button>
+                <div id="cabinet-chat-history" class="chat-history" role="log" aria-live="polite" aria-relevant="additions" tabindex="0" aria-label="Historique de la conversation"></div>
+                <p id="cabinet-chat-empty">Le formulaire classique ci-dessous reste disponible.</p>
+            </section>
+        </div>
+    </article>
+
 
             <div class="section-title">
                 <h2 id="titre-messages">Messagerie</h2>
@@ -503,6 +535,7 @@
                     <h3>Écrire à un client</h3>
 
                     <form
+                        id="cabinet-chat-form"
                         class="stack-form cabinet-form"
                         method="post"
                         action="{{ url_for('cabinet_message') }}"

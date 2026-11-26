@@ -36,6 +36,7 @@
                 </a>
                 <a href="#messages" data-tab="messages" aria-controls="messages">
                     <span class="nav-icon" aria-hidden="true">◉</span> <span>Mes échanges</span>
+                    <span id="client-chat-unread" class="client-chat-unread" aria-label="Messages non lus" hidden></span>
                 </a>
                 <a href="#demandes" data-tab="demandes" aria-controls="demandes">
                     <span class="nav-icon" aria-hidden="true">◇</span> <span>Mes demandes</span>
@@ -468,17 +469,36 @@
                     <h2 id="titre-messages">Mes échanges</h2>
                     <span class="pill">Messagerie sécurisée</span>
                 </div>
-                <article class="panel">
+                <article class="panel client-chat" id="client-chat"
+                    data-messages-url="{{ url_for('messaging.client_get_messages') }}"
+                    data-send-url="{{ url_for('messaging.client_send_message') }}"
+                    data-read-url="{{ url_for('messaging.client_read_messages') }}"
+                    data-unread-url="{{ url_for('messaging.client_unread_messages') }}">
+                    <header class="client-chat-header">
+                        <span class="client-chat-avatar" aria-hidden="true">D</span>
+                        <div>
+                            <strong>Cabinet DATENSIS</strong>
+                            <p id="client-chat-connection" role="status">Messagerie classique disponible</p>
+                        </div>
+                    </header>
+                    <div id="client-chat-error" role="alert" hidden></div>
+                    <button type="button" id="client-chat-retry" hidden>Réessayer</button>
                     <h3>Conversation avec votre cabinet</h3>
-                        <p class="chat-summary">{{ message_count }} message(s) chargé(s) dans cet historique.</p>
+                        <p class="chat-summary" id="client-chat-summary">{{ message_count }} message(s) chargé(s) dans cet historique.</p>
                     <p>
                         Échangez directement avec votre interlocuteur
                         DATENSIS.
                     </p>
+                    <button type="button" id="client-chat-older" hidden>
+                        Charger les messages précédents
+                    </button>
                     <div
+                        id="client-chat-history"
                         class="chat-history"
                         tabindex="0"
                         role="log"
+                        aria-live="polite"
+                        aria-relevant="additions"
                         aria-label="Historique de conversation"
                     >
                         {% for msg in messages %}
@@ -492,6 +512,9 @@
                                     · {{ msg.created_at }}
                                 </small>
                                 <p>{{ msg.body }}</p>
+                                {% if msg.author_role == 'client' and msg.read_at is defined %}
+                                    <small class="client-chat-receipt">{{ 'Lu' if msg.read_at else 'Envoyé' }}</small>
+                                {% endif %}
                             </div>
                         {% else %}
                             <p>
@@ -500,7 +523,7 @@
                             </p>
                         {% endfor %}
                     </div>
-                    <form method="post" action="{{ url_for('client_message') }}" class="stack-form">
+                    <form id="client-chat-form" method="post" action="{{ url_for('client_message') }}" class="stack-form">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <label for="message-body">
                             Votre message
@@ -516,10 +539,12 @@
                         </label>
                         <small id="message-help">2 000 caractères maximum. Précisez votre besoin et la période concernée.</small>
                         <output id="message-counter" for="message-body" hidden aria-live="off"></output>
-                        <button type="submit" class="primary">
+                        <button type="submit" class="primary" id="client-chat-send">
                             Envoyer au cabinet →
                         </button>
                     </form>
+                    <p id="client-chat-send-status" role="status"></p>
+                    <noscript><p>Le formulaire classique reste disponible. Activez JavaScript pour actualiser la conversation automatiquement.</p></noscript>
                 </article>
                 <article class="panel settings-secondary client-module-card">
                     <h3>Synthèse de la conversation</h3>
@@ -528,14 +553,14 @@
                             <strong>Messages envoyés</strong>
                             <small>Dans les messages chargés</small>
                         </div>
-                        <span class="status">{{ client_messages | length }}</span>
+                        <span class="status" id="client-chat-sent-count">{{ client_messages | length }}</span>
                     </div>
                     <div class="record">
                         <div>
                             <strong>Messages reçus</strong>
                             <small>Dans les messages chargés</small>
                         </div>
-                        <span class="status">{{ cabinet_messages | length }}</span>
+                        <span class="status" id="client-chat-received-count">{{ cabinet_messages | length }}</span>
                     </div>
                 </article>
                 <article class="panel settings-secondary client-module-card">

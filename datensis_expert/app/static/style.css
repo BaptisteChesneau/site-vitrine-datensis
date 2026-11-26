@@ -6254,3 +6254,252 @@ body.twofa-page {
         width: auto !important;
     }
 }
+
+/* ==========================================================
+   DATENSIS EXPERT - MESSAGERIE CLIENT / CABINET
+   ========================================================== */
+#client-chat, #cabinet-chat, #cabinet-chat-form {
+    --chat-bg: #f0f7f7;
+    --chat-surface: #fff;
+    --chat-text: #173e4a;
+    --chat-muted: #486775;
+    --chat-line: #c8dedc;
+    --chat-accent: #00778b;
+    --chat-incoming: #fff;
+    --chat-selected: #e0f3ed;
+    --chat-error-bg: #fff0ed;
+    --chat-error-text: #923529;
+    min-width: 0;
+    color: var(--chat-text);
+}
+.client-workspace[data-theme="dark"] #client-chat,
+.cabinet-workspace[data-theme="dark"] :is(#cabinet-chat, #cabinet-chat-form) {
+    --chat-bg: #102b37;
+    --chat-surface: #173947;
+    --chat-text: #f1faf9;
+    --chat-muted: #b6d2d8;
+    --chat-line: #365a67;
+    --chat-incoming: #214655;
+    --chat-selected: #23574f;
+    --chat-error-bg: #512e32;
+    --chat-error-text: #ffd4cb;
+}
+:is(#client-chat, #cabinet-chat) {
+    background: var(--chat-surface);
+    border: 1px solid var(--chat-line);
+    border-radius: 18px;
+    padding: clamp(14px, 2vw, 24px);
+}
+:is(#client-chat, #cabinet-chat) :is(h3, h4, strong, label) { color: var(--chat-text); }
+:is(#client-chat, #cabinet-chat) [hidden], #client-chat-unread[hidden] { display: none !important; }
+.client-chat-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--chat-line);
+}
+.client-chat-avatar {
+    display: grid;
+    place-items: center;
+    flex: 0 0 48px;
+    height: 48px;
+    border-radius: 15px;
+    background: #00778b;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 800;
+}
+.client-chat-header strong { font-size: 17px; }
+#client-chat-connection, #cabinet-chat-connection,
+#client-chat-summary, #cabinet-chat-summary, #cabinet-chat-empty,
+#client-chat-send-status, #client-chat #message-help,
+#client-chat #message-counter, #cabinet-chat-form .char-counter {
+    color: var(--chat-muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 6px 0;
+}
+:is(#client-chat-error, #cabinet-chat-error) {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--chat-error-bg);
+    color: var(--chat-error-text);
+    overflow-wrap: anywhere;
+    margin: 10px 0;
+}
+:is(#client-chat-retry, #cabinet-chat-retry, #client-chat-older, #cabinet-chat-older) {
+    background: var(--chat-surface);
+    color: var(--chat-text);
+    border: 1px solid var(--chat-line);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-height: 40px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    margin: 8px 0;
+}
+:is(#client-chat-retry, #cabinet-chat-retry, #client-chat-older, #cabinet-chat-older):hover {
+    background: var(--chat-selected);
+}
+:is(#client-chat-history, #cabinet-chat-history) {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 14px;
+    height: clamp(280px, 48vh, 560px);
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    background: var(--chat-bg);
+    border: 1px solid var(--chat-line);
+    border-radius: 14px;
+    padding: clamp(12px, 2vw, 20px);
+    margin: 12px 0;
+}
+:is(#client-chat-history, #cabinet-chat-history) .chat-bubble {
+    flex: 0 0 auto;
+    align-self: flex-start;
+    width: fit-content;
+    max-width: min(82%, 680px);
+    min-width: 0;
+    margin: 0;
+    padding: 12px 15px;
+    border: 1px solid var(--chat-line);
+    border-radius: 4px 16px 16px 16px;
+    background: var(--chat-incoming);
+    color: var(--chat-text);
+    box-shadow: 0 2px 5px #00000008;
+    overflow-wrap: anywhere;
+}
+:is(#client-chat-history, #cabinet-chat-history) .chat-bubble.mine {
+    align-self: flex-end;
+    background: #00778b;
+    border-color: #00778b;
+    border-radius: 16px 4px 16px 16px;
+    color: #fff;
+}
+:is(#client-chat-history, #cabinet-chat-history) .chat-bubble p {
+    color: inherit;
+    margin: 6px 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.6;
+    font-size: 14px;
+}
+:is(#client-chat-history, #cabinet-chat-history) .chat-bubble small {
+    display: block;
+    color: var(--chat-muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+:is(#client-chat-history, #cabinet-chat-history) .chat-bubble.mine small { color: #fff; }
+:is(#client-chat-history, #cabinet-chat-history) :is(.client-chat-receipt, .chat-receipt) {
+    text-align: right;
+    font-weight: 600;
+}
+:is(#client-chat-history, #cabinet-chat-history) > p {
+    color: var(--chat-muted);
+    text-align: center;
+    margin: auto 0;
+}
+#client-chat-unread, #cabinet-chat-unread, #cabinet-chat [data-chat-unread] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 23px;
+    min-height: 23px;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: #b8402e;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    flex: 0 0 auto;
+}
+#client-chat-unread { margin-left: auto; }
+#cabinet-chat .cabinet-chat-layout {
+    display: grid;
+    grid-template-columns: minmax(200px, 0.85fr) minmax(0, 1.65fr);
+    gap: 18px;
+    margin: 16px 0 0;
+}
+#cabinet-chat .cabinet-chat-sidebar {
+    min-width: 0;
+    border: 1px solid var(--chat-line);
+    border-radius: 14px;
+    background: var(--chat-bg);
+    padding: 12px;
+}
+#cabinet-chat .cabinet-chat-conversation { min-width: 0; }
+#cabinet-chat-clients {
+    max-height: 490px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+#cabinet-chat-clients .cabinet-record { padding: 4px 0; border: 0; }
+#cabinet-chat .cabinet-chat-contact {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    padding: 11px;
+    border: 1px solid var(--chat-line);
+    border-radius: 12px;
+    background: var(--chat-surface);
+    color: var(--chat-text);
+}
+#cabinet-chat .cabinet-chat-contact > span:nth-child(2) { flex: 1; min-width: 0; }
+#cabinet-chat .cabinet-chat-contact :is(strong, small) { display: block; overflow-wrap: anywhere; }
+#cabinet-chat .cabinet-chat-contact small { color: var(--chat-muted); font-size: 11px; }
+#cabinet-chat .cabinet-chat-contact:is(:hover, .active, .is-active, [aria-current="true"], [aria-pressed="true"]) {
+    background: var(--chat-selected);
+    border-color: #00778b;
+    box-shadow: inset 3px 0 #00778b;
+}
+#cabinet-chat .client-avatar { background: #d9eee8; color: #075d6d; }
+#client-chat-form, #cabinet-chat-form { gap: 10px; }
+:is(#client-chat-form, #cabinet-chat-form) :is(textarea, select), #cabinet-chat-search {
+    width: 100%;
+    max-width: 100%;
+    background: var(--chat-surface);
+    color: var(--chat-text);
+    border: 1px solid var(--chat-line);
+    border-radius: 12px;
+    padding: 12px;
+    font: inherit;
+}
+:is(#client-chat-form, #cabinet-chat-form) textarea { min-height: 100px; resize: vertical; }
+:is(#client-chat-form, #cabinet-chat-form) textarea::placeholder, #cabinet-chat-search::placeholder { color: var(--chat-muted); opacity: 1; }
+:is(#client-chat-form, #cabinet-chat-form) button[type="submit"] {
+    background: #b8402e;
+    color: #fff;
+    border: 0;
+    border-radius: 11px;
+    min-height: 44px;
+    padding: 12px 20px;
+    font-weight: 700;
+    cursor: pointer;
+}
+:is(#client-chat-form, #cabinet-chat-form) button[type="submit"]:hover:not(:disabled) { background: #983423; }
+:is(#client-chat, #cabinet-chat, #cabinet-chat-form) button:disabled { opacity: .55; cursor: not-allowed; }
+:is(#client-chat, #cabinet-chat, #cabinet-chat-form) :focus-visible { outline: 3px solid #00778b; outline-offset: 3px; }
+@media (max-width: 850px) {
+    #cabinet-chat .cabinet-chat-layout { grid-template-columns: minmax(0, 1fr); }
+    #cabinet-chat-clients { max-height: 250px; }
+}
+@media (max-width: 480px) {
+    :is(#client-chat-history, #cabinet-chat-history) .chat-bubble { max-width: 92%; }
+    :is(#client-chat-form, #cabinet-chat-form) button[type="submit"] { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    :is(#client-chat, #cabinet-chat, #cabinet-chat-form) * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
