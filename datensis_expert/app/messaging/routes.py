@@ -5,8 +5,7 @@ from functools import wraps
 
 from flask import jsonify, request, session
 
-from app import database
-
+from .. import database
 from . import messaging_bp
 from .services import (
     DEFAULT_PAGE_SIZE,

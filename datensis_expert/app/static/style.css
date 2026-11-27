@@ -6273,13 +6273,13 @@ body.twofa-page {
     color: var(--chat-text);
 }
 .client-workspace[data-theme="dark"] #client-chat,
-.cabinet-workspace[data-theme="dark"] :is(#cabinet-chat, #cabinet-chat-form) {
-    --chat-bg: #102b37;
-    --chat-surface: #173947;
+.cabinet-workspace :is(#cabinet-chat, #cabinet-chat-form) {
+    --chat-bg: #101827;
+    --chat-surface: #151d2e;
     --chat-text: #f1faf9;
     --chat-muted: #b6d2d8;
     --chat-line: #365a67;
-    --chat-incoming: #214655;
+    --chat-incoming: #233247;
     --chat-selected: #23574f;
     --chat-error-bg: #512e32;
     --chat-error-text: #ffd4cb;
@@ -6465,7 +6465,7 @@ body.twofa-page {
     border-color: #00778b;
     box-shadow: inset 3px 0 #00778b;
 }
-#cabinet-chat .client-avatar { background: #d9eee8; color: #075d6d; }
+#cabinet-chat .client-avatar { background: #00778b; color: #fff; }
 #client-chat-form, #cabinet-chat-form { gap: 10px; }
 :is(#client-chat-form, #cabinet-chat-form) :is(textarea, select), #cabinet-chat-search {
     width: 100%;
@@ -6503,3 +6503,30 @@ body.twofa-page {
 @media (prefers-reduced-motion: reduce) {
     :is(#client-chat, #cabinet-chat, #cabinet-chat-form) * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Messagerie cabinet : contraste et actions du theme sombre. */
+.cabinet-workspace #cabinet-chat .cabinet-chat-contact strong {
+    color: var(--chat-text);
+}
+.cabinet-workspace #cabinet-chat .cabinet-chat-contact:is(:hover, .active, .is-active, [aria-current="true"], [aria-pressed="true"]) {
+    border-color: #82c4a8;
+    box-shadow: inset 3px 0 #82c4a8;
+}
+.cabinet-workspace #cabinet-chat-title { color: #82c4a8; }
+.cabinet-workspace #cabinet-chat-search,
+.cabinet-workspace #cabinet-chat-form :is(textarea, select) {
+    background: #202c40;
+    color: var(--chat-text);
+    color-scheme: dark;
+}
+.cabinet-workspace #cabinet-chat-form button[type="submit"] {
+    background: #e96148;
+    color: #101827;
+}
+.cabinet-workspace #cabinet-chat-form button[type="submit"]:hover:not(:disabled) {
+    background: #f47b64;
+}
+.cabinet-workspace :is(#cabinet-chat, #cabinet-chat-form) :focus-visible {
+    outline-color: #82c4a8;
+}
+.cabinet-workspace #cabinet-chat-unread[hidden] { display: none !important; }

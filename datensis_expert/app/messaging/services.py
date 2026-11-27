@@ -2,7 +2,7 @@
 
 import sqlite3
 
-from app import protect, reveal, utc_now
+from .. import protect, reveal, utc_now
 
 MAX_MESSAGE_LENGTH = 2000
 DEFAULT_PAGE_SIZE = 50

@@ -2324,8 +2324,8 @@ def create_app():
     # MODULE DE MESSAGERIE
     # =====================================================
 
-    from app.messaging import messaging_bp
-    from app.messaging.migration import migrate_messages
+    from .messaging import messaging_bp
+    from .messaging.migration import migrate_messages
 
     with app.app_context():
         db = database()
